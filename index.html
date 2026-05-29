@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>台灣電力即時監控系統</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+
+    <meta name="description" content="台灣電力即時監控系統，整合台電開放資料，顯示用電量、備轉容量率、能源結構與機組狀態。">
+    <meta name="keywords" content="台灣電力, 台電, 即時用電, 備轉容量率, 能源結構, 開放資料">
+    <meta name="author" content="Jiaquan">
+    <meta property="og:title" content="台灣電力即時監控系統">
+    <meta property="og:description" content="以台電開放資料呈現台灣即時供電、發電結構與機組狀態。">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="zh_TW">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%232563eb'/%3E%3Cpath d='M36 4 14 36h16l-3 24 23-34H34z' fill='%23facc15'/%3E%3C/svg%3E">
+</head>
+<body>
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-container" role="status" aria-live="polite">
+            <div class="power-loader" aria-hidden="true">
+                <i class="bi bi-lightning-charge-fill"></i>
+            </div>
+            <h2>載入中...</h2>
+            <p>正在取得台電最新開放資料</p>
+        </div>
+    </div>
+
+    <div id="main-container" class="main-container hidden">
+        <header class="header-section">
+            <div class="container">
+                <div class="title-container">
+                    <h1 class="main-title">
+                        <i class="bi bi-lightning-charge-fill power-icon" aria-hidden="true"></i>
+                        台灣電力即時監控系統
+                    </h1>
+                    <p class="subtitle">Taiwan Real-time Power Dashboard</p>
+                    <div class="update-info">
+                        <i class="bi bi-clock" aria-hidden="true"></i>
+                        <span>最後更新：</span>
+                        <span id="last-update-time">--</span>
+                        <button id="refresh-btn" class="refresh-btn" type="button" aria-label="立即更新" title="立即更新">
+                            <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="status-hero" aria-label="今日供電狀態">
+                    <div class="health-block">
+                        <i id="health-icon" class="bi bi-activity" aria-hidden="true"></i>
+                        <div>
+                            <p class="eyebrow">今日供電狀態</p>
+                            <h2 id="health-label">--</h2>
+                            <p id="health-detail">--</p>
+                        </div>
+                    </div>
+                    <div class="reserve-block">
+                        <div class="reserve-block__header">
+                            <span>尖峰備轉容量率</span>
+                            <strong id="reserve-meter-value">--</strong>
+                        </div>
+                        <div class="reserve-meter" aria-hidden="true">
+                            <span id="reserve-meter-fill"></span>
+                        </div>
+                        <p>預估尖峰時段 <strong id="peak-range">--</strong></p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <section class="notice-section">
+                <div class="container">
+                    <div id="notice-banner" class="notice-banner">
+                        <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
+                        <span>資料狀態確認中</span>
+                    </div>
+                    <p class="source-line">
+                        <span>目前資料流：</span>
+                        <strong id="source-status">--</strong>
+                    </p>
+                </div>
+            </section>
+
+            <section class="stats-section" aria-labelledby="stats-title">
+                <div class="container">
+                    <div class="section-header">
+                        <h2 id="stats-title">
+                            <i class="bi bi-speedometer2" aria-hidden="true"></i>
+                            電力供需總覽
+                        </h2>
+                        <p>即時負載、備轉容量與能源結構核心指標</p>
+                    </div>
+                    <div id="stats-grid" class="stats-grid"></div>
+                </div>
+            </section>
+
+            <section class="overview-section" aria-labelledby="mix-title">
+                <div class="container">
+                    <div class="section-header">
+                        <h2 id="mix-title">
+                            <i class="bi bi-pie-chart-fill" aria-hidden="true"></i>
+                            發電結構
+                        </h2>
+                        <p>依台電機組即時淨發電量彙整</p>
+                    </div>
+                    <div class="chart-grid">
+                        <div class="chart-container chart-container--donut">
+                            <div class="chart-title">
+                                <h3>燃料別占比</h3>
+                                <p>正輸出類別占比</p>
+                            </div>
+                            <canvas id="fuel-mix-chart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-title">
+                                <h3>類別輸出排行</h3>
+                                <p>目前淨發電量 MW</p>
+                            </div>
+                            <canvas id="category-bar-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="categories-section" aria-labelledby="categories-title">
+                <div class="container">
+                    <div class="section-header">
+                        <h2 id="categories-title">
+                            <i class="bi bi-grid-3x3-gap-fill" aria-hidden="true"></i>
+                            能源類別詳情
+                        </h2>
+                        <p>每個類別的輸出、容量、機組數與占比</p>
+                    </div>
+                    <div id="category-grid" class="category-grid"></div>
+                </div>
+            </section>
+
+            <section class="plants-section" aria-labelledby="plants-title">
+                <div class="container">
+                    <div class="section-header">
+                        <h2 id="plants-title">
+                            <i class="bi bi-buildings-fill" aria-hidden="true"></i>
+                            機組觀察
+                        </h2>
+                        <p>目前主要輸出機組與帶有檢修、限制、降載備註的項目</p>
+                    </div>
+                    <div class="plants-layout">
+                        <div class="table-panel">
+                            <div class="panel-heading">
+                                <h3>即時輸出前 8 名</h3>
+                                <p>依淨發電量排序</p>
+                            </div>
+                            <div class="table-scroll">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">#</th>
+                                            <th scope="col">機組</th>
+                                            <th scope="col">類型</th>
+                                            <th scope="col">輸出</th>
+                                            <th scope="col">容量比</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="top-units-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="alerts-panel">
+                            <div class="panel-heading">
+                                <h3>限制與檢修備註</h3>
+                                <p>依官方備註列出需留意機組</p>
+                            </div>
+                            <div id="constrained-units" class="alerts-grid"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer-section">
+            <div class="container">
+                <div class="footer-content">
+                    <div>
+                        <h2>台灣電力即時監控系統</h2>
+                        <p>Taiwan Real-time Power Dashboard</p>
+                        <p>資料每 10 分鐘更新一次，實際供電狀況以台電公告為準。</p>
+                    </div>
+                    <div>
+                        <h3>資料來源</h3>
+                        <ul>
+                            <li><a href="https://data.gov.tw/en/datasets/162595" target="_blank" rel="noopener">台電今日供需狀況</a></li>
+                            <li><a href="https://data.gov.tw/en/datasets/8931" target="_blank" rel="noopener">台電各機組即時發電量</a></li>
+                            <li><a href="https://www.taipower.com.tw/" target="_blank" rel="noopener">台灣電力公司</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>技術資訊</h3>
+                        <p>HTML5 + CSS3 + JavaScript ES Modules</p>
+                        <p>Chart.js / Bootstrap Icons / Node same-origin proxy</p>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>MIT License</p>
+                    <p>Built for public-data monitoring and portfolio review.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <button id="scroll-to-top" class="scroll-to-top" type="button" aria-label="回到頁首" title="回到頁首">
+        <i class="bi bi-chevron-up" aria-hidden="true"></i>
+    </button>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
