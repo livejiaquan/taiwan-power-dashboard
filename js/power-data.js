@@ -135,6 +135,20 @@ const RESERVE_STATUS = [
   }
 ];
 
+const RESERVE_RANGES = [
+  { label: '警戒', start: 0, end: 6, color: '#dc2626' },
+  { label: '吃緊', start: 6, end: 10, color: '#ea580c' },
+  { label: '偏緊', start: 10, end: 15, color: '#d97706' },
+  { label: '充裕', start: 15, end: 30, color: '#059669' }
+];
+
+const RESERVE_DESCRIPTIONS = {
+  stable: '高於 15% 代表供電緩衝充足，尖峰時段仍有較多可調度容量。',
+  watch: '介於 10% 到 15%，供電仍可用但緩衝變薄，尖峰時段要留意。',
+  caution: '介於 6% 到 10%，供電偏緊，任何機組或需求變化都更敏感。',
+  alert: '備轉容量已低於 6%，需留意官方供電警訊。'
+};
+
 export function parseNumber(value) {
   if (typeof value === 'number') {
     return Number.isFinite(value) ? value : null;
@@ -284,6 +298,24 @@ export function getReserveHealth(ratePercent) {
   return RESERVE_STATUS.find((status) => ratePercent >= status.minRate) || RESERVE_STATUS.at(-1);
 }
 
+export function getReserveGuide(ratePercent) {
+  const normalizedRate = Number.isFinite(ratePercent) ? ratePercent : 0;
+  const health = getReserveHealth(normalizedRate);
+  const distanceFromStableLinePercent = round(normalizedRate - 15, 2);
+  const markerPercent = round(Math.min(100, Math.max(0, (normalizedRate / 30) * 100)), 2);
+  const direction = distanceFromStableLinePercent >= 0 ? '高於' : '低於';
+
+  return {
+    level: health.level,
+    labelZh: health.labelZh,
+    markerPercent,
+    distanceFromStableLinePercent,
+    summary: `${direction}供電充裕線 ${Math.abs(distanceFromStableLinePercent).toFixed(1)} 個百分點`,
+    description: RESERVE_DESCRIPTIONS[health.level],
+    ranges: RESERVE_RANGES
+  };
+}
+
 export function buildDashboardModel({ supplyPayload, generationPayload, fetchedAt = new Date(), source = 'live' }) {
   const supply = normalizeSupplyPayload(supplyPayload);
   const generation = summarizeGenerationUnits(generationPayload);
@@ -302,6 +334,7 @@ export function buildDashboardModel({ supplyPayload, generationPayload, fetchedA
     fetchedAt: new Date(fetchedAt),
     updatedAt,
     health: getReserveHealth(supply.forecastReserveRatePercent),
+    reserveGuide: getReserveGuide(supply.forecastReserveRatePercent),
     supply,
     generation,
     categories: generation.categories,

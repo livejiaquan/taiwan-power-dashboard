@@ -64,3 +64,15 @@ taiwan-power-dashboard/
 ## Notes
 
 The dashboard uses a small local Node proxy at `/api/power-data` because Taipower's official JSON endpoints are public but do not consistently expose browser-friendly CORS headers. If the proxy and direct fetch both fail, the app falls back to a recent browser cache or sample data and shows a visible degraded-data notice.
+
+## GitHub Pages
+
+This repository includes a GitHub Actions workflow at `.github/workflows/pages.yml`.
+On push to `main`, on manual dispatch, and on a 10-minute schedule, the workflow:
+
+1. runs the Node test suite;
+2. fetches the latest Taipower JSON from GitHub Actions;
+3. writes a static `api/power-data.json` snapshot into the Pages artifact;
+4. deploys the static site to GitHub Pages.
+
+The browser tries `api/power-data.json` first so GitHub Pages can serve current data without a Node proxy. Local development still falls back to the same-origin Node proxy at `/api/power-data`.

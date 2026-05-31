@@ -63,14 +63,44 @@
                         </div>
                     </div>
                     <div class="reserve-block">
-                        <div class="reserve-block__header">
-                            <span>尖峰備轉容量率</span>
-                            <strong id="reserve-meter-value">--</strong>
+                        <div class="reserve-block__topline">
+                            <div>
+                                <p class="eyebrow">尖峰備轉容量率</p>
+                                <div class="reserve-block__value-row">
+                                    <strong id="reserve-meter-value">--</strong>
+                                    <span id="reserve-level-badge" class="reserve-level-badge">--</span>
+                                </div>
+                            </div>
+                            <p id="reserve-summary" class="reserve-summary">--</p>
                         </div>
-                        <div class="reserve-meter" aria-hidden="true">
-                            <span id="reserve-meter-fill"></span>
+
+                        <div class="reserve-insight">
+                            <ul id="reserve-tier-list" class="reserve-tier-list" aria-label="備轉容量率分級說明">
+                                <li class="reserve-tier" data-level="alert">
+                                    <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+                                    <span><strong>警戒</strong><em>&lt; 6%</em></span>
+                                </li>
+                                <li class="reserve-tier" data-level="caution">
+                                    <i class="bi bi-exclamation-circle-fill" aria-hidden="true"></i>
+                                    <span><strong>吃緊</strong><em>6-10%</em></span>
+                                </li>
+                                <li class="reserve-tier" data-level="watch">
+                                    <i class="bi bi-eye-fill" aria-hidden="true"></i>
+                                    <span><strong>偏緊</strong><em>10-15%</em></span>
+                                </li>
+                                <li class="reserve-tier" data-level="stable">
+                                    <i class="bi bi-shield-check" aria-hidden="true"></i>
+                                    <span><strong>充裕</strong><em>15% 以上</em></span>
+                                </li>
+                            </ul>
                         </div>
-                        <p>預估尖峰時段 <strong id="peak-range">--</strong></p>
+
+                        <p id="reserve-description" class="reserve-description">--</p>
+                        <div class="reserve-context">
+                            <span>尖峰時段 <strong id="peak-range">--</strong></span>
+                            <span>備轉容量 <strong id="reserve-capacity">--</strong></span>
+                            <span>尖峰需求 <strong id="peak-demand">--</strong></span>
+                        </div>
                     </div>
                 </div>
             </div>

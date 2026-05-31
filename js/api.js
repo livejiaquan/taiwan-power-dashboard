@@ -1,6 +1,7 @@
 import {
   buildDashboardModel,
   GENERATION_ENDPOINT,
+  getReserveGuide,
   SUPPLY_ENDPOINT
 } from './power-data.js';
 import { sampleGenerationPayload, sampleSupplyPayload } from '../data/sample-power-data.js';
@@ -9,10 +10,16 @@ const CACHE_KEY = 'taiwan_power_dashboard_cache';
 const CACHE_TTL_MS = 10 * 60 * 1000;
 const STALE_TTL_MS = 24 * 60 * 60 * 1000;
 
-function reviveModel(model) {
+export function buildSameOriginDataUrls(force = false) {
+  const suffix = force ? '?force=1' : '';
+  return [`api/power-data.json${suffix}`, `/api/power-data${suffix}`];
+}
+
+export function reviveModel(model) {
   if (!model) return null;
   return {
     ...model,
+    reserveGuide: model.reserveGuide || getReserveGuide(model.metrics?.forecastReserveRatePercent),
     fetchedAt: model.fetchedAt ? new Date(model.fetchedAt) : new Date(),
     updatedAt: model.updatedAt ? new Date(model.updatedAt) : new Date()
   };
@@ -67,12 +74,7 @@ async function fetchJson(url) {
   return response.json();
 }
 
-async function fetchViaProxy(force) {
-  if (window.location.protocol === 'file:') {
-    throw new Error('同源 API 不適用於 file://');
-  }
-
-  const url = force ? '/api/power-data?force=1' : '/api/power-data';
+async function fetchSameOriginUrl(url) {
   const response = await fetch(url, { cache: 'no-store' });
 
   if (!response.ok) {
@@ -84,11 +86,31 @@ async function fetchViaProxy(force) {
     throw new Error('同源 API 缺少 model');
   }
 
+  const isStaticSnapshot = payload.model.source === 'taipower-static' || payload.generatedFor === 'github-pages';
+
   return {
     model: reviveModel(payload.model),
-    transport: payload.cache?.hit ? 'proxy-cache' : 'proxy-live',
+    transport: isStaticSnapshot ? 'static-snapshot' : payload.cache?.hit ? 'proxy-cache' : 'proxy-live',
     metadata: payload
   };
+}
+
+async function fetchViaSameOrigin(force) {
+  let lastError = null;
+
+  for (const url of buildSameOriginDataUrls(force)) {
+    if (window.location.protocol === 'file:' && url.startsWith('/')) {
+      continue;
+    }
+
+    try {
+      return await fetchSameOriginUrl(url);
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError || new Error('同源資料來源不可用');
 }
 
 async function fetchDirectFromTaipower() {
@@ -153,7 +175,7 @@ export class PowerAPI extends EventTarget {
     }
 
     try {
-      const result = await fetchViaProxy(force);
+      const result = await fetchViaSameOrigin(force);
       writeCache(result.model, result.metadata);
       this.dispatchEvent(new CustomEvent('fetchSuccess', { detail: result }));
       return result;

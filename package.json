@@ -4,6 +4,7 @@
   "description": "Taiwan real-time power dashboard using Taipower open data.",
   "type": "module",
   "scripts": {
+    "build:static-data": "node scripts/build-static-data.js",
     "start": "node server.js",
     "test": "node --test tests/*.test.js"
   },

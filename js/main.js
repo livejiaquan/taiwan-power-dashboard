@@ -1,5 +1,6 @@
 import { powerAPI } from './api.js';
 import { chartManager } from './charts.js';
+import { escapeHtml } from './sanitize.js';
 
 const autoRefreshMs = 10 * 60 * 1000;
 
@@ -13,8 +14,14 @@ const elements = {
   healthIcon: document.getElementById('health-icon'),
   healthLabel: document.getElementById('health-label'),
   healthDetail: document.getElementById('health-detail'),
-  reserveMeterFill: document.getElementById('reserve-meter-fill'),
+  reserveBlock: document.querySelector('.reserve-block'),
   reserveMeterValue: document.getElementById('reserve-meter-value'),
+  reserveLevelBadge: document.getElementById('reserve-level-badge'),
+  reserveSummary: document.getElementById('reserve-summary'),
+  reserveDescription: document.getElementById('reserve-description'),
+  reserveCapacity: document.getElementById('reserve-capacity'),
+  peakDemand: document.getElementById('peak-demand'),
+  reserveTierItems: document.querySelectorAll('.reserve-tier'),
   peakRange: document.getElementById('peak-range'),
   statsGrid: document.getElementById('stats-grid'),
   categoryGrid: document.getElementById('category-grid'),
@@ -77,6 +84,7 @@ function renderNotice(result) {
   const sourceText = {
     'proxy-live': '台電官方資料 / 同源 API',
     'proxy-cache': '台電官方資料 / 伺服器快取',
+    'static-snapshot': '台電官方資料 / GitHub Pages 靜態快照',
     'browser-cache': '台電官方資料 / 瀏覽器快取',
     'stale-browser-cache': '暫用瀏覽器舊資料',
     'direct-live': '台電官方資料 / 直接連線',
@@ -90,7 +98,7 @@ function renderNotice(result) {
     elements.noticeBanner.classList.add('notice-banner--warning');
     elements.noticeBanner.innerHTML = `
       <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
-      <span>${metadata.reason || '目前顯示降級資料，請稍後重新整理。'}</span>
+      <span>${escapeHtml(metadata.reason || '目前顯示降級資料，請稍後重新整理。')}</span>
     `;
   } else {
     elements.noticeBanner.classList.add('notice-banner--success');
@@ -102,17 +110,26 @@ function renderNotice(result) {
 }
 
 function renderHero(model) {
-  const { health, metrics, supply } = model;
-  const reserveWidth = Math.min(100, Math.max(0, (metrics.forecastReserveRatePercent / 30) * 100));
+  const { health, metrics, reserveGuide, supply } = model;
 
   elements.healthIcon.className = `bi ${health.icon}`;
   elements.healthIcon.style.color = health.color;
   elements.healthLabel.textContent = health.labelZh;
   elements.healthDetail.textContent = `今日尖峰備轉容量率 ${formatPercent(metrics.forecastReserveRatePercent)}，預估尖峰 ${supply.forecastPeakHourRange}`;
-  elements.reserveMeterFill.style.width = `${reserveWidth}%`;
-  elements.reserveMeterFill.style.background = health.color;
   elements.reserveMeterValue.textContent = formatPercent(metrics.forecastReserveRatePercent);
+  elements.reserveBlock.style.setProperty('--reserve-color', health.color);
+  elements.reserveBlock.dataset.level = reserveGuide.level;
+  elements.reserveLevelBadge.textContent = reserveGuide.labelZh;
+  elements.reserveLevelBadge.style.color = health.color;
+  elements.reserveLevelBadge.style.borderColor = health.color;
+  elements.reserveSummary.textContent = reserveGuide.summary;
+  elements.reserveDescription.textContent = reserveGuide.description;
+  elements.reserveTierItems.forEach((item) => {
+    item.classList.toggle('is-active', item.dataset.level === reserveGuide.level);
+  });
   elements.peakRange.textContent = supply.forecastPeakHourRange;
+  elements.reserveCapacity.textContent = formatMw(metrics.forecastReserveCapacityMw);
+  elements.peakDemand.textContent = formatMw(metrics.forecastPeakDemandMw);
   elements.lastUpdateTime.textContent = formatDateTime(model.updatedAt);
 }
 
@@ -186,6 +203,7 @@ function renderCategories(model) {
     .map((category) => {
       const width = totalPositive ? Math.max(0, (category.netGenerationMw / totalPositive) * 100) : 0;
       const netClass = category.netGenerationMw < 0 ? 'category-card__value--negative' : '';
+      const label = escapeHtml(category.labelZh);
 
       return `
         <article class="category-card">
@@ -194,7 +212,7 @@ function renderCategories(model) {
               <i class="bi ${category.icon}" aria-hidden="true"></i>
             </span>
             <div>
-              <h3>${category.labelZh}</h3>
+              <h3>${label}</h3>
               <p>${category.activeUnitCount}/${category.unitCount} 組輸出</p>
             </div>
           </div>
@@ -218,9 +236,9 @@ function renderTables(model) {
       <tr>
         <td>${index + 1}</td>
         <td>
-          <span class="unit-type" style="--unit-color:${unit.color}">${unit.name}</span>
+          <span class="unit-type" style="--unit-color:${unit.color}">${escapeHtml(unit.name)}</span>
         </td>
-        <td>${unit.type}</td>
+        <td>${escapeHtml(unit.type)}</td>
         <td>${formatMw(unit.netGenerationMw)}</td>
         <td>${unit.utilizationPercent === null ? '--' : formatPercent(unit.utilizationPercent)}</td>
       </tr>
@@ -244,11 +262,11 @@ function renderTables(model) {
         <div class="alert-card__header">
           <i class="bi bi-tools" aria-hidden="true"></i>
           <div>
-            <h3>${unit.name}</h3>
-            <p>${unit.type}</p>
+            <h3>${escapeHtml(unit.name)}</h3>
+            <p>${escapeHtml(unit.type)}</p>
           </div>
         </div>
-        <p class="alert-card__note">${unit.note}</p>
+        <p class="alert-card__note">${escapeHtml(unit.note)}</p>
         <div class="alert-card__meta">
           <span>${formatMw(unit.netGenerationMw)}</span>
           <span>容量 ${formatMw(unit.capacityMw)}</span>
