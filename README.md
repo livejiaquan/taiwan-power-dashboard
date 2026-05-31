@@ -72,7 +72,7 @@ On push to `main`, on manual dispatch, and on a 10-minute schedule, the workflow
 
 1. runs the Node test suite;
 2. fetches the latest Taipower JSON from GitHub Actions;
-3. writes a static `api/power-data.json` snapshot into the Pages artifact;
-4. deploys the static site to GitHub Pages.
+3. writes a static `api/power-data.json` snapshot into the static build;
+4. force-publishes the static build to the `gh-pages` branch.
 
 The browser tries `api/power-data.json` first so GitHub Pages can serve current data without a Node proxy. Local development still falls back to the same-origin Node proxy at `/api/power-data`.
