@@ -4,15 +4,27 @@ import {
   SUPPLY_ENDPOINT
 } from '../js/power-data.js';
 
-export function buildStaticDataPayload({ supplyPayload, generationPayload, generatedAt = new Date() }) {
+export function buildStaticDataPayload({
+  supplyPayload,
+  generationPayload,
+  generatedAt = new Date(),
+  source = 'taipower-static',
+  degradedReason = null
+}) {
   const generatedDate = new Date(generatedAt);
+  const metadata = degradedReason
+    ? {
+        degraded: true,
+        reason: degradedReason
+      }
+    : {};
 
   return {
     model: buildDashboardModel({
       supplyPayload,
       generationPayload,
       fetchedAt: generatedDate,
-      source: 'taipower-static'
+      source
     }),
     rawUpdatedAt: {
       supply: supplyPayload?.records?.[1]?.publish_time || null,
@@ -27,6 +39,8 @@ export function buildStaticDataPayload({ supplyPayload, generationPayload, gener
       storedAt: generatedDate.toISOString(),
       ttlSeconds: 10 * 60
     },
-    generatedFor: 'github-pages'
+    generatedFor: 'github-pages',
+    ...metadata,
+    metadata
   };
 }

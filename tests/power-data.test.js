@@ -188,3 +188,18 @@ test('builds a static GitHub Pages payload from Taipower data', () => {
   assert.equal(payload.cache.hit, false);
   assert.equal(payload.cache.storedAt, generatedAt.toISOString());
 });
+
+test('marks static payloads as degraded when generated from fallback data', () => {
+  const payload = buildStaticDataPayload({
+    supplyPayload,
+    generationPayload,
+    source: 'sample-static',
+    degradedReason: 'Taipower timeout'
+  });
+
+  assert.equal(payload.model.source, 'sample-static');
+  assert.equal(payload.degraded, true);
+  assert.equal(payload.reason, 'Taipower timeout');
+  assert.equal(payload.metadata.degraded, true);
+  assert.equal(payload.metadata.reason, 'Taipower timeout');
+});
