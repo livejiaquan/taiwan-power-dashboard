@@ -2,7 +2,7 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
-    padding: var(--spacing-md) var(--spacing-lg);
+    padding: var(--spacing-sm) var(--spacing-md);
     border: 1px solid var(--border-light);
     border-radius: var(--radius-lg);
     background: var(--bg-card);
@@ -23,7 +23,7 @@
 }
 
 .source-line {
-    margin-top: var(--spacing-sm);
+    margin-top: var(--spacing-xs);
     color: var(--text-secondary);
     font-size: var(--text-sm);
 }
@@ -145,6 +145,12 @@
     min-height: 460px;
 }
 
+.donut-chart-frame {
+    width: min(100%, 360px);
+    aspect-ratio: 1;
+    margin: 0 auto;
+}
+
 .chart-title {
     display: flex;
     justify-content: space-between;
@@ -170,6 +176,11 @@
 .chart-container canvas {
     width: 100% !important;
     height: 360px !important;
+}
+
+.chart-container--donut canvas {
+    width: 100% !important;
+    height: 100% !important;
 }
 
 .category-card {
@@ -435,6 +446,10 @@
     .chart-container canvas {
         height: 300px !important;
     }
+
+    .donut-chart-frame {
+        width: min(100%, 300px);
+    }
 }
 
 @media (max-width: 560px) {
@@ -459,6 +474,10 @@
 
     .chart-container canvas {
         height: 260px !important;
+    }
+
+    .donut-chart-frame {
+        width: min(100%, 260px);
     }
 
     .category-card__meta,

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>台灣電力即時監控系統</title>
+    <title>台灣電力即時看板</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,10 +14,10 @@
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/components.css">
 
-    <meta name="description" content="台灣電力即時監控系統，整合台電開放資料，顯示用電量、備轉容量率、能源結構與機組狀態。">
+    <meta name="description" content="台灣電力即時看板，整合台電開放資料，顯示用電量、備轉容量率、能源結構與機組狀態。">
     <meta name="keywords" content="台灣電力, 台電, 即時用電, 備轉容量率, 能源結構, 開放資料">
     <meta name="author" content="Jiaquan">
-    <meta property="og:title" content="台灣電力即時監控系統">
+    <meta property="og:title" content="台灣電力即時看板">
     <meta property="og:description" content="以台電開放資料呈現台灣即時供電、發電結構與機組狀態。">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="zh_TW">
@@ -37,70 +37,142 @@
     <div id="main-container" class="main-container hidden">
         <header class="header-section">
             <div class="container">
-                <div class="title-container">
-                    <h1 class="main-title">
-                        <i class="bi bi-lightning-charge-fill power-icon" aria-hidden="true"></i>
-                        台灣電力即時監控系統
-                    </h1>
-                    <p class="subtitle">Taiwan Real-time Power Dashboard</p>
-                    <div class="update-info">
-                        <i class="bi bi-clock" aria-hidden="true"></i>
-                        <span>最後更新：</span>
-                        <span id="last-update-time">--</span>
-                        <button id="refresh-btn" class="refresh-btn" type="button" aria-label="立即更新" title="立即更新">
-                            <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
-                        </button>
+                <div class="hero-map-visual" aria-hidden="true">
+                    <svg viewBox="0 0 520 300" focusable="false">
+                        <path class="map-glow" d="M334 19c35 14 49 39 46 77-2 28 17 45 31 66 20 30 14 64-19 78-26 12-54-2-82 12-32 16-72 45-103 25-31-21-5-63 10-88 19-33 18-63 22-99 4-42 49-88 95-71z" />
+                        <path class="map-main" d="M330 28c29 13 39 35 37 67-2 30 22 48 35 70 15 25 8 50-19 62-25 11-50-4-76 11-30 17-64 37-86 21-23-17 0-52 13-75 17-30 16-59 21-91 5-36 37-80 75-65z" />
+                        <path class="map-line" d="M253 103 331 28 366 95 308 238" />
+                        <path class="map-line" d="M234 184 402 165 367 95 255 93" />
+                        <path class="map-line" d="M221 259 308 238 383 227" />
+                        <g class="map-node">
+                            <circle cx="331" cy="28" r="4" />
+                            <circle cx="366" cy="95" r="4" />
+                            <circle cx="402" cy="165" r="4" />
+                            <circle cx="308" cy="238" r="4" />
+                            <circle cx="255" cy="93" r="4" />
+                            <circle cx="234" cy="184" r="4" />
+                        </g>
+                    </svg>
+                </div>
+
+                <div class="hero-topbar">
+                    <div class="title-container">
+                        <h1 class="main-title">
+                            <span class="brand-mark" aria-hidden="true">
+                                <i class="bi bi-lightning-charge-fill power-icon"></i>
+                            </span>
+                            台灣電力即時看板
+                        </h1>
+                        <p class="subtitle">Taiwan Real-time Power Dashboard</p>
+                    </div>
+
+                    <div class="hero-actions">
+                        <div class="update-info">
+                            <i class="bi bi-clock" aria-hidden="true"></i>
+                            <span>最後更新</span>
+                            <span id="last-update-time">--</span>
+                            <button id="refresh-btn" class="refresh-btn" type="button" aria-label="立即更新" title="立即更新">
+                                <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                        <p id="hero-data-status" class="hero-data-status">
+                            <span aria-hidden="true"></span>
+                            資料狀態確認中
+                        </p>
                     </div>
                 </div>
 
-                <div class="status-hero" aria-label="今日供電狀態">
-                    <div class="health-block">
-                        <i id="health-icon" class="bi bi-activity" aria-hidden="true"></i>
-                        <div>
-                            <p class="eyebrow">今日供電狀態</p>
-                            <h2 id="health-label">--</h2>
-                            <p id="health-detail">--</p>
-                        </div>
-                    </div>
-                    <div class="reserve-block">
-                        <div class="reserve-block__topline">
-                            <div>
-                                <p class="eyebrow">尖峰備轉容量率</p>
-                                <div class="reserve-block__value-row">
-                                    <strong id="reserve-meter-value">--</strong>
-                                    <span id="reserve-level-badge" class="reserve-level-badge">--</span>
+                <div class="status-hero" aria-label="今日供電狀態總覽">
+                    <section class="operations-panel" aria-labelledby="health-label">
+                        <div class="health-block">
+                            <div class="reserve-block">
+                                <div class="reserve-block__topline">
+                                    <div>
+                                        <p class="eyebrow">尖峰備轉容量率分級 <i class="bi bi-info-circle" tabindex="0" title="分級依據台電公告之尖峰備轉容量率區間：充裕 ≥15%、偏緊 10-15%、吃緊 6-10%、警戒 &lt;6%"></i></p>
+                                        <span id="reserve-level-badge" class="reserve-level-badge">--</span>
+                                    </div>
+                                    <span class="health-mode">REALTIME</span>
+                                </div>
+
+                                <div id="reserve-meter" class="reserve-meter reserve-meter--dial" role="meter" aria-label="尖峰備轉容量率分布">
+                                    <div class="reserve-gauge__labels" aria-hidden="true">
+                                        <span data-level="alert"><b>警戒</b><small>&lt; 6%</small></span>
+                                        <span data-level="caution"><b>吃緊</b><small>6-10%</small></span>
+                                        <span data-level="watch"><b>偏緊</b><small>10-15%</small></span>
+                                        <span data-level="stable"><b>充裕</b><small>15%+</small></span>
+                                    </div>
+                                    <div class="reserve-dial" aria-hidden="true">
+                                        <svg class="reserve-dial__svg" viewBox="0 0 360 210" focusable="false">
+                                            <path class="reserve-dial__base" pathLength="100" d="M42 168 A138 138 0 0 1 318 168" />
+                                            <path class="reserve-dial__segment reserve-dial__segment--alert" pathLength="100" d="M42 168 A138 138 0 0 1 318 168" />
+                                            <path class="reserve-dial__segment reserve-dial__segment--caution" pathLength="100" d="M42 168 A138 138 0 0 1 318 168" />
+                                            <path class="reserve-dial__segment reserve-dial__segment--watch" pathLength="100" d="M42 168 A138 138 0 0 1 318 168" />
+                                            <path class="reserve-dial__segment reserve-dial__segment--stable" pathLength="100" d="M42 168 A138 138 0 0 1 318 168" />
+                                        </svg>
+                                        <span class="reserve-dial__tick reserve-dial__tick--low">0%</span>
+                                        <span class="reserve-dial__tick reserve-dial__tick--mid">10%</span>
+                                        <span class="reserve-dial__tick reserve-dial__tick--high">20%+</span>
+                                        <span id="reserve-meter-marker" class="reserve-meter__marker">
+                                            <span></span>
+                                        </span>
+                                        <span class="reserve-dial__hub">
+                                            <i id="health-icon" class="bi bi-activity"></i>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
-                            <p id="reserve-summary" class="reserve-summary">--</p>
-                        </div>
 
-                        <div class="reserve-insight">
-                            <ul id="reserve-tier-list" class="reserve-tier-list" aria-label="備轉容量率分級說明">
-                                <li class="reserve-tier" data-level="alert">
-                                    <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
-                                    <span><strong>警戒</strong><em>&lt; 6%</em></span>
-                                </li>
-                                <li class="reserve-tier" data-level="caution">
-                                    <i class="bi bi-exclamation-circle-fill" aria-hidden="true"></i>
-                                    <span><strong>吃緊</strong><em>6-10%</em></span>
-                                </li>
-                                <li class="reserve-tier" data-level="watch">
-                                    <i class="bi bi-eye-fill" aria-hidden="true"></i>
-                                    <span><strong>偏緊</strong><em>10-15%</em></span>
-                                </li>
-                                <li class="reserve-tier" data-level="stable">
-                                    <i class="bi bi-shield-check" aria-hidden="true"></i>
-                                    <span><strong>充裕</strong><em>15% 以上</em></span>
-                                </li>
-                            </ul>
+                            <div class="health-copy">
+                                <div class="health-kicker">
+                                    <p class="eyebrow">今日供電狀態</p>
+                                    <span>GRID STATUS</span>
+                                </div>
+                                <h2 id="health-label">--</h2>
+                                <div class="health-rate">
+                                    <strong id="reserve-meter-value">--</strong>
+                                    <span>尖峰備轉容量率</span>
+                                </div>
+                                <div class="health-mini-grid" aria-label="供電狀態摘要">
+                                    <span>
+                                        <small>距充裕線</small>
+                                        <strong id="reserve-margin">--</strong>
+                                    </span>
+                                    <span>
+                                        <small>判讀</small>
+                                        <strong id="health-tier-text">--</strong>
+                                    </span>
+                                </div>
+                                <p id="reserve-summary" class="reserve-summary">--</p>
+                            </div>
                         </div>
-
                         <p id="reserve-description" class="reserve-description">--</p>
-                        <div class="reserve-context">
-                            <span>尖峰時段 <strong id="peak-range">--</strong></span>
-                            <span>備轉容量 <strong id="reserve-capacity">--</strong></span>
-                            <span>尖峰需求 <strong id="peak-demand">--</strong></span>
-                        </div>
+                    </section>
+
+                    <div class="reserve-context" aria-label="尖峰供需指標">
+                        <article class="reserve-kpi">
+                            <i class="bi bi-clock-history" aria-hidden="true"></i>
+                            <div>
+                                <p>尖峰時段</p>
+                                <strong id="peak-range">--</strong>
+                                <small>今日預估尖峰時段</small>
+                            </div>
+                        </article>
+                        <article class="reserve-kpi">
+                            <i class="bi bi-battery-charging" aria-hidden="true"></i>
+                            <div>
+                                <p>備轉容量</p>
+                                <strong id="reserve-capacity">--</strong>
+                                <small>可調度備轉容量</small>
+                            </div>
+                        </article>
+                        <article class="reserve-kpi">
+                            <i class="bi bi-speedometer2" aria-hidden="true"></i>
+                            <div>
+                                <p>尖峰需求</p>
+                                <strong id="peak-demand">--</strong>
+                                <small>預估尖峰最大需求</small>
+                            </div>
+                        </article>
                     </div>
                 </div>
             </div>
@@ -148,7 +220,9 @@
                                 <h3>燃料別占比</h3>
                                 <p>正輸出類別占比</p>
                             </div>
-                            <canvas id="fuel-mix-chart"></canvas>
+                            <div class="donut-chart-frame">
+                                <canvas id="fuel-mix-chart"></canvas>
+                            </div>
                         </div>
                         <div class="chart-container">
                             <div class="chart-title">
@@ -221,7 +295,7 @@
             <div class="container">
                 <div class="footer-content">
                     <div>
-                        <h2>台灣電力即時監控系統</h2>
+                        <h2>台灣電力即時看板</h2>
                         <p>Taiwan Real-time Power Dashboard</p>
                         <p>資料每 10 分鐘更新一次，實際供電狀況以台電公告為準。</p>
                     </div>
@@ -241,7 +315,7 @@
                 </div>
                 <div class="footer-bottom">
                     <p>MIT License</p>
-                    <p>Built for public-data monitoring and portfolio review.</p>
+                    <p>Built on Taipower open data for real-time power supply visualization.</p>
                 </div>
             </div>
         </footer>

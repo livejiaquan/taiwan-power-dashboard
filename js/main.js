@@ -11,17 +11,21 @@ const elements = {
   lastUpdateTime: document.getElementById('last-update-time'),
   sourceStatus: document.getElementById('source-status'),
   noticeBanner: document.getElementById('notice-banner'),
+  heroDataStatus: document.getElementById('hero-data-status'),
+  healthBlock: document.querySelector('.health-block'),
   healthIcon: document.getElementById('health-icon'),
   healthLabel: document.getElementById('health-label'),
-  healthDetail: document.getElementById('health-detail'),
+  healthTierText: document.getElementById('health-tier-text'),
+  reserveMargin: document.getElementById('reserve-margin'),
   reserveBlock: document.querySelector('.reserve-block'),
   reserveMeterValue: document.getElementById('reserve-meter-value'),
+  reserveMeter: document.getElementById('reserve-meter'),
+  reserveThresholdItems: document.querySelectorAll('.reserve-threshold'),
   reserveLevelBadge: document.getElementById('reserve-level-badge'),
   reserveSummary: document.getElementById('reserve-summary'),
   reserveDescription: document.getElementById('reserve-description'),
   reserveCapacity: document.getElementById('reserve-capacity'),
   peakDemand: document.getElementById('peak-demand'),
-  reserveTierItems: document.querySelectorAll('.reserve-tier'),
   peakRange: document.getElementById('peak-range'),
   statsGrid: document.getElementById('stats-grid'),
   categoryGrid: document.getElementById('category-grid'),
@@ -49,6 +53,11 @@ function formatMw(value, digits = 1) {
 
 function formatPercent(value, digits = 1) {
   return `${formatNumber(value, digits)}%`;
+}
+
+function formatReserveMargin(ratePercent) {
+  const margin = Number(ratePercent || 0) - 15;
+  return `${margin >= 0 ? '+' : ''}${formatNumber(margin, 1)}pp`;
 }
 
 function formatDateTime(date) {
@@ -93,15 +102,20 @@ function renderNotice(result) {
 
   elements.sourceStatus.textContent = sourceText;
   elements.noticeBanner.className = 'notice-banner';
+  elements.heroDataStatus.className = 'hero-data-status';
 
   if (metadata.degraded || result.stale || result.transport === 'sample') {
     elements.noticeBanner.classList.add('notice-banner--warning');
+    elements.heroDataStatus.classList.add('hero-data-status--warning');
+    elements.heroDataStatus.innerHTML = '<span aria-hidden="true"></span>資料暫用';
     elements.noticeBanner.innerHTML = `
       <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
       <span>${escapeHtml(metadata.reason || '目前顯示降級資料，請稍後重新整理。')}</span>
     `;
   } else {
     elements.noticeBanner.classList.add('notice-banner--success');
+    elements.heroDataStatus.classList.add('hero-data-status--success');
+    elements.heroDataStatus.innerHTML = '<span aria-hidden="true"></span>資料正常';
     elements.noticeBanner.innerHTML = `
       <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
       <span>資料已從台電開放資料更新，頁面每 10 分鐘自動刷新。</span>
@@ -111,22 +125,34 @@ function renderNotice(result) {
 
 function renderHero(model) {
   const { health, metrics, reserveGuide, supply } = model;
+  const reservePosition = Math.min(100, Math.max(0, (metrics.forecastReserveRatePercent / 20) * 100));
+  const needleAngle = -108 + (reservePosition * 2.16);
 
   elements.healthIcon.className = `bi ${health.icon}`;
   elements.healthIcon.style.color = health.color;
   elements.healthLabel.textContent = health.labelZh;
-  elements.healthDetail.textContent = `今日尖峰備轉容量率 ${formatPercent(metrics.forecastReserveRatePercent)}，預估尖峰 ${supply.forecastPeakHourRange}`;
+  elements.healthTierText.textContent = reserveGuide.labelZh;
+  elements.reserveMargin.textContent = formatReserveMargin(metrics.forecastReserveRatePercent);
+  elements.healthBlock.style.setProperty('--health-color', health.color);
+  elements.healthBlock.style.setProperty('--reserve-arc', `${reservePosition}%`);
+  elements.healthBlock.style.setProperty('--needle-angle', `${needleAngle}deg`);
+  elements.healthBlock.dataset.level = reserveGuide.level;
   elements.reserveMeterValue.textContent = formatPercent(metrics.forecastReserveRatePercent);
   elements.reserveBlock.style.setProperty('--reserve-color', health.color);
   elements.reserveBlock.dataset.level = reserveGuide.level;
+  elements.reserveBlock.style.setProperty('--reserve-position', `${reservePosition}%`);
+  elements.reserveThresholdItems.forEach((item) => {
+    item.classList.toggle('is-active', item.dataset.level === reserveGuide.level);
+  });
+  elements.reserveMeter.setAttribute('aria-valuemin', '0');
+  elements.reserveMeter.setAttribute('aria-valuemax', '20');
+  elements.reserveMeter.setAttribute('aria-valuenow', String(Math.min(20, Math.max(0, metrics.forecastReserveRatePercent))));
+  elements.reserveMeter.setAttribute('aria-valuetext', `${formatPercent(metrics.forecastReserveRatePercent)}，${reserveGuide.labelZh}`);
   elements.reserveLevelBadge.textContent = reserveGuide.labelZh;
   elements.reserveLevelBadge.style.color = health.color;
   elements.reserveLevelBadge.style.borderColor = health.color;
   elements.reserveSummary.textContent = reserveGuide.summary;
   elements.reserveDescription.textContent = reserveGuide.description;
-  elements.reserveTierItems.forEach((item) => {
-    item.classList.toggle('is-active', item.dataset.level === reserveGuide.level);
-  });
   elements.peakRange.textContent = supply.forecastPeakHourRange;
   elements.reserveCapacity.textContent = formatMw(metrics.forecastReserveCapacityMw);
   elements.peakDemand.textContent = formatMw(metrics.forecastPeakDemandMw);
