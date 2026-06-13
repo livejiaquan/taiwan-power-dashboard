@@ -1,0 +1,683 @@
+{
+  "model": {
+    "source": "sample-static",
+    "fetchedAt": "2026-06-13T21:45:16.289Z",
+    "updatedAt": "2026-05-30T00:10:00.000Z",
+    "health": {
+      "level": "stable",
+      "labelZh": "供電充裕",
+      "labelEn": "Stable",
+      "color": "#059669",
+      "icon": "bi-check-circle-fill",
+      "minRate": 15
+    },
+    "reserveGuide": {
+      "level": "stable",
+      "labelZh": "供電充裕",
+      "markerPercent": 99.6,
+      "distanceFromStableLinePercent": 14.88,
+      "summary": "高於供電充裕線 14.9 個百分點",
+      "description": "高於 15% 代表供電緩衝充足，尖峰時段仍有較多可調度容量。",
+      "ranges": [
+        {
+          "label": "警戒",
+          "start": 0,
+          "end": 6,
+          "color": "#dc2626"
+        },
+        {
+          "label": "吃緊",
+          "start": 6,
+          "end": 10,
+          "color": "#ea580c"
+        },
+        {
+          "label": "偏緊",
+          "start": 10,
+          "end": 15,
+          "color": "#d97706"
+        },
+        {
+          "label": "充裕",
+          "start": 15,
+          "end": 30,
+          "color": "#059669"
+        }
+      ]
+    },
+    "supply": {
+      "currentLoadMw": 3089.1,
+      "currentUtilizationPercent": 75,
+      "forecastMaxSupplyCapacityMw": 4351,
+      "forecastPeakDemandMw": 3350,
+      "forecastReserveCapacityMw": 1001,
+      "forecastReserveRatePercent": 29.88,
+      "forecastReserveIndicator": "G",
+      "forecastPeakHourRange": "13:00-16:00",
+      "publishTimeText": "115.05.30(六)00:10",
+      "yesterdayDateText": "115.05.29",
+      "yesterdayPeakDemandMw": 4143.1,
+      "yesterdayReserveRatePercent": 20.76,
+      "yesterdayReserveIndicator": "G",
+      "realHourMaxSupplyCapacityMw": 4093.6,
+      "realHourPeakTimeText": "2026.05.29 20:00"
+    },
+    "generation": {
+      "updatedAt": "2026-05-30T00:10:00",
+      "units": [
+        {
+          "type": "燃氣",
+          "categoryKey": "gas",
+          "name": "大潭CC#7",
+          "capacityMw": 913.1,
+          "netGenerationMw": 883,
+          "utilizationPercent": 96.704,
+          "note": "",
+          "color": "#0ea5e9",
+          "icon": "bi-fire"
+        },
+        {
+          "type": "燃氣",
+          "categoryKey": "gas",
+          "name": "興達新CC#1",
+          "capacityMw": 1300,
+          "netGenerationMw": 1264.1,
+          "utilizationPercent": 97.238,
+          "note": "",
+          "color": "#0ea5e9",
+          "icon": "bi-fire"
+        },
+        {
+          "type": "民營電廠-燃氣",
+          "categoryKey": "gas",
+          "name": "豐德#3",
+          "capacityMw": 1100,
+          "netGenerationMw": 1089,
+          "utilizationPercent": 99,
+          "note": "",
+          "color": "#0ea5e9",
+          "icon": "bi-fire"
+        },
+        {
+          "type": "燃煤",
+          "categoryKey": "coal",
+          "name": "林口#2",
+          "capacityMw": 800,
+          "netGenerationMw": 760.2,
+          "utilizationPercent": 95.025,
+          "note": "",
+          "color": "#64748b",
+          "icon": "bi-minecart-loaded"
+        },
+        {
+          "type": "燃煤",
+          "categoryKey": "coal",
+          "name": "台中#8",
+          "capacityMw": 550,
+          "netGenerationMw": 242.3,
+          "utilizationPercent": 44.055,
+          "note": "友善降載減排",
+          "color": "#64748b",
+          "icon": "bi-minecart-loaded"
+        },
+        {
+          "type": "民營電廠-燃煤",
+          "categoryKey": "coal",
+          "name": "和平#1",
+          "capacityMw": 648.6,
+          "netGenerationMw": 600.9,
+          "utilizationPercent": 92.653,
+          "note": "",
+          "color": "#64748b",
+          "icon": "bi-minecart-loaded"
+        },
+        {
+          "type": "汽電共生",
+          "categoryKey": "cogeneration",
+          "name": "汽電共生",
+          "capacityMw": 631.4,
+          "netGenerationMw": 1712,
+          "utilizationPercent": null,
+          "note": "",
+          "color": "#14b8a6",
+          "icon": "bi-building-gear"
+        },
+        {
+          "type": "燃料油",
+          "categoryKey": "oil",
+          "name": "協和#3",
+          "capacityMw": 500,
+          "netGenerationMw": 142.3,
+          "utilizationPercent": 28.46,
+          "note": "友善降載減排",
+          "color": "#dc2626",
+          "icon": "bi-fuel-pump-fill"
+        },
+        {
+          "type": "太陽能",
+          "categoryKey": "solar",
+          "name": "其它購電太陽能",
+          "capacityMw": 14740.8,
+          "netGenerationMw": 0,
+          "utilizationPercent": 0,
+          "note": "夜間無發電",
+          "color": "#f59e0b",
+          "icon": "bi-sun-fill"
+        },
+        {
+          "type": "風力",
+          "categoryKey": "wind",
+          "name": "沃一風",
+          "capacityMw": 605.2,
+          "netGenerationMw": 498.1,
+          "utilizationPercent": 82.307,
+          "note": "",
+          "color": "#22c55e",
+          "icon": "bi-wind"
+        },
+        {
+          "type": "風力",
+          "categoryKey": "wind",
+          "name": "芳二風",
+          "capacityMw": 499.2,
+          "netGenerationMw": 261,
+          "utilizationPercent": 52.284,
+          "note": "",
+          "color": "#22c55e",
+          "icon": "bi-wind"
+        },
+        {
+          "type": "水力",
+          "categoryKey": "hydro",
+          "name": "翡翠#1",
+          "capacityMw": 70,
+          "netGenerationMw": 70.8,
+          "utilizationPercent": 101.143,
+          "note": "",
+          "color": "#2563eb",
+          "icon": "bi-droplet-fill"
+        },
+        {
+          "type": "儲能",
+          "categoryKey": "storage",
+          "name": "大觀二#1",
+          "capacityMw": 250,
+          "netGenerationMw": 159.3,
+          "utilizationPercent": 63.72,
+          "note": "",
+          "color": "#10b981",
+          "icon": "bi-battery-charging"
+        },
+        {
+          "type": "其它再生能源",
+          "categoryKey": "other-renewable",
+          "name": "生質能(Biofuel)",
+          "capacityMw": 60.7,
+          "netGenerationMw": 34.5,
+          "utilizationPercent": 56.874,
+          "note": "",
+          "color": "#059669",
+          "icon": "bi-flower1"
+        },
+        {
+          "type": "儲能負載(Energy Storage System Load)",
+          "categoryKey": "storage-load",
+          "name": "電池(註16)",
+          "capacityMw": 0,
+          "netGenerationMw": -21.7,
+          "utilizationPercent": null,
+          "note": "",
+          "color": "#94a3b8",
+          "icon": "bi-battery"
+        }
+      ],
+      "categories": [
+        {
+          "key": "gas",
+          "labelZh": "燃氣",
+          "labelEn": "Gas",
+          "icon": "bi-fire",
+          "color": "#0ea5e9",
+          "renewable": false,
+          "lowCarbon": false,
+          "capacityMw": 3313.1,
+          "netGenerationMw": 3236.1,
+          "unitCount": 3,
+          "activeUnitCount": 3,
+          "sharePercent": 42.1
+        },
+        {
+          "key": "cogeneration",
+          "labelZh": "汽電共生",
+          "labelEn": "Cogeneration",
+          "icon": "bi-building-gear",
+          "color": "#14b8a6",
+          "renewable": false,
+          "lowCarbon": false,
+          "capacityMw": 631.4,
+          "netGenerationMw": 1712,
+          "unitCount": 1,
+          "activeUnitCount": 1,
+          "sharePercent": 22.2
+        },
+        {
+          "key": "coal",
+          "labelZh": "燃煤",
+          "labelEn": "Coal",
+          "icon": "bi-minecart-loaded",
+          "color": "#64748b",
+          "renewable": false,
+          "lowCarbon": false,
+          "capacityMw": 1998.6,
+          "netGenerationMw": 1603.4,
+          "unitCount": 3,
+          "activeUnitCount": 3,
+          "sharePercent": 20.8
+        },
+        {
+          "key": "wind",
+          "labelZh": "風力",
+          "labelEn": "Wind",
+          "icon": "bi-wind",
+          "color": "#22c55e",
+          "renewable": true,
+          "lowCarbon": true,
+          "capacityMw": 1104.4,
+          "netGenerationMw": 759.1,
+          "unitCount": 2,
+          "activeUnitCount": 2,
+          "sharePercent": 9.9
+        },
+        {
+          "key": "storage",
+          "labelZh": "儲能放電",
+          "labelEn": "Storage output",
+          "icon": "bi-battery-charging",
+          "color": "#10b981",
+          "renewable": false,
+          "lowCarbon": true,
+          "capacityMw": 250,
+          "netGenerationMw": 159.3,
+          "unitCount": 1,
+          "activeUnitCount": 1,
+          "sharePercent": 2.1
+        },
+        {
+          "key": "oil",
+          "labelZh": "燃油",
+          "labelEn": "Oil",
+          "icon": "bi-fuel-pump-fill",
+          "color": "#dc2626",
+          "renewable": false,
+          "lowCarbon": false,
+          "capacityMw": 500,
+          "netGenerationMw": 142.3,
+          "unitCount": 1,
+          "activeUnitCount": 1,
+          "sharePercent": 1.8
+        },
+        {
+          "key": "hydro",
+          "labelZh": "水力",
+          "labelEn": "Hydro",
+          "icon": "bi-droplet-fill",
+          "color": "#2563eb",
+          "renewable": true,
+          "lowCarbon": true,
+          "capacityMw": 70,
+          "netGenerationMw": 70.8,
+          "unitCount": 1,
+          "activeUnitCount": 1,
+          "sharePercent": 0.9
+        },
+        {
+          "key": "other-renewable",
+          "labelZh": "其它再生能源",
+          "labelEn": "Other renewables",
+          "icon": "bi-flower1",
+          "color": "#059669",
+          "renewable": true,
+          "lowCarbon": true,
+          "capacityMw": 60.7,
+          "netGenerationMw": 34.5,
+          "unitCount": 1,
+          "activeUnitCount": 1,
+          "sharePercent": 0.4
+        },
+        {
+          "key": "solar",
+          "labelZh": "太陽能",
+          "labelEn": "Solar",
+          "icon": "bi-sun-fill",
+          "color": "#f59e0b",
+          "renewable": true,
+          "lowCarbon": true,
+          "capacityMw": 14740.8,
+          "netGenerationMw": 0,
+          "unitCount": 1,
+          "activeUnitCount": 0,
+          "sharePercent": 0
+        },
+        {
+          "key": "storage-load",
+          "labelZh": "儲能充電負載",
+          "labelEn": "Storage load",
+          "icon": "bi-battery",
+          "color": "#94a3b8",
+          "renewable": false,
+          "lowCarbon": true,
+          "capacityMw": 0,
+          "netGenerationMw": -21.7,
+          "unitCount": 1,
+          "activeUnitCount": 0,
+          "sharePercent": -0.3
+        }
+      ],
+      "totals": {
+        "netGenerationMw": 7695.8,
+        "capacityMw": 22669,
+        "activeUnitCount": 13,
+        "unitCount": 15
+      }
+    },
+    "categories": [
+      {
+        "key": "gas",
+        "labelZh": "燃氣",
+        "labelEn": "Gas",
+        "icon": "bi-fire",
+        "color": "#0ea5e9",
+        "renewable": false,
+        "lowCarbon": false,
+        "capacityMw": 3313.1,
+        "netGenerationMw": 3236.1,
+        "unitCount": 3,
+        "activeUnitCount": 3,
+        "sharePercent": 42.1
+      },
+      {
+        "key": "cogeneration",
+        "labelZh": "汽電共生",
+        "labelEn": "Cogeneration",
+        "icon": "bi-building-gear",
+        "color": "#14b8a6",
+        "renewable": false,
+        "lowCarbon": false,
+        "capacityMw": 631.4,
+        "netGenerationMw": 1712,
+        "unitCount": 1,
+        "activeUnitCount": 1,
+        "sharePercent": 22.2
+      },
+      {
+        "key": "coal",
+        "labelZh": "燃煤",
+        "labelEn": "Coal",
+        "icon": "bi-minecart-loaded",
+        "color": "#64748b",
+        "renewable": false,
+        "lowCarbon": false,
+        "capacityMw": 1998.6,
+        "netGenerationMw": 1603.4,
+        "unitCount": 3,
+        "activeUnitCount": 3,
+        "sharePercent": 20.8
+      },
+      {
+        "key": "wind",
+        "labelZh": "風力",
+        "labelEn": "Wind",
+        "icon": "bi-wind",
+        "color": "#22c55e",
+        "renewable": true,
+        "lowCarbon": true,
+        "capacityMw": 1104.4,
+        "netGenerationMw": 759.1,
+        "unitCount": 2,
+        "activeUnitCount": 2,
+        "sharePercent": 9.9
+      },
+      {
+        "key": "storage",
+        "labelZh": "儲能放電",
+        "labelEn": "Storage output",
+        "icon": "bi-battery-charging",
+        "color": "#10b981",
+        "renewable": false,
+        "lowCarbon": true,
+        "capacityMw": 250,
+        "netGenerationMw": 159.3,
+        "unitCount": 1,
+        "activeUnitCount": 1,
+        "sharePercent": 2.1
+      },
+      {
+        "key": "oil",
+        "labelZh": "燃油",
+        "labelEn": "Oil",
+        "icon": "bi-fuel-pump-fill",
+        "color": "#dc2626",
+        "renewable": false,
+        "lowCarbon": false,
+        "capacityMw": 500,
+        "netGenerationMw": 142.3,
+        "unitCount": 1,
+        "activeUnitCount": 1,
+        "sharePercent": 1.8
+      },
+      {
+        "key": "hydro",
+        "labelZh": "水力",
+        "labelEn": "Hydro",
+        "icon": "bi-droplet-fill",
+        "color": "#2563eb",
+        "renewable": true,
+        "lowCarbon": true,
+        "capacityMw": 70,
+        "netGenerationMw": 70.8,
+        "unitCount": 1,
+        "activeUnitCount": 1,
+        "sharePercent": 0.9
+      },
+      {
+        "key": "other-renewable",
+        "labelZh": "其它再生能源",
+        "labelEn": "Other renewables",
+        "icon": "bi-flower1",
+        "color": "#059669",
+        "renewable": true,
+        "lowCarbon": true,
+        "capacityMw": 60.7,
+        "netGenerationMw": 34.5,
+        "unitCount": 1,
+        "activeUnitCount": 1,
+        "sharePercent": 0.4
+      },
+      {
+        "key": "solar",
+        "labelZh": "太陽能",
+        "labelEn": "Solar",
+        "icon": "bi-sun-fill",
+        "color": "#f59e0b",
+        "renewable": true,
+        "lowCarbon": true,
+        "capacityMw": 14740.8,
+        "netGenerationMw": 0,
+        "unitCount": 1,
+        "activeUnitCount": 0,
+        "sharePercent": 0
+      },
+      {
+        "key": "storage-load",
+        "labelZh": "儲能充電負載",
+        "labelEn": "Storage load",
+        "icon": "bi-battery",
+        "color": "#94a3b8",
+        "renewable": false,
+        "lowCarbon": true,
+        "capacityMw": 0,
+        "netGenerationMw": -21.7,
+        "unitCount": 1,
+        "activeUnitCount": 0,
+        "sharePercent": -0.3
+      }
+    ],
+    "topUnits": [
+      {
+        "type": "汽電共生",
+        "categoryKey": "cogeneration",
+        "name": "汽電共生",
+        "capacityMw": 631.4,
+        "netGenerationMw": 1712,
+        "utilizationPercent": null,
+        "note": "",
+        "color": "#14b8a6",
+        "icon": "bi-building-gear"
+      },
+      {
+        "type": "燃氣",
+        "categoryKey": "gas",
+        "name": "興達新CC#1",
+        "capacityMw": 1300,
+        "netGenerationMw": 1264.1,
+        "utilizationPercent": 97.238,
+        "note": "",
+        "color": "#0ea5e9",
+        "icon": "bi-fire"
+      },
+      {
+        "type": "民營電廠-燃氣",
+        "categoryKey": "gas",
+        "name": "豐德#3",
+        "capacityMw": 1100,
+        "netGenerationMw": 1089,
+        "utilizationPercent": 99,
+        "note": "",
+        "color": "#0ea5e9",
+        "icon": "bi-fire"
+      },
+      {
+        "type": "燃氣",
+        "categoryKey": "gas",
+        "name": "大潭CC#7",
+        "capacityMw": 913.1,
+        "netGenerationMw": 883,
+        "utilizationPercent": 96.704,
+        "note": "",
+        "color": "#0ea5e9",
+        "icon": "bi-fire"
+      },
+      {
+        "type": "燃煤",
+        "categoryKey": "coal",
+        "name": "林口#2",
+        "capacityMw": 800,
+        "netGenerationMw": 760.2,
+        "utilizationPercent": 95.025,
+        "note": "",
+        "color": "#64748b",
+        "icon": "bi-minecart-loaded"
+      },
+      {
+        "type": "民營電廠-燃煤",
+        "categoryKey": "coal",
+        "name": "和平#1",
+        "capacityMw": 648.6,
+        "netGenerationMw": 600.9,
+        "utilizationPercent": 92.653,
+        "note": "",
+        "color": "#64748b",
+        "icon": "bi-minecart-loaded"
+      },
+      {
+        "type": "風力",
+        "categoryKey": "wind",
+        "name": "沃一風",
+        "capacityMw": 605.2,
+        "netGenerationMw": 498.1,
+        "utilizationPercent": 82.307,
+        "note": "",
+        "color": "#22c55e",
+        "icon": "bi-wind"
+      },
+      {
+        "type": "風力",
+        "categoryKey": "wind",
+        "name": "芳二風",
+        "capacityMw": 499.2,
+        "netGenerationMw": 261,
+        "utilizationPercent": 52.284,
+        "note": "",
+        "color": "#22c55e",
+        "icon": "bi-wind"
+      }
+    ],
+    "constrainedUnits": [
+      {
+        "type": "太陽能",
+        "categoryKey": "solar",
+        "name": "其它購電太陽能",
+        "capacityMw": 14740.8,
+        "netGenerationMw": 0,
+        "utilizationPercent": 0,
+        "note": "夜間無發電",
+        "color": "#f59e0b",
+        "icon": "bi-sun-fill"
+      },
+      {
+        "type": "燃煤",
+        "categoryKey": "coal",
+        "name": "台中#8",
+        "capacityMw": 550,
+        "netGenerationMw": 242.3,
+        "utilizationPercent": 44.055,
+        "note": "友善降載減排",
+        "color": "#64748b",
+        "icon": "bi-minecart-loaded"
+      },
+      {
+        "type": "燃料油",
+        "categoryKey": "oil",
+        "name": "協和#3",
+        "capacityMw": 500,
+        "netGenerationMw": 142.3,
+        "utilizationPercent": 28.46,
+        "note": "友善降載減排",
+        "color": "#dc2626",
+        "icon": "bi-fuel-pump-fill"
+      }
+    ],
+    "metrics": {
+      "currentLoadMw": 3089.1,
+      "currentUtilizationPercent": 75,
+      "forecastReserveRatePercent": 29.88,
+      "forecastReserveCapacityMw": 1001,
+      "forecastMaxSupplyCapacityMw": 4351,
+      "forecastPeakDemandMw": 3350,
+      "totalGenerationMw": 7695.8,
+      "renewableGenerationMw": 864.4,
+      "renewableSharePercent": 11.2,
+      "lowCarbonSharePercent": 13
+    }
+  },
+  "rawUpdatedAt": {
+    "supply": "115.05.30(六)00:10",
+    "generation": "2026-05-30T00:10:00"
+  },
+  "sources": {
+    "supply": "https://service.taipower.com.tw/data/opendata/apply/file/d006020/001.json",
+    "generation": "https://service.taipower.com.tw/data/opendata/apply/file/d006001/001.json"
+  },
+  "cache": {
+    "hit": false,
+    "storedAt": "2026-06-13T21:45:16.289Z",
+    "ttlSeconds": 600
+  },
+  "generatedFor": "github-pages",
+  "degraded": true,
+  "reason": "GitHub Pages build could not reach Taipower live data: fetch failed",
+  "metadata": {
+    "degraded": true,
+    "reason": "GitHub Pages build could not reach Taipower live data: fetch failed"
+  }
+}
