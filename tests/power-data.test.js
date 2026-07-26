@@ -117,10 +117,18 @@ test('builds dashboard model with health status, renewable share, and plant high
   assert.equal(model.reserveGuide.markerPercent, 99.6);
   assert.equal(model.reserveGuide.summary, '高於供電充裕線 14.9 個百分點');
   assert.equal(model.metrics.currentLoadMw, 3089.1);
-  assert.equal(model.metrics.renewableSharePercent, 87.5);
   assert.equal(model.topUnits[0].name, '其它購電太陽能');
   assert.equal(model.categories[0].labelZh, '太陽能');
   assert.ok(model.updatedAt instanceof Date);
+});
+
+test('does not count storage charging as negative generation when calculating energy shares', () => {
+  const model = buildDashboardModel({ supplyPayload, generationPayload });
+
+  assert.equal(model.metrics.totalGenerationMw, 3770.6);
+  assert.equal(model.metrics.renewableGenerationMw, 3300);
+  assert.equal(model.metrics.renewableSharePercent, 87);
+  assert.equal(model.metrics.lowCarbonSharePercent, 87);
 });
 
 test('maps reserve rate into readable threshold guidance', () => {

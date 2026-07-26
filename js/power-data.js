@@ -320,12 +320,14 @@ export function buildDashboardModel({ supplyPayload, generationPayload, fetchedA
   const supply = normalizeSupplyPayload(supplyPayload);
   const generation = summarizeGenerationUnits(generationPayload);
   const totalGeneration = generation.totals.netGenerationMw;
+  const grossGeneration = generation.units
+    .reduce((sum, unit) => sum + Math.max(0, unit.netGenerationMw), 0);
   const renewableGeneration = generation.categories
     .filter((category) => category.renewable)
-    .reduce((sum, category) => sum + category.netGenerationMw, 0);
+    .reduce((sum, category) => sum + Math.max(0, category.netGenerationMw), 0);
   const lowCarbonGeneration = generation.categories
     .filter((category) => category.lowCarbon)
-    .reduce((sum, category) => sum + category.netGenerationMw, 0);
+    .reduce((sum, category) => sum + Math.max(0, category.netGenerationMw), 0);
 
   const updatedAt = generation.updatedAt ? new Date(generation.updatedAt) : new Date(fetchedAt);
 
@@ -355,8 +357,8 @@ export function buildDashboardModel({ supplyPayload, generationPayload, fetchedA
       forecastPeakDemandMw: supply.forecastPeakDemandMw,
       totalGenerationMw: totalGeneration,
       renewableGenerationMw: round(renewableGeneration, 1),
-      renewableSharePercent: totalGeneration ? round((renewableGeneration / totalGeneration) * 100, 1) : 0,
-      lowCarbonSharePercent: totalGeneration ? round((lowCarbonGeneration / totalGeneration) * 100, 1) : 0
+      renewableSharePercent: grossGeneration ? round((renewableGeneration / grossGeneration) * 100, 1) : 0,
+      lowCarbonSharePercent: grossGeneration ? round((lowCarbonGeneration / grossGeneration) * 100, 1) : 0
     }
   };
 }
