@@ -83,12 +83,18 @@ const generationPayload = {
   ]
 };
 
-test('normalizes Taipower supply-demand records into MW and MWh-facing fields', () => {
+test('converts Taipower supply-demand values from 10 MW units to MW', () => {
   const supply = normalizeSupplyPayload(supplyPayload);
 
-  assert.equal(supply.currentLoadMw, 3089.1);
+  assert.equal(supply.currentLoadMw, 30891);
+  assert.equal(supply.forecastMaxSupplyCapacityMw, 43510);
+  assert.equal(supply.forecastPeakDemandMw, 33500);
+  assert.equal(supply.forecastReserveCapacityMw, 10010);
+  assert.equal(supply.yesterdayPeakDemandMw, 41431);
+  assert.equal(supply.realHourMaxSupplyCapacityMw, 40936);
   assert.equal(supply.currentUtilizationPercent, 75);
   assert.equal(supply.forecastReserveRatePercent, 29.88);
+  assert.equal(supply.yesterdayReserveRatePercent, 20.76);
   assert.equal(supply.forecastReserveIndicator, 'G');
   assert.equal(supply.forecastPeakHourRange, '13:00-16:00');
   assert.equal(supply.publishTimeText, '115.05.30(六)00:10');
@@ -116,7 +122,7 @@ test('builds dashboard model with health status, renewable share, and plant high
   assert.equal(model.reserveGuide.distanceFromStableLinePercent, 14.88);
   assert.equal(model.reserveGuide.markerPercent, 99.6);
   assert.equal(model.reserveGuide.summary, '高於供電充裕線 14.9 個百分點');
-  assert.equal(model.metrics.currentLoadMw, 3089.1);
+  assert.equal(model.metrics.currentLoadMw, 30891);
   assert.equal(model.topUnits[0].name, '其它購電太陽能');
   assert.equal(model.categories[0].labelZh, '太陽能');
   assert.ok(model.updatedAt instanceof Date);
