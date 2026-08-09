@@ -1,6 +1,8 @@
 export const SUPPLY_ENDPOINT = 'https://service.taipower.com.tw/data/opendata/apply/file/d006020/001.json';
 export const GENERATION_ENDPOINT = 'https://service.taipower.com.tw/data/opendata/apply/file/d006001/001.json';
 
+const SUPPLY_VALUE_TO_MW = 10;
+
 const CATEGORY_META = {
   gas: {
     labelZh: '燃氣',
@@ -173,6 +175,10 @@ export function round(value, digits = 1) {
   return Math.round((value + Number.EPSILON) * scale) / scale;
 }
 
+function parseSupplyMw(value) {
+  return round((parseNumber(value) || 0) * SUPPLY_VALUE_TO_MW, 1);
+}
+
 export function normalizeFuelType(type) {
   const cleanType = String(type || '').replace(/<[^>]+>/g, '').trim();
 
@@ -203,20 +209,20 @@ export function normalizeSupplyPayload(payload) {
   const realtimePeak = records.find((record) => record.real_hr_peak_time !== undefined) || {};
 
   return {
-    currentLoadMw: parseNumber(current.curr_load) || 0,
+    currentLoadMw: parseSupplyMw(current.curr_load),
     currentUtilizationPercent: parseNumber(current.curr_util_rate) || 0,
-    forecastMaxSupplyCapacityMw: parseNumber(forecast.fore_maxi_sply_capacity) || 0,
-    forecastPeakDemandMw: parseNumber(forecast.fore_peak_dema_load) || 0,
-    forecastReserveCapacityMw: parseNumber(forecast.fore_peak_resv_capacity) || 0,
+    forecastMaxSupplyCapacityMw: parseSupplyMw(forecast.fore_maxi_sply_capacity),
+    forecastPeakDemandMw: parseSupplyMw(forecast.fore_peak_dema_load),
+    forecastReserveCapacityMw: parseSupplyMw(forecast.fore_peak_resv_capacity),
     forecastReserveRatePercent: parseNumber(forecast.fore_peak_resv_rate) || 0,
     forecastReserveIndicator: forecast.fore_peak_resv_indicator || 'U',
     forecastPeakHourRange: forecast.fore_peak_hour_range || '--',
     publishTimeText: forecast.publish_time || '--',
     yesterdayDateText: yesterday.yday_date || '--',
-    yesterdayPeakDemandMw: parseNumber(yesterday.yday_peak_dema_load) || 0,
+    yesterdayPeakDemandMw: parseSupplyMw(yesterday.yday_peak_dema_load),
     yesterdayReserveRatePercent: parseNumber(yesterday.yday_peak_resv_rate) || 0,
     yesterdayReserveIndicator: yesterday.yday_peak_resv_indicator || 'U',
-    realHourMaxSupplyCapacityMw: parseNumber(realtimePeak.real_hr_maxi_sply_capacity) || 0,
+    realHourMaxSupplyCapacityMw: parseSupplyMw(realtimePeak.real_hr_maxi_sply_capacity),
     realHourPeakTimeText: realtimePeak.real_hr_peak_time || '--'
   };
 }
@@ -320,12 +326,14 @@ export function buildDashboardModel({ supplyPayload, generationPayload, fetchedA
   const supply = normalizeSupplyPayload(supplyPayload);
   const generation = summarizeGenerationUnits(generationPayload);
   const totalGeneration = generation.totals.netGenerationMw;
+  const grossGeneration = generation.units
+    .reduce((sum, unit) => sum + Math.max(0, unit.netGenerationMw), 0);
   const renewableGeneration = generation.categories
     .filter((category) => category.renewable)
-    .reduce((sum, category) => sum + category.netGenerationMw, 0);
+    .reduce((sum, category) => sum + Math.max(0, category.netGenerationMw), 0);
   const lowCarbonGeneration = generation.categories
     .filter((category) => category.lowCarbon)
-    .reduce((sum, category) => sum + category.netGenerationMw, 0);
+    .reduce((sum, category) => sum + Math.max(0, category.netGenerationMw), 0);
 
   const updatedAt = generation.updatedAt ? new Date(generation.updatedAt) : new Date(fetchedAt);
 
@@ -355,8 +363,8 @@ export function buildDashboardModel({ supplyPayload, generationPayload, fetchedA
       forecastPeakDemandMw: supply.forecastPeakDemandMw,
       totalGenerationMw: totalGeneration,
       renewableGenerationMw: round(renewableGeneration, 1),
-      renewableSharePercent: totalGeneration ? round((renewableGeneration / totalGeneration) * 100, 1) : 0,
-      lowCarbonSharePercent: totalGeneration ? round((lowCarbonGeneration / totalGeneration) * 100, 1) : 0
+      renewableSharePercent: grossGeneration ? round((renewableGeneration / grossGeneration) * 100, 1) : 0,
+      lowCarbonSharePercent: grossGeneration ? round((lowCarbonGeneration / grossGeneration) * 100, 1) : 0
     }
   };
 }
