@@ -1,7 +1,16 @@
+const standbyGenerationRows = Array.from({ length: 100 }, (_, index) => ({
+  '機組類型': '測試備援機組',
+  '機組名稱': `測試備援#${index + 1}`,
+  '裝置容量(MW)': '100.0',
+  '淨發電量(MW)': '0.0',
+  '淨發電量/裝置容量比(%)': '0.000%',
+  '備註': ' '
+}));
+
 export const sampleSupplyPayload = {
   success: 'true',
   records: [
-    { curr_load: '3089.1', curr_util_rate: '75' },
+    { curr_load: '769.58', curr_util_rate: '75' },
     {
       fore_maxi_sply_capacity: '4351.0',
       fore_peak_dema_load: '3350.0',
@@ -148,6 +157,7 @@ export const sampleGenerationPayload = {
       '淨發電量(MW)': '-21.7',
       '淨發電量/裝置容量比(%)': '-',
       '備註': ' '
-    }
+    },
+    ...standbyGenerationRows
   ]
 };

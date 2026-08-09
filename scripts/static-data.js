@@ -18,17 +18,23 @@ export function buildStaticDataPayload({
         reason: degradedReason
       }
     : {};
+  const model = buildDashboardModel({
+    supplyPayload,
+    generationPayload,
+    fetchedAt: generatedDate,
+    source
+  });
 
   return {
-    model: buildDashboardModel({
-      supplyPayload,
-      generationPayload,
-      fetchedAt: generatedDate,
-      source
-    }),
+    schemaVersion: 2,
+    model,
     rawUpdatedAt: {
-      supply: supplyPayload?.records?.[1]?.publish_time || null,
-      generation: generationPayload?.DateTime || null
+      supply: model.supply.publishTimeText,
+      generation: model.generation.updatedAt
+    },
+    observedAt: {
+      supply: model.feeds.supply.observedAt,
+      generation: model.feeds.generation.observedAt
     },
     sources: {
       supply: SUPPLY_ENDPOINT,

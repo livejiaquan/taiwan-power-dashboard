@@ -15,6 +15,7 @@ const rootDir = resolve(__dirname);
 const port = Number(process.env.PORT || 4173);
 const host = process.env.HOST || '127.0.0.1';
 const cacheTtlMs = 2 * 60 * 1000;
+const requestTimeoutMs = 8 * 1000;
 
 let apiCache = null;
 
@@ -44,12 +45,21 @@ function sendError(response, statusCode, message) {
 }
 
 async function fetchJson(url) {
-  const response = await fetch(url, {
-    headers: {
-      Accept: 'application/json',
-      'User-Agent': 'taiwan-power-dashboard/0.1'
-    }
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), requestTimeoutMs);
+  let response;
+
+  try {
+    response = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        Accept: 'application/json',
+        'User-Agent': 'taiwan-power-dashboard/0.1'
+      }
+    });
+  } finally {
+    clearTimeout(timeoutId);
+  }
 
   if (!response.ok) {
     throw new Error(`Taipower responded with HTTP ${response.status}`);
@@ -89,10 +99,15 @@ async function handlePowerData(request, response) {
     });
 
     const payload = {
+      schemaVersion: 2,
       model,
       rawUpdatedAt: {
-        supply: supplyPayload?.records?.[1]?.publish_time || null,
-        generation: generationPayload?.DateTime || null
+        supply: model.supply.publishTimeText,
+        generation: model.generation.updatedAt
+      },
+      observedAt: {
+        supply: model.feeds.supply.observedAt,
+        generation: model.feeds.generation.observedAt
       },
       sources: {
         supply: SUPPLY_ENDPOINT,

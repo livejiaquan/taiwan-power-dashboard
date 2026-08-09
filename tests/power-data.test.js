@@ -11,10 +11,19 @@ import { buildSameOriginDataUrls, reviveModel } from '../js/api.js';
 import { escapeHtml } from '../js/sanitize.js';
 import { buildStaticDataPayload } from '../scripts/static-data.js';
 
+const standbyGenerationRows = Array.from({ length: 100 }, (_, index) => ({
+  '機組類型': '測試備援機組',
+  '機組名稱': `測試備援#${index + 1}`,
+  '裝置容量(MW)': '100.0',
+  '淨發電量(MW)': '0.0',
+  '淨發電量/裝置容量比(%)': '0.000%',
+  '備註': ' '
+}));
+
 const supplyPayload = {
   success: 'true',
   records: [
-    { curr_load: '3089.1', curr_util_rate: '75' },
+    { curr_load: '377.06', curr_util_rate: '75' },
     {
       fore_maxi_sply_capacity: '4351.0',
       fore_peak_dema_load: '3350.0',
@@ -79,14 +88,15 @@ const generationPayload = {
       '淨發電量(MW)': '-21.7',
       '淨發電量/裝置容量比(%)': '-',
       '備註': ' '
-    }
+    },
+    ...standbyGenerationRows
   ]
 };
 
 test('converts Taipower supply-demand values from 10 MW units to MW', () => {
   const supply = normalizeSupplyPayload(supplyPayload);
 
-  assert.equal(supply.currentLoadMw, 30891);
+  assert.equal(supply.currentLoadMw, 3770.6);
   assert.equal(supply.forecastMaxSupplyCapacityMw, 43510);
   assert.equal(supply.forecastPeakDemandMw, 33500);
   assert.equal(supply.forecastReserveCapacityMw, 10010);
@@ -105,7 +115,7 @@ test('summarizes Taipower unit generation by fuel category and excludes subtotal
   const generation = summarizeGenerationUnits(generationPayload);
 
   assert.equal(generation.updatedAt, '2026-05-30T00:10:00');
-  assert.equal(generation.units.length, 3);
+  assert.equal(generation.units.length, 103);
   assert.equal(generation.totals.netGenerationMw, 3770.6);
   assert.equal(generation.categories[0].key, 'solar');
   assert.equal(generation.categories[0].netGenerationMw, 3300);
@@ -118,11 +128,13 @@ test('builds dashboard model with health status, renewable share, and plant high
   const model = buildDashboardModel({ supplyPayload, generationPayload });
 
   assert.equal(model.health.level, 'stable');
+  assert.equal(model.health.indicator, 'G');
+  assert.equal(model.health.source, 'official-indicator');
   assert.equal(model.reserveGuide.level, 'stable');
-  assert.equal(model.reserveGuide.distanceFromStableLinePercent, 14.88);
-  assert.equal(model.reserveGuide.markerPercent, 99.6);
-  assert.equal(model.reserveGuide.summary, '高於供電充裕線 14.9 個百分點');
-  assert.equal(model.metrics.currentLoadMw, 30891);
+  assert.equal(model.reserveGuide.distanceFromStableLinePercent, 19.88);
+  assert.equal(model.reserveGuide.markerPercent, 100);
+  assert.equal(model.reserveGuide.summary, '高於供電充裕門檻 19.9 個百分點');
+  assert.equal(model.metrics.currentLoadMw, 3770.6);
   assert.equal(model.topUnits[0].name, '其它購電太陽能');
   assert.equal(model.categories[0].labelZh, '太陽能');
   assert.ok(model.updatedAt instanceof Date);
@@ -138,31 +150,27 @@ test('does not count storage charging as negative generation when calculating en
 });
 
 test('maps reserve rate into readable threshold guidance', () => {
-  assert.deepEqual(
-    getReserveGuide(4.9),
-    {
-      level: 'alert',
-      labelZh: '供電警戒',
-      markerPercent: 16.33,
-      distanceFromStableLinePercent: -10.1,
-      summary: '低於供電充裕線 10.1 個百分點',
-      description: '備轉容量已低於 6%，需留意官方供電警訊。',
-      ranges: [
-        { label: '警戒', start: 0, end: 6, color: '#dc2626' },
-        { label: '吃緊', start: 6, end: 10, color: '#ea580c' },
-        { label: '偏緊', start: 10, end: 15, color: '#d97706' },
-        { label: '充裕', start: 15, end: 30, color: '#059669' }
-      ]
-    }
-  );
+  const low = getReserveGuide(4.9);
+  assert.equal(low.indicator, 'O');
+  assert.equal(low.source, 'derived-fallback');
+  assert.equal(low.level, 'caution');
+  assert.equal(low.labelZh, '供電吃緊');
+  assert.equal(low.markerPercent, 24.5);
+  assert.equal(low.distanceFromStableLinePercent, -5.1);
+  assert.equal(low.summary, '低於供電充裕門檻 5.1 個百分點');
+  assert.deepEqual(low.ranges, [
+    { label: '吃緊', start: 0, end: 6, color: '#ea580c' },
+    { label: '稍緊', start: 6, end: 10, color: '#ca8a04' },
+    { label: '充裕', start: 10, end: 20, color: '#059669' }
+  ]);
 
   const stable = getReserveGuide(18.2);
   assert.equal(stable.level, 'stable');
-  assert.equal(stable.markerPercent, 60.67);
-  assert.equal(stable.summary, '高於供電充裕線 3.2 個百分點');
+  assert.equal(stable.markerPercent, 91);
+  assert.equal(stable.summary, '高於供電充裕門檻 8.2 個百分點');
 });
 
-test('revives cached models created before reserve guide existed', () => {
+test('rejects cached models that predate trustworthy per-feed provenance', () => {
   const oldCachedModel = {
     fetchedAt: '2026-05-30T00:10:00.000Z',
     updatedAt: '2026-05-30T00:10:00.000Z',
@@ -171,12 +179,15 @@ test('revives cached models created before reserve guide existed', () => {
     }
   };
 
-  const revived = reviveModel(oldCachedModel);
+  assert.throws(
+    () => reviveModel(oldCachedModel),
+    /not an approved Taipower transport/
+  );
 
-  assert.equal(revived.reserveGuide.level, 'stable');
-  assert.equal(revived.reserveGuide.summary, '高於供電充裕線 3.2 個百分點');
-  assert.ok(revived.fetchedAt instanceof Date);
-  assert.ok(revived.updatedAt instanceof Date);
+  assert.throws(
+    () => reviveModel({ ...oldCachedModel, source: 'taipower-static' }),
+    /feeds\.supply\.observedAt is required/
+  );
 });
 
 test('escapes API text before rendering HTML templates', () => {
@@ -203,7 +214,7 @@ test('builds a static GitHub Pages payload from Taipower data', () => {
   assert.equal(payload.cache.storedAt, generatedAt.toISOString());
 });
 
-test('marks static payloads as degraded when generated from fallback data', () => {
+test('can create an explicitly degraded demo payload for client rejection tests', () => {
   const payload = buildStaticDataPayload({
     supplyPayload,
     generationPayload,

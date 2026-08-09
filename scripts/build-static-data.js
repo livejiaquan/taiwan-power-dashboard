@@ -1,28 +1,28 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import {
   GENERATION_ENDPOINT,
   SUPPLY_ENDPOINT
 } from '../js/power-data.js';
-import { sampleGenerationPayload, sampleSupplyPayload } from '../data/sample-power-data.js';
 import { buildStaticDataPayload } from './static-data.js';
 
-function getOutputPath() {
-  const outIndex = process.argv.indexOf('--out');
-  if (outIndex !== -1 && process.argv[outIndex + 1]) {
-    return resolve(process.argv[outIndex + 1]);
+function getOutputPath(argv = process.argv) {
+  const outIndex = argv.indexOf('--out');
+  if (outIndex !== -1 && argv[outIndex + 1]) {
+    return resolve(argv[outIndex + 1]);
   }
 
   return resolve('api/power-data.json');
 }
 
-async function fetchJson(url, attempts = 3) {
+async function fetchJson(url, { fetchImpl, attempts, retryDelayMs }) {
   let lastError = null;
 
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
-      const response = await fetch(url, {
+      const response = await fetchImpl(url, {
         headers: {
           Accept: 'application/json',
           'User-Agent': 'taiwan-power-dashboard/0.1'
@@ -37,7 +37,7 @@ async function fetchJson(url, attempts = 3) {
     } catch (error) {
       lastError = error;
       if (attempt < attempts) {
-        await new Promise((resolveDelay) => setTimeout(resolveDelay, attempt * 1500));
+        await new Promise((resolveDelay) => setTimeout(resolveDelay, attempt * retryDelayMs));
       }
     }
   }
@@ -45,27 +45,53 @@ async function fetchJson(url, attempts = 3) {
   throw lastError;
 }
 
-const outputPath = getOutputPath();
-let payload;
+export async function runBuild({
+  fetchImpl = globalThis.fetch,
+  outputPath = getOutputPath(),
+  now = () => new Date(),
+  attempts = 3,
+  retryDelayMs = 1500
+} = {}) {
+  if (typeof fetchImpl !== 'function') {
+    throw new TypeError('runBuild requires a fetch implementation');
+  }
+  if (!Number.isInteger(attempts) || attempts < 1) {
+    throw new TypeError('runBuild attempts must be a positive integer');
+  }
+  if (!Number.isFinite(retryDelayMs) || retryDelayMs < 0) {
+    throw new TypeError('runBuild retryDelayMs must be non-negative');
+  }
 
-try {
   const [supplyPayload, generationPayload] = await Promise.all([
-    fetchJson(SUPPLY_ENDPOINT),
-    fetchJson(GENERATION_ENDPOINT)
+    fetchJson(SUPPLY_ENDPOINT, { fetchImpl, attempts, retryDelayMs }),
+    fetchJson(GENERATION_ENDPOINT, { fetchImpl, attempts, retryDelayMs })
   ]);
-  payload = buildStaticDataPayload({ supplyPayload, generationPayload });
-} catch (error) {
-  const reason = `GitHub Pages build could not reach Taipower live data: ${error.message}`;
-  console.warn(reason);
-  payload = buildStaticDataPayload({
-    supplyPayload: sampleSupplyPayload,
-    generationPayload: sampleGenerationPayload,
-    source: 'sample-static',
-    degradedReason: reason
+  const generatedAt = typeof now === 'function' ? now() : now;
+  const payload = buildStaticDataPayload({
+    supplyPayload,
+    generationPayload,
+    generatedAt
   });
+
+  const resolvedOutputPath = resolve(outputPath);
+  await mkdir(dirname(resolvedOutputPath), { recursive: true });
+  await writeFile(resolvedOutputPath, `${JSON.stringify(payload, null, 2)}\n`);
+
+  return {
+    outputPath: resolvedOutputPath,
+    payload
+  };
 }
 
-await mkdir(dirname(outputPath), { recursive: true });
-await writeFile(outputPath, `${JSON.stringify(payload, null, 2)}\n`);
+const isCli = process.argv[1]
+  && resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url));
 
-console.log(`Wrote static power data to ${outputPath}`);
+if (isCli) {
+  try {
+    const result = await runBuild();
+    console.log(`Wrote static power data to ${result.outputPath}`);
+  } catch (error) {
+    console.error(`Static data build failed; previous deployment remains untouched: ${error.message}`);
+    process.exitCode = 1;
+  }
+}
