@@ -17,12 +17,13 @@ function getOutputPath(argv = process.argv) {
   return resolve('api/power-data.json');
 }
 
-async function fetchJson(url, { fetchImpl, attempts, retryDelayMs }) {
+async function fetchJson(url, { fetchImpl, attempts, retryDelayMs, requestTimeoutMs }) {
   let lastError = null;
 
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
       const response = await fetchImpl(url, {
+        signal: AbortSignal.timeout(requestTimeoutMs),
         headers: {
           Accept: 'application/json',
           'User-Agent': 'taiwan-power-dashboard/0.1'
@@ -50,7 +51,8 @@ export async function runBuild({
   outputPath = getOutputPath(),
   now = () => new Date(),
   attempts = 3,
-  retryDelayMs = 1500
+  retryDelayMs = 1500,
+  requestTimeoutMs = 15_000
 } = {}) {
   if (typeof fetchImpl !== 'function') {
     throw new TypeError('runBuild requires a fetch implementation');
@@ -61,10 +63,14 @@ export async function runBuild({
   if (!Number.isFinite(retryDelayMs) || retryDelayMs < 0) {
     throw new TypeError('runBuild retryDelayMs must be non-negative');
   }
+  if (!Number.isFinite(requestTimeoutMs) || requestTimeoutMs <= 0) {
+    throw new TypeError('runBuild requestTimeoutMs must be positive');
+  }
 
+  const fetchOptions = { fetchImpl, attempts, retryDelayMs, requestTimeoutMs };
   const [supplyPayload, generationPayload] = await Promise.all([
-    fetchJson(SUPPLY_ENDPOINT, { fetchImpl, attempts, retryDelayMs }),
-    fetchJson(GENERATION_ENDPOINT, { fetchImpl, attempts, retryDelayMs })
+    fetchJson(SUPPLY_ENDPOINT, fetchOptions),
+    fetchJson(GENERATION_ENDPOINT, fetchOptions)
   ]);
   const generatedAt = typeof now === 'function' ? now() : now;
   const payload = buildStaticDataPayload({

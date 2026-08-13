@@ -706,6 +706,25 @@ test('production builder writes a validated official snapshot with distinct obse
   assert.notEqual(onDisk.model.source, 'sample-static');
 });
 
+test('production builder aborts stalled official requests before retrying', async () => {
+  let attempts = 0;
+  const stalledFetch = (_url, { signal }) => new Promise((_resolve, reject) => {
+    attempts += 1;
+    signal.addEventListener('abort', () => reject(signal.reason), { once: true });
+  });
+
+  await assert.rejects(
+    runBuild({
+      fetchImpl: stalledFetch,
+      attempts: 2,
+      retryDelayMs: 0,
+      requestTimeoutMs: 10
+    }),
+    (error) => error?.name === 'TimeoutError'
+  );
+  assert.equal(attempts, 4);
+});
+
 test('production builder failure or malformed HTTP 200 never overwrites last-known-good output', async (t) => {
   const directory = await makeTemporaryDirectory(t);
   const outputPath = join(directory, 'power-data.json');
