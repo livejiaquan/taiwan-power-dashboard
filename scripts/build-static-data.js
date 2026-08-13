@@ -21,9 +21,15 @@ async function fetchJson(url, { fetchImpl, attempts, retryDelayMs, requestTimeou
   let lastError = null;
 
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(
+      () => controller.abort(new DOMException('Taipower request timed out', 'TimeoutError')),
+      requestTimeoutMs
+    );
+
     try {
       const response = await fetchImpl(url, {
-        signal: AbortSignal.timeout(requestTimeoutMs),
+        signal: controller.signal,
         headers: {
           Accept: 'application/json',
           'User-Agent': 'taiwan-power-dashboard/0.1'
@@ -40,6 +46,8 @@ async function fetchJson(url, { fetchImpl, attempts, retryDelayMs, requestTimeou
       if (attempt < attempts) {
         await new Promise((resolveDelay) => setTimeout(resolveDelay, attempt * retryDelayMs));
       }
+    } finally {
+      clearTimeout(timeoutId);
     }
   }
 
