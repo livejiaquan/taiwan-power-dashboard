@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -29,6 +29,7 @@ import {
   validateSameOriginPayload
 } from '../js/api.js';
 import { runBuild } from '../scripts/build-static-data.js';
+import { buildStaticSite } from '../scripts/build-static-site.js';
 
 const MINUTE_MS = 60 * 1000;
 const HOUR_MS = 60 * MINUTE_MS;
@@ -789,4 +790,62 @@ test('production builder CLI exits non-zero and preserves output when official f
   assert.match(child.stderr, /previous deployment remains untouched/);
   assert.match(child.stderr, /forced CLI fetch failure/);
   assert.equal(await readFile(outputPath, 'utf8'), sentinel);
+});
+
+test('static site build retries transient data failures before succeeding', async (t) => {
+  const outputDir = join(REPO_ROOT, `.test-dist-${process.pid}-${Date.now()}`);
+  t.after(async () => {
+    await rm(outputDir, { recursive: true, force: true });
+  });
+  let attempts = 0;
+  const retryDelays = [];
+
+  const result = await buildStaticSite({
+    outputDir,
+    dataBuildAttempts: 3,
+    dataBuildRetryDelayMs: 10_000,
+    waitImpl: async (delayMs) => retryDelays.push(delayMs),
+    buildData: async ({ outputPath }) => {
+      attempts += 1;
+      if (attempts < 3) {
+        throw new Error('transient Taipower failure');
+      }
+      await mkdir(join(outputDir, 'api'), { recursive: true });
+      await writeFile(outputPath, '{}\n');
+    }
+  });
+
+  assert.equal(result, outputDir);
+  assert.equal(attempts, 3);
+  assert.deepEqual(retryDelays, [10_000, 20_000]);
+  assert.equal(await readFile(join(outputDir, 'api', 'power-data.json'), 'utf8'), '{}\n');
+});
+
+test('static site build still fails after the bounded data retry budget is exhausted', async (t) => {
+  const outputDir = join(REPO_ROOT, `.test-dist-${process.pid}-${Date.now()}-failure`);
+  t.after(async () => {
+    await rm(outputDir, { recursive: true, force: true });
+  });
+  let attempts = 0;
+
+  await assert.rejects(
+    buildStaticSite({
+      outputDir,
+      dataBuildAttempts: 3,
+      dataBuildRetryDelayMs: 0,
+      buildData: async () => {
+        attempts += 1;
+        throw new Error('persistent Taipower failure');
+      }
+    }),
+    /persistent Taipower failure/
+  );
+  assert.equal(attempts, 3);
+});
+
+test('static site build refuses a retry budget above three attempts', async () => {
+  await assert.rejects(
+    buildStaticSite({ dataBuildAttempts: 4 }),
+    /between 1 and 3/
+  );
 });
