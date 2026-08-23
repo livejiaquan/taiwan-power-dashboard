@@ -141,6 +141,22 @@ function getSourceText(transport) {
   }[transport] || '資料流未知';
 }
 
+function getTrustHealthMessage(result) {
+  const state = result.freshness?.state;
+  const health = result.model?.health;
+  const indicator = result.model?.supply?.forecastReserveIndicator;
+  if (state === 'unavailable'
+      || health?.source !== 'official-indicator'
+      || !indicator
+      || !health.labelZh) {
+    return null;
+  }
+
+  return state === 'live'
+    ? `官方燈號：${indicator} · ${health.labelZh}。`
+    : `最後成功快照的官方燈號：${indicator} · ${health.labelZh}。`;
+}
+
 function renderTrustState(result) {
   const freshness = result.freshness || { state: 'unavailable', sources: {} };
   const state = freshness.state;
@@ -203,7 +219,12 @@ function renderTrustState(result) {
   elements.noticeBanner.className = `notice-banner notice-banner--${copy.bannerClass}`;
   elements.noticeIcon.className = `bi ${copy.icon}`;
   elements.noticeTitle.textContent = copy.title;
-  elements.noticeMessage.textContent = [copy.message, fallbackMessage, refreshMessage]
+  elements.noticeMessage.textContent = [
+    copy.message,
+    getTrustHealthMessage(result),
+    fallbackMessage,
+    refreshMessage
+  ]
     .filter(Boolean)
     .join(' ');
   setHeroDataStatus(copy.heroClass, copy.heroText);

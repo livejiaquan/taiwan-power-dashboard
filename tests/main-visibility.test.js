@@ -204,8 +204,10 @@ test('visibility, focus, and pageshow events immediately re-age rendered freshne
   }
 
   const noticeTitle = idElements.get('notice-title');
+  const noticeMessage = idElements.get('notice-message');
   const unavailableState = idElements.get('unavailable-state');
   assert.equal(noticeTitle.textContent, '官方資料已確認');
+  assert.match(noticeMessage.textContent, /官方燈號：G · 供電充裕/);
   assert.deepEqual(intervals.map(({ delay }) => delay).sort((a, b) => a - b), [15_000, 600_000]);
   assert.equal(typeof documentListeners.get('visibilitychange'), 'function');
   assert.equal(typeof windowListeners.get('focus'), 'function');
@@ -220,14 +222,17 @@ test('visibility, focus, and pageshow events immediately re-age rendered freshne
   fakeDocument.visibilityState = 'visible';
   documentListeners.get('visibilitychange')();
   assert.equal(noticeTitle.textContent, '資料延遲 21 分鐘');
+  assert.match(noticeMessage.textContent, /最後成功快照的官方燈號：G · 供電充裕/);
 
   currentNowMs = sourceTime.getTime() + 60 * MINUTE_MS + 1;
   windowListeners.get('focus')();
   assert.equal(noticeTitle.textContent, '非即時快照 · 61 分鐘前');
+  assert.match(noticeMessage.textContent, /最後成功快照的官方燈號：G · 供電充裕/);
 
   currentNowMs = sourceTime.getTime() + 24 * HOUR_MS + 1;
   windowListeners.get('pageshow')();
   assert.equal(noticeTitle.textContent, '目前無法確認供電狀態');
+  assert.doesNotMatch(noticeMessage.textContent, /官方燈號/);
   assert.equal(unavailableState.hidden, false);
   assert.ok(dashboardContents.every((element) => element.hidden));
 
