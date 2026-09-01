@@ -90,7 +90,7 @@ taiwan-power-dashboard/
 
 ## Notes
 
-The dashboard uses a small local Node proxy at `/api/power-data` because Taipower's official JSON endpoints do not consistently expose browser-friendly CORS headers. If a refresh fails, a last-known-good browser/static snapshot may remain visible only with its original source age and a delayed/stale label. Missing, invalid, future-dated, sample, or over-24-hour data becomes unavailable.
+The dashboard uses a small local Node proxy at `/api/power-data` because Taipower's official JSON endpoints do not consistently expose browser-friendly CORS headers. GitHub Pages never probes that server-only route or fetches Taipower directly; it reads the same-origin `api/power-data.json` snapshot produced by CI. If a refresh fails, a last-known-good browser/static snapshot may remain visible only with its original source age and a delayed/stale label. Missing, invalid, future-dated, sample, or over-24-hour data becomes unavailable.
 
 ## GitHub Pages
 

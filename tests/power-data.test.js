@@ -197,9 +197,28 @@ test('escapes API text before rendering HTML templates', () => {
   );
 });
 
-test('tries GitHub Pages static data before the local Node proxy', () => {
-  assert.deepEqual(buildSameOriginDataUrls(false), ['api/power-data.json', '/api/power-data']);
-  assert.deepEqual(buildSameOriginDataUrls(true), ['api/power-data.json?force=1', '/api/power-data?force=1']);
+test('uses only the static snapshot on GitHub Pages', () => {
+  const originalLocation = globalThis.location;
+  globalThis.location = { hostname: 'livejiaquan.github.io', protocol: 'https:' };
+
+  try {
+    assert.deepEqual(buildSameOriginDataUrls(false), ['api/power-data.json']);
+    assert.deepEqual(buildSameOriginDataUrls(true), ['api/power-data.json?force=1']);
+  } finally {
+    globalThis.location = originalLocation;
+  }
+});
+
+test('keeps the local Node proxy as a development fallback', () => {
+  const originalLocation = globalThis.location;
+  globalThis.location = { hostname: '127.0.0.1', protocol: 'http:' };
+
+  try {
+    assert.deepEqual(buildSameOriginDataUrls(false), ['api/power-data.json', '/api/power-data']);
+    assert.deepEqual(buildSameOriginDataUrls(true), ['api/power-data.json?force=1', '/api/power-data?force=1']);
+  } finally {
+    globalThis.location = originalLocation;
+  }
 });
 
 test('builds a static GitHub Pages payload from Taipower data', () => {

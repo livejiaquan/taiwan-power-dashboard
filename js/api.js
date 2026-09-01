@@ -1,5 +1,4 @@
 import {
-  buildDashboardModel,
   GENERATION_ENDPOINT,
   SUPPLY_ENDPOINT
 } from './power-data.js';
@@ -31,7 +30,17 @@ const REQUIRED_METRICS = [
 
 export function buildSameOriginDataUrls(force = false) {
   const suffix = force ? '?force=1' : '';
-  return [`api/power-data.json${suffix}`, `/api/power-data${suffix}`];
+  const urls = [`api/power-data.json${suffix}`];
+  const hostname = globalThis.location?.hostname || '';
+
+  // GitHub Pages cannot serve a dynamic root-level API. Its scheduled build
+  // publishes the validated snapshot above, so probing /api only creates a
+  // guaranteed 404 outside the project path.
+  if (!hostname.endsWith('.github.io')) {
+    urls.push(`/api/power-data${suffix}`);
+  }
+
+  return urls;
 }
 
 function reviveDate(value, label) {
@@ -187,16 +196,6 @@ async function fetchWithTimeout(url, init = {}) {
   }
 }
 
-async function fetchJson(url) {
-  const response = await fetchWithTimeout(url, {
-    cache: 'no-store',
-    headers: { Accept: 'application/json' }
-  });
-
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  return response.json();
-}
-
 function decorateResult(result, now = new Date()) {
   const model = reviveModel(result.model);
   if (!model) throw new TypeError('資料回應缺少 model');
@@ -253,43 +252,18 @@ async function fetchSameOriginUrl(url) {
 
 async function fetchViaSameOrigin(force) {
   let lastError = null;
-  const candidates = [];
 
   for (const url of buildSameOriginDataUrls(force)) {
     if (globalThis.location?.protocol === 'file:' && url.startsWith('/')) continue;
 
     try {
-      const result = await fetchSameOriginUrl(url);
-      candidates.push(result);
+      return await fetchSameOriginUrl(url);
     } catch (error) {
       lastError = error;
     }
   }
 
-  const bestCandidate = chooseBestCandidate(candidates);
-  if (bestCandidate) return bestCandidate;
   throw lastError || new Error('同源資料來源不可用');
-}
-
-async function fetchDirectFromTaipower() {
-  const [supplyPayload, generationPayload] = await Promise.all([
-    fetchJson(SUPPLY_ENDPOINT),
-    fetchJson(GENERATION_ENDPOINT)
-  ]);
-  const fetchedAt = new Date();
-
-  return decorateResult({
-    model: buildDashboardModel({
-      supplyPayload,
-      generationPayload,
-      fetchedAt,
-      source: 'taipower-direct'
-    }),
-    transport: 'direct-live',
-    metadata: {
-      sources: { supply: SUPPLY_ENDPOINT, generation: GENERATION_ENDPOINT }
-    }
-  }, fetchedAt);
 }
 
 function browserCacheResult(cached) {
@@ -353,20 +327,10 @@ export class PowerAPI extends EventTarget {
     }
 
     const errors = [];
-    let sameOriginResult = null;
     try {
-      sameOriginResult = await fetchViaSameOrigin(force);
-      fetchedCandidates.push(sameOriginResult);
+      fetchedCandidates.push(await fetchViaSameOrigin(force));
     } catch (error) {
       errors.push(error);
-    }
-
-    if (!sameOriginResult || sameOriginResult.freshness.state !== 'live') {
-      try {
-        fetchedCandidates.push(await fetchDirectFromTaipower());
-      } catch (error) {
-        errors.push(error);
-      }
     }
 
     const { candidate, preventedRegression } = selectBestCandidate({

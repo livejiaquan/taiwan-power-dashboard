@@ -161,7 +161,7 @@ test('visibility, focus, and pageshow events immediately re-age rendered freshne
 
   globalThis.document = fakeDocument;
   globalThis.window = fakeWindow;
-  globalThis.location = { protocol: 'http:' };
+  globalThis.location = { hostname: 'livejiaquan.github.io', protocol: 'https:' };
   Object.defineProperty(globalThis, 'localStorage', {
     configurable: true,
     value: {
@@ -183,7 +183,9 @@ test('visibility, focus, and pageshow events immediately re-age rendered freshne
     generatedAt: new FakeDate(sourceTime.getTime() + 5 * MINUTE_MS)
   })));
 
+  const fetchedUrls = [];
   globalThis.fetch = async (url) => {
+    fetchedUrls.push(String(url));
     if (String(url).startsWith('api/power-data.json')) {
       return {
         ok: true,
@@ -213,6 +215,7 @@ test('visibility, focus, and pageshow events immediately re-age rendered freshne
   assert.equal(typeof windowListeners.get('focus'), 'function');
   assert.equal(typeof windowListeners.get('pageshow'), 'function');
   assert.equal(windowListeners.has('beforeunload'), false);
+  assert.deepEqual(fetchedUrls, ['api/power-data.json']);
 
   currentNowMs = sourceTime.getTime() + 20 * MINUTE_MS + 1;
   fakeDocument.visibilityState = 'hidden';
@@ -223,6 +226,12 @@ test('visibility, focus, and pageshow events immediately re-age rendered freshne
   documentListeners.get('visibilitychange')();
   assert.equal(noticeTitle.textContent, '資料延遲 21 分鐘');
   assert.match(noticeMessage.textContent, /最後成功快照的官方燈號：G · 供電充裕/);
+
+  intervals.find(({ delay }) => delay === 600_000).callback();
+  for (let turn = 0; turn < 20; turn += 1) {
+    await new Promise((resolveTurn) => setImmediate(resolveTurn));
+  }
+  assert.deepEqual(fetchedUrls, ['api/power-data.json', 'api/power-data.json?force=1']);
 
   currentNowMs = sourceTime.getTime() + 60 * MINUTE_MS + 1;
   windowListeners.get('focus')();
