@@ -7,7 +7,7 @@ import {
   normalizeSupplyPayload,
   summarizeGenerationUnits
 } from '../js/power-data.js';
-import { buildSameOriginDataUrls, reviveModel } from '../js/api.js';
+import { buildSameOriginDataUrls, fetchJsonWithTimeout, reviveModel } from '../js/api.js';
 import { escapeHtml } from '../js/sanitize.js';
 import { buildStaticDataPayload } from '../scripts/static-data.js';
 
@@ -207,6 +207,28 @@ test('uses only the static snapshot on GitHub Pages', () => {
   } finally {
     globalThis.location = originalLocation;
   }
+});
+
+test('same-origin JSON timeout remains active while the response body stalls', async () => {
+  let requestSignal = null;
+  const fetchImpl = async (_url, init) => {
+    requestSignal = init.signal;
+    return {
+      ok: true,
+      status: 200,
+      json: () => new Promise((resolve, reject) => {
+        requestSignal.addEventListener('abort', () => {
+          reject(new DOMException('The operation was aborted', 'AbortError'));
+        }, { once: true });
+      })
+    };
+  };
+
+  await assert.rejects(
+    fetchJsonWithTimeout('api/power-data.json', {}, { fetchImpl, timeoutMs: 5 }),
+    (error) => error?.name === 'AbortError'
+  );
+  assert.equal(requestSignal.aborted, true);
 });
 
 test('keeps the local Node proxy as a development fallback', () => {

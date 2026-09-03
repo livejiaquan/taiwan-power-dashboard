@@ -185,12 +185,17 @@ function writeCache(model, metadata) {
   }
 }
 
-async function fetchWithTimeout(url, init = {}) {
+export async function fetchJsonWithTimeout(url, init = {}, {
+  fetchImpl = globalThis.fetch,
+  timeoutMs = REQUEST_TIMEOUT_MS
+} = {}) {
   const controller = new AbortController();
-  const timeoutId = globalThis.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  const timeoutId = globalThis.setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    return await fetch(url, { ...init, signal: controller.signal });
+    const response = await fetchImpl(url, { ...init, signal: controller.signal });
+    if (!response.ok) throw new Error(`同源 API 回應 HTTP ${response.status}`);
+    return await response.json();
   } finally {
     globalThis.clearTimeout(timeoutId);
   }
@@ -245,9 +250,8 @@ export function validateSameOriginPayload(payload, { now = new Date() } = {}) {
 }
 
 async function fetchSameOriginUrl(url) {
-  const response = await fetchWithTimeout(url, { cache: 'no-store' });
-  if (!response.ok) throw new Error(`同源 API 回應 HTTP ${response.status}`);
-  return validateSameOriginPayload(await response.json());
+  const payload = await fetchJsonWithTimeout(url, { cache: 'no-store' });
+  return validateSameOriginPayload(payload);
 }
 
 async function fetchViaSameOrigin(force) {
