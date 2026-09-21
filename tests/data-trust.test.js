@@ -726,6 +726,22 @@ test('production builder aborts stalled official requests before retrying', asyn
   assert.equal(attempts, 4);
 });
 
+test('production builder refuses more than three attempts per official feed', async () => {
+  let fetchCalls = 0;
+
+  await assert.rejects(
+    runBuild({
+      fetchImpl: async () => {
+        fetchCalls += 1;
+        throw new Error('fetch should not start');
+      },
+      attempts: 4
+    }),
+    /between 1 and 3/
+  );
+  assert.equal(fetchCalls, 0);
+});
+
 test('production builder failure or malformed HTTP 200 never overwrites last-known-good output', async (t) => {
   const directory = await makeTemporaryDirectory(t);
   const outputPath = join(directory, 'power-data.json');

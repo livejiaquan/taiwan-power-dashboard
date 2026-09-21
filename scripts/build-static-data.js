@@ -65,8 +65,8 @@ export async function runBuild({
   if (typeof fetchImpl !== 'function') {
     throw new TypeError('runBuild requires a fetch implementation');
   }
-  if (!Number.isInteger(attempts) || attempts < 1) {
-    throw new TypeError('runBuild attempts must be a positive integer');
+  if (!Number.isInteger(attempts) || attempts < 1 || attempts > 3) {
+    throw new TypeError('runBuild attempts must be between 1 and 3');
   }
   if (!Number.isFinite(retryDelayMs) || retryDelayMs < 0) {
     throw new TypeError('runBuild retryDelayMs must be non-negative');
