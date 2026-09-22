@@ -4,6 +4,7 @@ import { createServer } from 'node:http';
 import { extname, join, normalize, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { fetchJsonWithTimeout } from './js/fetch-json.js';
 import {
   buildDashboardModel,
   GENERATION_ENDPOINT,
@@ -15,7 +16,6 @@ const rootDir = resolve(__dirname);
 const port = Number(process.env.PORT || 4173);
 const host = process.env.HOST || '127.0.0.1';
 const cacheTtlMs = 2 * 60 * 1000;
-const requestTimeoutMs = 8 * 1000;
 
 let apiCache = null;
 
@@ -44,28 +44,13 @@ function sendError(response, statusCode, message) {
   sendJson(response, statusCode, { error: message });
 }
 
-async function fetchJson(url) {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), requestTimeoutMs);
-  let response;
-
-  try {
-    response = await fetch(url, {
-      signal: controller.signal,
-      headers: {
-        Accept: 'application/json',
-        'User-Agent': 'taiwan-power-dashboard/0.1'
-      }
-    });
-  } finally {
-    clearTimeout(timeoutId);
-  }
-
-  if (!response.ok) {
-    throw new Error(`Taipower responded with HTTP ${response.status}`);
-  }
-
-  return response.json();
+function fetchJson(url) {
+  return fetchJsonWithTimeout(url, {
+    headers: {
+      Accept: 'application/json',
+      'User-Agent': 'taiwan-power-dashboard/0.1'
+    }
+  });
 }
 
 async function handlePowerData(request, response) {
