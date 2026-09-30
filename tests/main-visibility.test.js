@@ -41,6 +41,7 @@ class FakeElement {
       }
     };
     this.textContent = '';
+    this.parentElement = { style: {} };
   }
 
   addEventListener(type, callback) {
@@ -216,6 +217,9 @@ test('visibility, focus, and pageshow events immediately re-age rendered freshne
   assert.equal(typeof windowListeners.get('pageshow'), 'function');
   assert.equal(windowListeners.has('beforeunload'), false);
   assert.deepEqual(fetchedUrls, ['api/power-data.json']);
+  assert.equal(idElements.get('supply-date-label').textContent, '2026/05/30 的預估尖峰 · 非目前瞬時值');
+  assert.match(idElements.get('stats-grid').innerHTML, /尖峰備轉實績/);
+  assert.doesNotMatch(idElements.get('stats-grid').innerHTML, /今日預估|昨日尖峰/);
 
   currentNowMs = sourceTime.getTime() + 20 * MINUTE_MS + 1;
   fakeDocument.visibilityState = 'hidden';
@@ -236,6 +240,7 @@ test('visibility, focus, and pageshow events immediately re-age rendered freshne
   currentNowMs = sourceTime.getTime() + 60 * MINUTE_MS + 1;
   windowListeners.get('focus')();
   assert.equal(noticeTitle.textContent, '非即時快照 · 61 分鐘前');
+  assert.equal(idElements.get('supply-date-label').textContent, '2026/05/30 的預估尖峰 · 非目前瞬時值');
   assert.match(noticeMessage.textContent, /最後成功快照的官方燈號：G · 供電充裕/);
 
   currentNowMs = sourceTime.getTime() + 24 * HOUR_MS + 1;

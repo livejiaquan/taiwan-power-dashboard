@@ -1,6 +1,6 @@
-# 台灣電力即時看板
+# 台灣電力｜尖峰供需與發電結構
 
-以台電官方開放資料呈現台灣供電狀態、資料新鮮度與發電結構的公共看板。
+以台電官方開放資料呈現供需、資料時效與發電結構的公共資訊工具。先確認來源日期，再讀供需與備轉；延遲資料與舊快照不冒充此刻。
 
 產品 mission、研究證據與 roadmap 見 [`docs/PRODUCT.md`](docs/PRODUCT.md)；production 的 freshness、fallback 與 validation 規則見 [`docs/DATA_TRUST_CONTRACT.md`](docs/DATA_TRUST_CONTRACT.md)。
 
@@ -9,13 +9,15 @@
 - Clearly labeled live, delayed, stale, and unavailable states based on official source timestamps.
 - Current load, utilization, forecast reserve capacity, and Taipower's official `G/Y/O/R/B` status.
 - Unit-level generation parsing from Taipower open data.
-- Energy mix charts, category cards, top generating units, and constrained-unit notes.
+- Energy mix charts, category detail rows, top generating units, and expandable official unit remarks.
 - Same-origin Node proxy for local/dev deployment so browser CORS does not block official JSON.
 - Browser/server cache that preserves source age; cached data never becomes fresh merely because it was downloaded again.
 - Monotonic per-feed source times: an older refresh cannot overwrite a newer last-known-good snapshot.
 - In-page freshness clock that updates delayed/stale/unavailable states even when the network refresh timer is throttled.
 - Fail-closed production build: malformed, missing-time, or unavailable feeds do not publish sample data.
-- Responsive visual language aligned with `taiwan-reservoir-static`: Noto Sans TC, Bootstrap Icons, Chart.js, blue/cyan public-data dashboard styling.
+- Visual-first power balance: a quantitative forecast demand/capacity arc, independent observed-generation mix, source-time hierarchy, progressive disclosure, and mobile-safe tables.
+
+The V3 design brief is in [`docs/POWER_V3_DESIGN.md`](docs/POWER_V3_DESIGN.md), with verification in [`design-qa.md`](design-qa.md). Screenshots and generated references remain local and are excluded from Git. This branch does not publish GitHub Pages.
 
 ## Data Sources
 

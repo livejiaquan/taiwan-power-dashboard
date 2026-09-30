@@ -1,6 +1,7 @@
 .DS_Store
 node_modules/
 output/
+.playwright-cli/
 dist/
 api/
 npm-debug.log*
