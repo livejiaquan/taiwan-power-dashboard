@@ -87,3 +87,39 @@ export function getCapacityBalance(metrics) {
     ],
   };
 }
+
+// A refresh result describes verification, never a reset of source age.
+export function getRefreshFeedback(result) {
+  if (!result?.model || !result.freshness?.usable) {
+    return "重新檢查完成，仍無可驗證資料；暫停顯示數字。";
+  }
+  if (result.metadata?.preventedRegression || result.refreshOutcome === "regressed") {
+    return "本次來源時間較舊，已保留較新的最後成功資料。";
+  }
+  if (result.transport === "browser-cache" && result.metadata?.reason) {
+    return "本次連線未取得資料，保留最後成功快照；來源時間未變。";
+  }
+  if (result.refreshOutcome === "updated") {
+    return "已取得較新的官方來源時間；資料時效請見上方狀態。";
+  }
+  if (result.refreshOutcome === "unchanged") {
+    return "已重新檢查，官方來源時間尚未更新。";
+  }
+  return "重新檢查完成，已取得可驗證資料；資料時效請見上方狀態。";
+}
+
+// Check both feeds: the oldest timestamp alone can hide a one-feed update.
+export function getRefreshOutcome(previous, next) {
+  if (next.metadata?.preventedRegression) return "regressed";
+  const feeds = ["supply", "generation"];
+  const timestamp = (result, feed) => {
+    const value = result?.model?.feeds?.[feed]?.observedAt;
+    return value == null ? NaN : new Date(value).getTime();
+  };
+  const before = feeds.map((feed) => timestamp(previous, feed));
+  const after = feeds.map((feed) => timestamp(next, feed));
+  if (![...before, ...after].every(Number.isFinite)) return "checked";
+  if (after.some((time, index) => time < before[index])) return "regressed";
+  if (after.some((time, index) => time > before[index])) return "updated";
+  return "unchanged";
+}

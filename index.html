@@ -112,6 +112,14 @@
               這裡記錄的是來源發布／觀測時間，不是本站下載或部署時間。重新檢查不會讓舊資料變新。
             </p>
           </details>
+          <p
+            id="refresh-feedback"
+            class="refresh-feedback"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+            hidden
+          ></p>
           <div id="unavailable-actions" class="unavailable-actions" hidden>
             <button id="retry-data-btn" class="retry-data-btn" type="button">
               重新取得資料
@@ -306,7 +314,7 @@
               <div class="chart-container chart-container--donut">
                 <div class="chart-title">
                   <h3>燃料別占比</h3>
-                  <p>正輸出類別的構成</p>
+                  <p>各類別正淨輸出合計為分母</p>
                 </div>
                 <div class="donut-chart-frame">
                   <canvas
@@ -343,7 +351,7 @@
           >
             <div class="section-header section-header--compact">
               <h2 id="categories-title">能源類別詳情</h2>
-              <p>占比以正輸出計算；負值保留為充電或抽蓄負載</p>
+              <p>占比以各類別正淨輸出合計計算；負值保留為充電或抽蓄負載，不計入占比</p>
             </div>
             <div id="category-grid" class="category-grid"></div>
           </section>

@@ -1,5 +1,21 @@
 # V3 design QA
 
+## Current cloud polish verification (2026-09-30)
+
+This section covers the current refresh, percentage, and accessibility polish. The V3 screenshot assessment below is historical and does not verify these changes. The prior uncommitted cloud patch was unavailable when the workspace was restored; this change was reconstructed from public commit `956b05d224effbf1f00062ed91ce11001d8d052d` and checked again.
+
+- Fresh automated checks: **62/62 Node tests pass**, JavaScript syntax checks pass, and `git diff --check` passes
+- Fresh production check: `npm run build` passes using both official Taipower feeds; generated data and `dist/` remain excluded from Git
+- Regression coverage: pending/unchanged/newer/older/unavailable refresh copy, cached fallback, repeated clicks while pending, one-feed-only updates with an unchanged oldest timestamp, thrown-fetch recovery without stale success copy, consistent positive-category doughnut percentages, signed and unknown category values, visible live-region placement outside collapsed source details, and source-level 44px/focus rules
+- Refresh outcome is now visible without opening source details; source age and the separate freshness warning remain authoritative
+- Overview, full chart tooltip, and category detail shares use the same sum of finite positive category net outputs; negative charging values remain signed and explicitly excluded from the share denominator
+- **Browser/visual QA has not passed for this patch.** The cloud preview is blocked by the existing loopback access restriction; the previously attempted `terminal.local` preview returned HTTP 502. No alternate route around that restriction was attempted. Automated DOM/config checks do not prove rendered target size, layout, keyboard behavior, or screen-reader announcements
+- Next bounded issue: mobile CSS visually orders forecast → actual load → generation, while DOM order remains forecast → generation → actual load. Align those orders without duplicating content, then verify responsive layout and keyboard/assistive reading order when permitted browser access is available
+
+Current result: automated and official-source build checks passed; new visual/assistive-technology verification remains blocked. No merge or deployment is part of this polish.
+
+## Historical V3 assessment
+
 Source visual truth: local-only generated reference (excluded from Git; retained in the original assessment workspace)
 Implementation: output/playwright/v3-desktop-first.png; local http://127.0.0.1:4186/
 Viewport: desktop1440×1024, mobile390×844; also320/768/1188. Source1487×1058; implementation1440×1024 CSS pixels, density1. Source is proportionally fitted/padded to1440×1024, never stretched. Both show successful official-source state; concept's15:10/39,338 example differs from real16:40/38,235 source by design.

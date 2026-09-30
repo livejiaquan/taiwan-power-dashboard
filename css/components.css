@@ -1603,3 +1603,43 @@
 .status-hero--stale .health-block h3 {
   color: #c5d0d9;
 }
+
+/* Refresh results remain visible when source details are collapsed. */
+.data-trust-panel {
+  flex-wrap: wrap;
+}
+.refresh-feedback {
+  flex-basis: 100%;
+  color: var(--ink);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+/* Apply after viewport overrides so compact layouts retain usable targets. */
+.refresh-btn,
+.retry-data-btn {
+  min-width: 44px;
+  min-height: 44px;
+}
+.source-details summary,
+.reserve-explainer summary,
+.alerts-panel summary {
+  min-height: 44px;
+  padding-block: 10px;
+}
+.mix-glance-heading > a,
+.now-strip > a {
+  display: inline-flex;
+  align-items: center;
+  min-width: 44px;
+  min-height: 44px;
+}
+.status-hero {
+  --focus-ring: #8ad6c3;
+}
+@media (min-width: 701px) {
+  .now-strip,
+  .reserve-explainer {
+    --focus-ring: var(--accent);
+  }
+}

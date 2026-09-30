@@ -1,4 +1,4 @@
-import { getFuelColor } from "./presentation.js";
+import { getFuelColor, getPositiveMix } from "./presentation.js";
 
 export class ChartManager {
   constructor() {
@@ -114,9 +114,7 @@ export class ChartManager {
 
     this.destroy(canvasId);
 
-    const activeCategories = categories.filter(
-      (category) => category.netGenerationMw > 0,
-    );
+    const activeCategories = getPositiveMix(categories);
 
     const chart = new Chart(canvas.getContext("2d"), {
       type: "doughnut",
@@ -158,7 +156,7 @@ export class ChartManager {
             callbacks: {
               label(context) {
                 const category = activeCategories[context.dataIndex];
-                return `${category.labelZh}: ${formatMw(category.netGenerationMw)} (${category.sharePercent.toFixed(1)}%)`;
+                return `${category.labelZh}: ${formatMw(category.netGenerationMw)} (${category.positiveShare.toFixed(1)}%)`;
               },
             },
           },
@@ -176,9 +174,7 @@ export class ChartManager {
 
     this.destroy(canvasId);
 
-    const chartCategories = categories
-      .filter((category) => category.netGenerationMw > 0)
-      .slice(0, 10);
+    const chartCategories = getPositiveMix(categories).slice(0, 10);
 
     const chart = new Chart(canvas.getContext("2d"), {
       type: "bar",

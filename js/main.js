@@ -8,6 +8,8 @@ import {
   getFuelColor,
   getCapacityBalance,
   getPositiveMix,
+  getRefreshFeedback,
+  getRefreshOutcome,
 } from "./presentation.js";
 
 const autoRefreshMs = 10 * 60 * 1000;
@@ -16,6 +18,7 @@ const elements = {
   loadingScreen: document.getElementById("loading-screen"),
   mainContainer: document.getElementById("main-container"),
   refreshBtn: document.getElementById("refresh-btn"),
+  refreshFeedback: document.getElementById("refresh-feedback"),
   retryDataBtn: document.getElementById("retry-data-btn"),
   lastUpdateTime: document.getElementById("last-update-time"),
   sourceStatus: document.getElementById("source-status"),
@@ -495,15 +498,18 @@ function renderStats(model, freshness) {
 }
 
 function renderCategories(model) {
-  const totalPositive = model.categories
-    .filter((category) => category.netGenerationMw > 0)
-    .reduce((sum, category) => sum + category.netGenerationMw, 0);
+  const positiveShares = new Map(
+    getPositiveMix(model.categories).map((category) => [category.key, category.positiveShare]),
+  );
 
   elements.categoryGrid.innerHTML = model.categories
     .map((category) => {
-      const width = totalPositive
-        ? Math.max(0, (category.netGenerationMw / totalPositive) * 100)
-        : 0;
+      const width = positiveShares.get(category.key) || 0;
+      const shareLabel = !Number.isFinite(category.netGenerationMw)
+        ? "輸出未知，不計入占比"
+        : category.netGenerationMw < 0
+          ? "負載，不計入占比"
+          : `正輸出占比 ${formatPercent(width)}`;
       const netClass =
         category.netGenerationMw < 0 ? "category-card__value--negative" : "";
       const label = escapeHtml(category.labelZh);
@@ -525,7 +531,7 @@ function renderCategories(model) {
             <span style="width:${width}%; background:${color}"></span>
           </div>
           <div class="category-card__meta">
-            <span>占比 ${formatPercent(category.sharePercent)}</span>
+            <span>${shareLabel}</span>
             <span>容量 ${formatMw(category.capacityMw)}</span>
           </div>
         </article>
@@ -661,26 +667,19 @@ const freshnessClock = createFreshnessClock({
   },
 });
 
-function getOldestObservedAt(result) {
-  return result?.freshness?.oldestObservedAt?.getTime?.() || null;
-}
-
 async function loadDashboard(force = false) {
   if (appState.loading) return;
 
-  const previousObservedAt = getOldestObservedAt(appState.result);
+  const previousResult = appState.result;
   setLoading(true);
+  if (force) {
+    elements.refreshFeedback.hidden = false;
+    elements.refreshFeedback.textContent = "正在重新檢查官方來源時間…";
+  }
   try {
     const result = await powerAPI.fetchDashboard({ force });
-    if (force && result.model && previousObservedAt !== null) {
-      const nextObservedAt = getOldestObservedAt(result);
-      result.refreshOutcome =
-        result.metadata?.preventedRegression ||
-        nextObservedAt < previousObservedAt
-          ? "regressed"
-          : nextObservedAt > previousObservedAt
-            ? "updated"
-            : "unchanged";
+    if (force && result.model) {
+      result.refreshOutcome = getRefreshOutcome(previousResult, result);
     }
 
     if (result.model && result.freshness?.usable) {
@@ -698,6 +697,9 @@ async function loadDashboard(force = false) {
     });
   } finally {
     setLoading(false);
+    if (force) {
+      elements.refreshFeedback.textContent = getRefreshFeedback(appState.result);
+    }
     hideLoadingScreen();
   }
 }

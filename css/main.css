@@ -5,6 +5,7 @@
   --muted: #636961;
   --line: #c9cbc0;
   --accent: #ae422f;
+  --focus-ring: var(--accent);
   --green: #42644c;
   --amber: #8b6326;
   --serif: "Noto Serif TC", Georgia, serif;
@@ -55,7 +56,7 @@ a:hover {
   color: var(--accent);
 }
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--focus-ring);
   outline-offset: 5px;
 }
 h1,
