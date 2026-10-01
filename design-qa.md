@@ -1,6 +1,24 @@
 # V3 design QA
 
-## Current cloud polish verification (2026-09-30)
+## Current readability verification (2026-10-01)
+
+This batch addresses the reported small visual scale. It preserves the V3 navy forecast semicircle and observed-generation doughnut, the existing Chart.js library, and the data-trust contract.
+
+- Body text is now `1rem` (16px at the usual default), primary/source labels are 14px-equivalent, and metadata has a 13px-equivalent floor. The former 8–11px mobile labels are removed. Responsive thresholds use `em` so a larger user default font triggers earlier reflow.
+- The desktop content cap increases from 1376px to 1480px. Chart legends and category labels use 14px; numeric axis ticks use 13px with at most five horizontal ticks. Full chart containers increase to 400px, with 420px for the narrow-layout doughnut and its larger legend.
+- Forecast → actual demand → generation is now the DOM order. Desktop places forecast/actual demand in the left column and generation in the right; below 62.5em all three follow the same single-column reading order. No CSS `order` or `display: contents` is needed.
+- On narrow screens, status text moves below the semicircle, long numerical rows stack, and category cards become full-width. Compact/default-text-enlarged layouts also move generation text below the ring. Numbers and units can wrap in the actual-demand panel and generation center.
+- Both canvases have dedicated aspect-ratio wrappers. The Chart.js-unavailable messages occupy separate flow rows, empty graphics collapse, and numerical/freshness text stays available.
+- The health headline is shorter, while the adjacent context and badge retain delayed/stale labels. The health region explicitly names the context and describes its freshness badge; heading navigation also receives the badge description.
+- Automated verification: **69/69 Node tests pass**, all JavaScript syntax checks pass, and `git diff --check` passes. New source/configuration tests cover the typography floor, reading order, dedicated chart parents, narrow-layout reflow, fallback placement, freshness associations, larger-default-text rules, chart ticks/tooltips, and chart replacement on repeated renders. Existing integration coverage now verifies delayed/stale headline context and the no-Chart fallback.
+- Production verification: `npm run build` succeeds using both current official Taipower feeds. No generated data or `dist/` files are committed.
+- **Rendered browser/visual/assistive-technology QA remains unverified.** The known cloud loopback preview restriction remains in place; no alternative route around it, deployment for preview, or user-computer access was attempted. The tests above check code/configuration and fake-DOM behavior, not actual rendering, measured touch areas, 200% zoom, keyboard interaction or screen-reader announcements.
+
+Next bounded check: once an approved cloud preview is available, inspect 320/390/768/1024/1440/1920px and enlarged text, including stale/delayed/CDN-unavailable states. Verify no clipping in both chart centers, understandable forecast-versus-actual hierarchy, keyboard order and 44px controls. Do not mark this visual pass complete from source assertions alone.
+
+No merge or production deployment is part of this batch.
+
+## Previous cloud polish verification (2026-09-30)
 
 This section covers the current refresh, percentage, and accessibility polish. The V3 screenshot assessment below is historical and does not verify these changes. The prior uncommitted cloud patch was unavailable when the workspace was restored; this change was reconstructed from public commit `956b05d224effbf1f00062ed91ce11001d8d052d` and checked again.
 

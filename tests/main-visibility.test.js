@@ -229,6 +229,9 @@ test('visibility, focus, and pageshow events immediately re-age rendered freshne
   fakeDocument.visibilityState = 'visible';
   documentListeners.get('visibilitychange')();
   assert.equal(noticeTitle.textContent, '資料延遲 21 分鐘');
+  assert.equal(idElements.get('health-label').textContent, '供電充裕');
+  assert.match(idElements.get('health-context-label').textContent, /延遲資料/);
+  assert.equal(idElements.get('health-mode').textContent, '延遲');
   assert.match(noticeMessage.textContent, /最後成功快照的官方燈號：G · 供電充裕/);
 
   intervals.find(({ delay }) => delay === 600_000).callback();
@@ -240,6 +243,12 @@ test('visibility, focus, and pageshow events immediately re-age rendered freshne
   currentNowMs = sourceTime.getTime() + 60 * MINUTE_MS + 1;
   windowListeners.get('focus')();
   assert.equal(noticeTitle.textContent, '非即時快照 · 61 分鐘前');
+  assert.equal(idElements.get('health-label').textContent, '供電充裕');
+  assert.match(idElements.get('health-context-label').textContent, /最後快照/);
+  assert.equal(idElements.get('health-mode').textContent, '非即時');
+  assert.match(idElements.get('load-caption').textContent, /非目前/);
+  assert.equal(idElements.get('balance-chart-fallback').hidden, false);
+  assert.equal(idElements.get('glance-chart-fallback').hidden, false);
   assert.equal(idElements.get('supply-date-label').textContent, '2026/05/30 的預估尖峰 · 非目前瞬時值');
   assert.match(noticeMessage.textContent, /最後成功快照的官方燈號：G · 供電充裕/);
 

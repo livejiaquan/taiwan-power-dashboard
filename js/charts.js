@@ -40,6 +40,9 @@ export class ChartManager {
         plugins: {
           legend: { display: false },
           tooltip: {
+            titleFont: { size: 14 },
+            bodyFont: { size: 14 },
+            padding: 12,
             callbacks: {
               label: (c) =>
                 `${c.label}: ${Math.round(c.raw).toLocaleString("en-US")} MW`,
@@ -96,6 +99,9 @@ export class ChartManager {
         plugins: {
           legend: { display: false },
           tooltip: {
+            titleFont: { size: 14 },
+            bodyFont: { size: 14 },
+            padding: 12,
             callbacks: {
               label: (c) =>
                 `${displayCategories[c.dataIndex].labelZh}: ${displayCategories[c.dataIndex].positiveShare.toFixed(1)}%`,
@@ -142,17 +148,20 @@ export class ChartManager {
             position: "bottom",
             labels: {
               color: "#50594f",
-              boxWidth: 8,
-              boxHeight: 8,
-              padding: 12,
+              boxWidth: 12,
+              boxHeight: 12,
+              padding: 16,
               font: {
                 family: "'Noto Sans TC', sans-serif",
-                size: 11,
+                size: 14,
                 weight: 400,
               },
             },
           },
           tooltip: {
+            titleFont: { size: 14 },
+            bodyFont: { size: 14 },
+            padding: 12,
             callbacks: {
               label(context) {
                 const category = activeCategories[context.dataIndex];
@@ -188,7 +197,7 @@ export class ChartManager {
             ),
             borderWidth: 0,
             borderRadius: 0,
-            maxBarThickness: 18,
+            maxBarThickness: 24,
             borderSkipped: false,
           },
         ],
@@ -203,6 +212,9 @@ export class ChartManager {
             display: false,
           },
           tooltip: {
+            titleFont: { size: 14 },
+            bodyFont: { size: 14 },
+            padding: 12,
             callbacks: {
               label(context) {
                 return formatMw(context.parsed.x);
@@ -219,7 +231,10 @@ export class ChartManager {
             },
             ticks: {
               color: "#636961",
-              font: { family: "'IBM Plex Mono', monospace", size: 9 },
+              font: { family: "'IBM Plex Mono', monospace", size: 13 },
+              maxTicksLimit: 5,
+              maxRotation: 0,
+              minRotation: 0,
               callback(value) {
                 return Number(value).toLocaleString("zh-TW");
               },
@@ -233,7 +248,7 @@ export class ChartManager {
               color: "#50594f",
               font: {
                 family: "'Noto Sans TC', sans-serif",
-                size: 11,
+                size: 14,
                 weight: 400,
               },
             },

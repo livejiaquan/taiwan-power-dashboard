@@ -173,25 +173,31 @@
                 </p>
               </div>
               <div id="peak-diagram" class="balance-frame">
-                <canvas
-                  id="peak-balance-chart"
-                  role="img"
-                  aria-label="預估尖峰供需比例"
-                ></canvas>
-                <section class="health-block" aria-labelledby="health-label">
+                <div class="balance-canvas">
+                  <canvas
+                    id="peak-balance-chart"
+                    role="img"
+                    aria-label="預估尖峰供需比例"
+                  ></canvas>
+                </div>
+                <section
+                  class="health-block"
+                  aria-labelledby="health-context-label health-label"
+                  aria-describedby="health-mode"
+                >
                   <span class="status-light" hidden
                     ><span id="official-light-letter">--</span></span
                   >
                   <div class="health-copy">
                     <p id="health-context-label">台電官方預估燈號</p>
-                    <h3 id="health-label">--</h3>
+                    <h3 id="health-label" aria-describedby="health-mode">--</h3>
                     <span id="health-mode" class="health-mode">確認中</span>
                   </div>
                 </section>
-                <p id="balance-chart-fallback" class="chart-fallback" hidden>
-                  圖表無法載入，請閱讀下方完整供需數值。
-                </p>
               </div>
+              <p id="balance-chart-fallback" class="chart-fallback" hidden>
+                圖表無法載入，請閱讀下方完整供需數值。
+              </p>
               <div class="balance-endpoints">
                 <div>
                   <span>預估尖峰需求</span><strong id="peak-demand">--</strong>
@@ -216,6 +222,15 @@
                 尖峰預估，非此刻剩餘電量。計算方式可於下方展開。
               </p>
             </section>
+            <div class="now-strip" aria-label="來源時點的實際用電">
+              <div>
+                <span id="load-caption">來源時點用電</span
+                ><strong id="current-load">--</strong>
+              </div>
+              <small id="load-source-label">--</small
+              ><a href="#generation-mix">發電結構 ↓</a
+              ><a href="#plant-watch">機組明細 ↓</a>
+            </div>
             <section class="mix-glance" aria-labelledby="mix-glance-title">
               <div class="mix-glance-heading">
                 <div>
@@ -227,31 +242,24 @@
                 >
               </div>
               <div class="generation-orbit">
-                <canvas
-                  id="glance-mix-chart"
-                  role="img"
-                  aria-label="正輸出發電結構"
-                ></canvas>
+                <div class="generation-canvas">
+                  <canvas
+                    id="glance-mix-chart"
+                    role="img"
+                    aria-label="正輸出發電結構"
+                  ></canvas>
+                </div>
                 <div class="generation-center">
                   <span id="output-caption">來源時點機組淨輸出</span
                   ><strong id="current-output">--</strong>
                 </div>
-                <p id="glance-chart-fallback" class="chart-fallback" hidden>
-                  圖表無法載入，下方保留完整比例。
-                </p>
               </div>
+              <p id="glance-chart-fallback" class="chart-fallback" hidden>
+                圖表無法載入，下方保留完整比例。
+              </p>
               <div id="mix-glance-visual"></div>
               <small id="active-units">--</small>
             </section>
-          </div>
-          <div class="now-strip" aria-label="來源時點的實際用電">
-            <div>
-              <span id="load-caption">來源時點用電</span
-              ><strong id="current-load">--</strong>
-            </div>
-            <small id="load-source-label">--</small
-            ><a href="#generation-mix">發電結構 ↓</a
-            ><a href="#plant-watch">機組明細 ↓</a>
           </div>
           <details class="reserve-explainer">
             <summary>燈號、備轉與圖表怎麼讀？</summary>

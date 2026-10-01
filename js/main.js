@@ -318,11 +318,9 @@ function renderHero(model, freshness) {
   elements.healthIcon.style.color = displayColor;
   elements.lightLetter.parentElement.style.borderColor = displayColor;
   elements.lightLetter.parentElement.style.color = displayColor;
-  elements.healthLabel.textContent = isStale
-    ? `最後快照：${health.labelZh}`
-    : isDelayed
-      ? `延遲資料：${health.labelZh}`
-      : health.labelZh;
+  // Freshness remains explicit in the context and badge next to this headline.
+  // Avoid repeating a long prefix inside the constrained chart center.
+  elements.healthLabel.textContent = health.labelZh;
   elements.healthTierText.textContent = `${indicator} 燈`;
   elements.healthIndicatorCode.textContent = `${indicator} · 官方燈號`;
   elements.healthContextLabel.textContent = isStale

@@ -37,7 +37,7 @@ index.html主構圖、css主題/響應式、presentation純比例函式、main�
 
 ## 7. Verification
 
-以下為 V3 初版的歷史驗證，不代表後續 cloud polish 的視覺結果。2026/09/30 cloud polish 已重新通過 62 項測試、官方來源 build、語法與 diff 檢查；瀏覽器視覺驗證仍受 loopback 存取限制，先前 terminal.local 預覽回傳 502，尚未通過。最新驗證與手機 DOM／視覺順序差異見根目錄 `design-qa.md` 的 Current cloud polish verification。
+以下為 V3 初版的歷史驗證，不代表後續 cloud polish 的視覺結果。2026/09/30 cloud polish 已重新通過 62 項測試、官方來源 build、語法與 diff 檢查；瀏覽器視覺驗證仍受 loopback 存取限制，先前 terminal.local 預覽回傳 502，尚未通過。2026/10/01 可讀性更新將正文提升為 1rem、關鍵標籤 14px-equivalent、metadata 最低 13px-equivalent，調整 chart 與窄螢幕重排，並修正手機 DOM／視覺順序差異；69 項測試與官方來源 build 通過。最新限制與待驗證項目見根目錄 `design-qa.md` 的 Current readability verification。
 56/56測試、官方來源build、node --check、git diff --check通过。320/390/768/1188/1440無溢位；鍵盤、刷新（不變或合法新來源）、來源展開、四種時效狀態與圖表CDN失敗回退通過。來源快照16:40，最終實際用電38,235MW，機組淨輸出38,235MW。視覺QA見根目錄design-qa.md，final result: passed。
 
 ## 8. PR Summary

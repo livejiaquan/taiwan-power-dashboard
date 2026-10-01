@@ -79,7 +79,7 @@ test("refresh status lives outside collapsed details and controls retain explici
   assert.match(css, /\.source-details summary,\s*\.reserve-explainer summary,\s*\.alerts-panel summary\s*\{\s*min-height: 44px;/);
   assert.match(mainCss, /outline: 2px solid var\(--focus-ring\)/);
   assert.match(css, /\.status-hero\s*\{\s*--focus-ring: #8ad6c3;/);
-  assert.match(css, /@media \(min-width: 701px\)\s*\{\s*\.now-strip,\s*\.reserve-explainer\s*\{\s*--focus-ring: var\(--accent\)/);
+  assert.match(css, /\.now-strip,\s*\.reserve-explainer\s*\{\s*--focus-ring: var\(--accent\)/);
 });
 
 class FakeElement {
