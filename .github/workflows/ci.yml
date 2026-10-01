@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - codex/power-editorial-redesign
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 22
+
+      # This project uses only Node built-ins, so there is no install or lockfile.
+      - name: Check JavaScript syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          git ls-files -z -- '*.js' | while IFS= read -r -d '' file; do
+            node --check "$file"
+          done
+
+      - name: Run regression tests
+        run: npm test
+
+      - name: Verify static build with offline fixtures
+        # Uses the real build functions with a fixed test clock and injected data.
+        # Temporary output is removed by the test and is never published.
+        # Live feed validation remains in pages.yml via npm run build.
+        run: node --test tests/static-site-build.test.js

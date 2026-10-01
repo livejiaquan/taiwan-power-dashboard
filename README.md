@@ -51,6 +51,13 @@ http://127.0.0.1:4173
 npm test
 ```
 
+The read-only workflow at `.github/workflows/ci.yml` runs on pushes to
+`codex/power-editorial-redesign` and on pull requests. It checks JavaScript syntax,
+runs the complete regression suite, and verifies static site assembly with
+fixed-time offline fixtures. The project has no package dependencies or lockfile,
+so CI does not install packages. Fixture output is temporary and never published;
+a green CI result does not assert that the live Taipower feeds are available or fresh.
+
 ## Production Build
 
 Requires Node.js 22–26 and live access to both official Taipower feeds:
