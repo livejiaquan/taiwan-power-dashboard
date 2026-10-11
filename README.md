@@ -57,7 +57,7 @@ Requires Node.js 22–26 and live access to both official Taipower feeds:
 npm run build
 ```
 
-The command creates `dist/`, validates both payloads and their source timestamps, and exits non-zero without publishing sample data if validation or fetch fails.
+The command stages the full site and official snapshot before replacing `dist/`. If validation or fetch fails, it exits non-zero without replacing the last successful local build or publishing sample data.
 
 ## Project Structure
 

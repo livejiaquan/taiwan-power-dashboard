@@ -1,5 +1,5 @@
-import { cp, mkdir, rm, writeFile } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { cp, mkdir, mkdtemp, rename, rm, writeFile } from 'node:fs/promises';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { runBuild as buildStaticData } from './build-static-data.js';
@@ -27,34 +27,61 @@ export async function buildStaticSite({
     throw new TypeError('Static data build wait implementation must be a function');
   }
 
-  await rm(resolvedOutputDir, { recursive: true, force: true });
-  await mkdir(resolvedOutputDir, { recursive: true });
-  await Promise.all([
-    cp(resolve(projectRoot, 'index.html'), resolve(resolvedOutputDir, 'index.html')),
-    cp(resolve(projectRoot, 'css'), resolve(resolvedOutputDir, 'css'), { recursive: true }),
-    cp(resolve(projectRoot, 'js'), resolve(resolvedOutputDir, 'js'), { recursive: true }),
-    writeFile(resolve(resolvedOutputDir, '.nojekyll'), '')
-  ]);
+  const stagingRoot = await mkdtemp(join(projectRoot, '.power-site-build-'));
+  const stagedSite = join(stagingRoot, 'site');
+  const previousSite = join(stagingRoot, 'previous');
+  let movedPrevious = false;
+  let preservePrevious = false;
+  try {
+    await mkdir(stagedSite);
+    await Promise.all([
+      cp(resolve(projectRoot, 'index.html'), join(stagedSite, 'index.html')),
+      cp(resolve(projectRoot, 'css'), join(stagedSite, 'css'), { recursive: true }),
+      cp(resolve(projectRoot, 'js'), join(stagedSite, 'js'), { recursive: true }),
+      writeFile(join(stagedSite, '.nojekyll'), '')
+    ]);
 
-  const dataOutputPath = resolve(resolvedOutputDir, 'api/power-data.json');
-  let lastError = null;
-  for (let attempt = 1; attempt <= dataBuildAttempts; attempt += 1) {
-    try {
-      await buildData({ outputPath: dataOutputPath });
-      lastError = null;
-      break;
-    } catch (error) {
-      lastError = error;
-      if (attempt < dataBuildAttempts) {
-        console.warn(
-          `Static data build attempt ${attempt}/${dataBuildAttempts} failed; retrying: ${error.message}`
-        );
-        await waitImpl(attempt * dataBuildRetryDelayMs);
+    const dataOutputPath = join(stagedSite, 'api/power-data.json');
+    let lastError = null;
+    for (let attempt = 1; attempt <= dataBuildAttempts; attempt += 1) {
+      try {
+        await buildData({ outputPath: dataOutputPath });
+        lastError = null;
+        break;
+      } catch (error) {
+        lastError = error;
+        if (attempt < dataBuildAttempts) {
+          console.warn(
+            `Static data build attempt ${attempt}/${dataBuildAttempts} failed; retrying: ${error.message}`
+          );
+          await waitImpl(attempt * dataBuildRetryDelayMs);
+        }
       }
     }
-  }
-  if (lastError) {
-    throw lastError;
+    if (lastError) throw lastError;
+
+    await mkdir(dirname(resolvedOutputDir), { recursive: true });
+    try {
+      await rename(resolvedOutputDir, previousSite);
+      movedPrevious = true;
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error;
+    }
+    try {
+      await rename(stagedSite, resolvedOutputDir);
+    } catch (error) {
+      if (movedPrevious) {
+        try {
+          await rename(previousSite, resolvedOutputDir);
+        } catch (restoreError) {
+          preservePrevious = true;
+          throw new AggregateError([error, restoreError], `Previous site preserved at ${previousSite}`);
+        }
+      }
+      throw error;
+    }
+  } finally {
+    if (!preservePrevious) await rm(stagingRoot, { recursive: true, force: true });
   }
   return resolvedOutputDir;
 }

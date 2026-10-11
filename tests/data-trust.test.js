@@ -826,7 +826,7 @@ test('static site build retries transient data failures before succeeding', asyn
       if (attempts < 3) {
         throw new Error('transient Taipower failure');
       }
-      await mkdir(join(outputDir, 'api'), { recursive: true });
+      await mkdir(resolve(outputPath, '..'), { recursive: true });
       await writeFile(outputPath, '{}\n');
     }
   });
@@ -842,6 +842,8 @@ test('static site build still fails after the bounded data retry budget is exhau
   t.after(async () => {
     await rm(outputDir, { recursive: true, force: true });
   });
+  await mkdir(join(outputDir, 'api'), { recursive: true });
+  await writeFile(join(outputDir, 'api', 'power-data.json'), 'last-known-good\n');
   let attempts = 0;
 
   await assert.rejects(
@@ -857,6 +859,28 @@ test('static site build still fails after the bounded data retry budget is exhau
     /persistent Taipower failure/
   );
   assert.equal(attempts, 3);
+  assert.equal(await readFile(join(outputDir, 'api', 'power-data.json'), 'utf8'), 'last-known-good\n');
+});
+
+test('successful static rebuild replaces the prior site only after data is ready', async (t) => {
+  const outputDir = join(REPO_ROOT, `.test-dist-${process.pid}-${Date.now()}-replacement`);
+  t.after(async () => {
+    await rm(outputDir, { recursive: true, force: true });
+  });
+  await mkdir(outputDir);
+  await writeFile(join(outputDir, 'old-asset.js'), 'obsolete\n');
+
+  await buildStaticSite({
+    outputDir,
+    buildData: async ({ outputPath }) => {
+      assert.equal(await readFile(join(outputDir, 'old-asset.js'), 'utf8'), 'obsolete\n');
+      await mkdir(resolve(outputPath, '..'), { recursive: true });
+      await writeFile(outputPath, 'new-official-snapshot\n');
+    }
+  });
+
+  assert.equal(await readFile(join(outputDir, 'api', 'power-data.json'), 'utf8'), 'new-official-snapshot\n');
+  await assert.rejects(readFile(join(outputDir, 'old-asset.js'), 'utf8'), { code: 'ENOENT' });
 });
 
 test('static site build refuses a retry budget above three attempts', async () => {

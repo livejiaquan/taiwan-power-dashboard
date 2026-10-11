@@ -2,6 +2,7 @@
 node_modules/
 output/
 dist/
+.power-site-build-*/
 api/
 npm-debug.log*
 yarn-debug.log*
