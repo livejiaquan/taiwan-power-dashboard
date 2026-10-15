@@ -1,7 +1,7 @@
 import { createReadStream } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import { createServer } from 'node:http';
-import { extname, join, normalize, resolve } from 'node:path';
+import { extname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { fetchJsonWithTimeout } from './js/fetch-json.js';
@@ -114,15 +114,23 @@ async function handlePowerData(request, response) {
 
 async function serveStatic(request, response) {
   const requestUrl = new URL(request.url, `http://${request.headers.host}`);
-  const requestedPath = requestUrl.pathname === '/' ? '/index.html' : decodeURIComponent(requestUrl.pathname);
-  const normalizedPath = normalize(requestedPath).replace(/^(\.\.[/\\])+/, '');
-  const filePath = resolve(join(rootDir, normalizedPath));
-
-  if (!filePath.startsWith(rootDir)) {
-    response.writeHead(403);
-    response.end('Forbidden');
+  let requestedPath;
+  try {
+    requestedPath = requestUrl.pathname === '/' ? '/index.html' : decodeURIComponent(requestUrl.pathname);
+  } catch {
+    response.writeHead(400);
+    response.end('Bad request');
     return;
   }
+
+  // Only the files needed by the local dashboard are public. Never expose
+  // .git, CI configuration, scripts, fixtures, or server-side source files.
+  if (!/^\/(?:index\.html|js\/[a-z0-9-]+\.js|css\/[a-z0-9-]+\.css)$/.test(requestedPath)) {
+    response.writeHead(404);
+    response.end('Not found');
+    return;
+  }
+  const filePath = join(rootDir, requestedPath);
 
   try {
     const fileStat = await stat(filePath);
