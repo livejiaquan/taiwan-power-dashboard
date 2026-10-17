@@ -726,6 +726,64 @@ test('production builder aborts stalled official requests before retrying', asyn
   assert.equal(attempts, 4);
 });
 
+test('production builder retries a failed response body before publishing', async (t) => {
+  const directory = await makeTemporaryDirectory(t);
+  const outputPath = join(directory, 'power-data.json');
+  const officialFetch = buildOfficialFetch();
+  let supplyAttempts = 0;
+  const fetchImpl = async (url, options) => {
+    if (url !== SUPPLY_ENDPOINT) return officialFetch(url, options);
+    supplyAttempts += 1;
+    if (supplyAttempts === 1) {
+      return { ok: true, json: async () => { throw new Error('truncated body'); } };
+    }
+    return officialFetch(url, options);
+  };
+
+  const result = await runBuild({
+    fetchImpl,
+    outputPath,
+    now: () => FETCH_INSTANT,
+    attempts: 2,
+    retryDelayMs: 0
+  });
+  assert.equal(supplyAttempts, 2);
+  assert.equal(result.payload.model.source, 'taipower-static');
+  assert.equal(JSON.parse(await readFile(outputPath, 'utf8')).schemaVersion, 2);
+});
+
+test('production builder keeps the timeout active while an official response body stalls', async (t) => {
+  const directory = await makeTemporaryDirectory(t);
+  const officialFetch = buildOfficialFetch();
+  let supplyAttempts = 0;
+  const fetchImpl = async (url, options) => {
+    if (url !== SUPPLY_ENDPOINT) return officialFetch(url, options);
+    supplyAttempts += 1;
+    if (supplyAttempts !== 1) return officialFetch(url, options);
+    return {
+      ok: true,
+      json: () => new Promise((_resolve, reject) => {
+        const failId = setTimeout(() => reject(new Error('body stalled beyond timeout')), 50);
+        options.signal.addEventListener('abort', () => {
+          clearTimeout(failId);
+          reject(options.signal.reason);
+        }, { once: true });
+      })
+    };
+  };
+
+  const result = await runBuild({
+    fetchImpl,
+    outputPath: join(directory, 'power-data.json'),
+    now: () => FETCH_INSTANT,
+    attempts: 2,
+    retryDelayMs: 0,
+    requestTimeoutMs: 10
+  });
+  assert.equal(supplyAttempts, 2);
+  assert.equal(result.payload.model.source, 'taipower-static');
+});
+
 test('production builder refuses more than three attempts per official feed', async () => {
   let fetchCalls = 0;
 

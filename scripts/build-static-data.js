@@ -40,7 +40,8 @@ async function fetchJson(url, { fetchImpl, attempts, retryDelayMs, requestTimeou
         throw new Error(`Taipower responded with HTTP ${response.status}`);
       }
 
-      return response.json();
+      // Keep the abort timer and retry boundary active until the body is parsed.
+      return await response.json();
     } catch (error) {
       lastError = error;
       if (attempt < attempts) {
