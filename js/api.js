@@ -351,6 +351,7 @@ export class PowerAPI extends EventTarget {
         ...candidate,
         metadata: {
           ...candidate.metadata,
+          ...(candidate.transport === 'browser-cache' && errors.length > 0 ? { refreshFailed: true } : {}),
           ...(preventedRegression ? {
             preventedRegression: true,
             reason: '本次取得的來源時間較舊，已保留較新的最後成功資料。'

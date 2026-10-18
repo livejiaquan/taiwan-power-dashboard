@@ -166,6 +166,8 @@ function renderTrustState(result) {
     : null;
   const refreshMessage = result.refreshOutcome === 'updated'
     ? '已取得較新的官方來源時間。'
+    : result.refreshOutcome === 'failed'
+      ? '本次重新檢查失敗，仍顯示最後成功資料。'
     : result.refreshOutcome === 'unchanged'
       ? '已重新檢查，官方來源時間尚未更新。'
       : result.refreshOutcome === 'regressed'
@@ -521,7 +523,9 @@ async function loadDashboard(force = false) {
     const result = await powerAPI.fetchDashboard({ force });
     if (force && result.model && previousObservedAt !== null) {
       const nextObservedAt = getOldestObservedAt(result);
-      result.refreshOutcome = result.metadata?.preventedRegression || nextObservedAt < previousObservedAt
+      result.refreshOutcome = result.metadata?.refreshFailed
+        ? 'failed'
+        : result.metadata?.preventedRegression || nextObservedAt < previousObservedAt
         ? 'regressed'
         : nextObservedAt > previousObservedAt
           ? 'updated'

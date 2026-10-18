@@ -162,11 +162,12 @@ test('visibility, focus, and pageshow events immediately re-age rendered freshne
   globalThis.document = fakeDocument;
   globalThis.window = fakeWindow;
   globalThis.location = { hostname: 'livejiaquan.github.io', protocol: 'https:' };
+  const storage = new Map();
   Object.defineProperty(globalThis, 'localStorage', {
     configurable: true,
     value: {
-      getItem() { return null; },
-      setItem() {}
+      getItem(key) { return storage.get(key) ?? null; },
+      setItem(key, value) { storage.set(key, value); }
     },
     writable: true
   });
@@ -184,8 +185,10 @@ test('visibility, focus, and pageshow events immediately re-age rendered freshne
   })));
 
   const fetchedUrls = [];
+  let failRefresh = false;
   globalThis.fetch = async (url) => {
     fetchedUrls.push(String(url));
+    if (failRefresh) throw new Error('upstream unavailable');
     if (String(url).startsWith('api/power-data.json')) {
       return {
         ok: true,
@@ -232,6 +235,15 @@ test('visibility, focus, and pageshow events immediately re-age rendered freshne
     await new Promise((resolveTurn) => setImmediate(resolveTurn));
   }
   assert.deepEqual(fetchedUrls, ['api/power-data.json', 'api/power-data.json?force=1']);
+
+  failRefresh = true;
+  intervals.find(({ delay }) => delay === 600_000).callback();
+  for (let turn = 0; turn < 20; turn += 1) {
+    await new Promise((resolveTurn) => setImmediate(resolveTurn));
+  }
+  assert.match(noticeMessage.textContent, /本次重新檢查失敗/);
+  assert.doesNotMatch(noticeMessage.textContent, /已重新檢查，官方來源時間尚未更新/);
+  assert.equal(unavailableState.hidden, true);
 
   currentNowMs = sourceTime.getTime() + 60 * MINUTE_MS + 1;
   windowListeners.get('focus')();
