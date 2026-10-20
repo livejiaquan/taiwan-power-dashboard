@@ -510,24 +510,27 @@ const freshnessClock = createFreshnessClock({
   }
 });
 
-function getOldestObservedAt(result) {
-  return result?.freshness?.oldestObservedAt?.getTime?.() || null;
+function getFeedTimes(result) {
+  const feeds = result?.model?.feeds;
+  if (!feeds?.supply?.observedAt || !feeds?.generation?.observedAt) return null;
+  return [feeds.supply.observedAt.getTime(), feeds.generation.observedAt.getTime()];
 }
 
 async function loadDashboard(force = false) {
   if (appState.loading) return;
 
-  const previousObservedAt = getOldestObservedAt(appState.result);
+  const previousFeedTimes = getFeedTimes(appState.result);
   setLoading(true);
   try {
     const result = await powerAPI.fetchDashboard({ force });
-    if (force && result.model && previousObservedAt !== null) {
-      const nextObservedAt = getOldestObservedAt(result);
+    if (force && result.model && previousFeedTimes) {
+      const nextFeedTimes = getFeedTimes(result);
       result.refreshOutcome = result.metadata?.refreshFailed
         ? 'failed'
-        : result.metadata?.preventedRegression || nextObservedAt < previousObservedAt
+        : result.metadata?.preventedRegression
+          || nextFeedTimes.some((time, index) => time < previousFeedTimes[index])
         ? 'regressed'
-        : nextObservedAt > previousObservedAt
+        : nextFeedTimes.some((time, index) => time > previousFeedTimes[index])
           ? 'updated'
           : 'unchanged';
     }

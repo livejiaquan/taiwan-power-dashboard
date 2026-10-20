@@ -235,6 +235,19 @@ test('visibility, focus, and pageshow events immediately re-age rendered freshne
     await new Promise((resolveTurn) => setImmediate(resolveTurn));
   }
   assert.deepEqual(fetchedUrls, ['api/power-data.json', 'api/power-data.json?force=1']);
+  assert.match(noticeMessage.textContent, /已重新檢查，官方來源時間尚未更新/);
+
+  // Generation advances while supply remains the older feed: the summary's
+  // oldest timestamp does not move, but the refresh must still count as updated.
+  const newerGeneration = new RealDate(sourceTime.getTime() + MINUTE_MS).toISOString();
+  payload.model.feeds.generation.observedAt = newerGeneration;
+  payload.model.generation.observedAt = newerGeneration;
+  intervals.find(({ delay }) => delay === 600_000).callback();
+  for (let turn = 0; turn < 20; turn += 1) {
+    await new Promise((resolveTurn) => setImmediate(resolveTurn));
+  }
+  assert.match(noticeMessage.textContent, /已取得較新的官方來源時間/);
+  assert.doesNotMatch(noticeMessage.textContent, /官方來源時間尚未更新/);
 
   failRefresh = true;
   intervals.find(({ delay }) => delay === 600_000).callback();
