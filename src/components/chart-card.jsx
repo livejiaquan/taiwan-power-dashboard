@@ -29,8 +29,8 @@ export function ChartCard({
       <TabsPrimitive.Root value={view} onValueChange={setView}>
         <div className="mb-5 flex flex-wrap items-end justify-between gap-x-6 gap-y-4 sm:mb-6">
           <div className="max-w-2xl">
-            <h2 id={headingId} className="text-xl font-semibold tracking-tight sm:text-[22px]">{title}</h2>
-            {summary && <p className="mt-2 text-pretty text-[15px] leading-7 text-muted-foreground">{summary}</p>}
+            <h2 id={headingId} className="display text-[24px] font-semibold sm:text-[32px]">{title}</h2>
+            {summary && <p className="mt-2 text-pretty text-[15px] leading-7 text-muted-foreground sm:text-[17px]">{summary}</p>}
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {controls}
