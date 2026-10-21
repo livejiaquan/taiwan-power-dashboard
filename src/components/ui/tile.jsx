@@ -14,7 +14,7 @@ export function Tile({ icon: Icon, label, children, className, aside, id }) {
       className={cn('flex min-w-0 flex-col rounded-[28px] bg-card p-5 shadow-card ring-1 ring-border sm:p-6', id && 'scroll-mt-24', className)}
     >
       <div className="flex items-center justify-between gap-3">
-        <h2 id={headingId} className="flex items-center gap-1.5 text-[13px] font-semibold text-muted-foreground">
+        <h2 id={headingId} className="flex items-center gap-1.5 text-[13px] font-bold text-muted-foreground">
           {Icon && <Icon className="size-3.5" aria-hidden="true" />}
           {label}
         </h2>

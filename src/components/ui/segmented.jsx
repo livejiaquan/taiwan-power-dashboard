@@ -13,7 +13,7 @@ export function Segmented({ label, value, onChange, options }) {
           disabled={option.disabled}
           onClick={() => onChange(option.value)}
           className={cn(
-            'h-8 rounded-lg px-3 text-[13px] font-medium transition disabled:cursor-not-allowed disabled:opacity-50',
+            'h-8 rounded-lg px-3 text-[13px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-50',
             value === option.value ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
           )}
         >

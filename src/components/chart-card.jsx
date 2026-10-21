@@ -29,7 +29,7 @@ export function ChartCard({
       <TabsPrimitive.Root value={view} onValueChange={setView}>
         <div className="mb-5 flex flex-wrap items-end justify-between gap-x-6 gap-y-4 sm:mb-6">
           <div className="max-w-2xl">
-            <h2 id={headingId} className="display text-[24px] font-semibold sm:text-[32px]">{title}</h2>
+            <h2 id={headingId} className="display text-[24px] font-bold sm:text-[32px]">{title}</h2>
             {summary && <p className="mt-2 text-pretty text-[15px] leading-7 text-muted-foreground sm:text-[17px]">{summary}</p>}
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -38,13 +38,13 @@ export function ChartCard({
               <TabsPrimitive.List aria-label={`${title}檢視方式`} className="inline-flex rounded-xl bg-muted p-1">
                 <TabsPrimitive.Trigger
                   value="chart"
-                  className="inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-[13px] font-medium text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+                  className="inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-[13px] font-semibold text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
                 >
                   <BarChart3 className="size-3.5" aria-hidden="true" />圖表
                 </TabsPrimitive.Trigger>
                 <TabsPrimitive.Trigger
                   value="table"
-                  className="inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-[13px] font-medium text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+                  className="inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-[13px] font-semibold text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
                 >
                   <Table2 className="size-3.5" aria-hidden="true" />表格
                 </TabsPrimitive.Trigger>
@@ -54,7 +54,7 @@ export function ChartCard({
               <button
                 type="button"
                 onClick={() => downloadCsv(csv.filename, csv.header, csv.rows)}
-                className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-border bg-card px-3.5 text-[13px] font-medium hover:bg-muted"
+                className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-border bg-card px-3.5 text-[13px] font-semibold hover:bg-muted"
               >
                 <Download className="size-3.5" aria-hidden="true" />
                 CSV<span className="sr-only">下載{title}資料</span>
@@ -96,7 +96,7 @@ export function DataTable({ caption, columns, rows, maxHeight = 420 }) {
                 key={column.key}
                 scope="col"
                 className={cn(
-                  'whitespace-nowrap px-3 py-3 font-medium',
+                  'whitespace-nowrap px-3 py-3 font-semibold',
                   column.numeric ? 'text-right' : 'text-left',
                   index === 0 && 'pl-6 sm:pl-0',
                   index === columns.length - 1 && 'pr-6 sm:pr-0'
@@ -119,7 +119,7 @@ export function DataTable({ caption, columns, rows, maxHeight = 420 }) {
                     className={cn(
                       'whitespace-nowrap px-3 py-3',
                       column.numeric ? 'num text-right' : 'text-left',
-                      index === 0 && 'pl-6 font-medium sm:pl-0',
+                      index === 0 && 'pl-6 font-semibold sm:pl-0',
                       index === columns.length - 1 && 'pr-6 sm:pr-0'
                     )}
                   >

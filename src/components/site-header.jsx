@@ -39,7 +39,7 @@ export function SiteHeader({ loading, onRefresh, theme, onToggleTheme, autoRefre
           <span className="grid size-7 shrink-0 place-items-center rounded-[9px] bg-foreground text-background">
             <Zap className="size-3.5 fill-[#ffd60a] text-[#ffd60a]" aria-hidden="true" />
           </span>
-          <span className="truncate text-[15px] font-semibold tracking-tight">台灣電力</span>
+          <span className="truncate text-[15px] font-bold tracking-tight">台灣電力</span>
         </a>
 
         <nav aria-label="頁內導覽" className="mx-auto hidden items-center gap-1 text-[13px] text-foreground/70 lg:flex">
@@ -57,7 +57,7 @@ export function SiteHeader({ loading, onRefresh, theme, onToggleTheme, autoRefre
                 aria-pressed={unit === value}
                 onClick={() => setUnit(value)}
                 className={cn(
-                  'h-7 rounded-full px-2.5 text-[12px] font-semibold transition',
+                  'h-7 rounded-full px-2.5 text-[12px] font-bold transition',
                   unit === value ? 'bg-card text-foreground shadow-sm' : 'text-foreground/75 hover:text-foreground'
                 )}
               >

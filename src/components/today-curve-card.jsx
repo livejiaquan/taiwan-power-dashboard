@@ -232,7 +232,7 @@ export function TodayCurveCard({ curves, model, theme, now = new Date() }) {
             href="https://www.taipower.com.tw/d006/loadGraph/loadGraph/load_briefing3.html"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex h-11 shrink-0 items-center gap-2 self-start rounded-xl bg-foreground px-4 text-sm font-medium text-background hover:opacity-90 sm:self-auto"
+            className="inline-flex h-11 shrink-0 items-center gap-2 self-start rounded-xl bg-foreground px-4 text-sm font-semibold text-background hover:opacity-90 sm:self-auto"
           >
             台電今日用電曲線
             <ExternalLink className="size-3.5" aria-hidden="true" />
@@ -285,7 +285,7 @@ export function TodayCurveCard({ curves, model, theme, now = new Date() }) {
             ]}
           />
           {curves.yesterday && (
-            <label className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl border border-border bg-card px-3.5 text-[13px] font-medium">
+            <label className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl border border-border bg-card px-3.5 text-[13px] font-semibold">
               <input
                 type="checkbox"
                 checked={showYesterday}
@@ -313,22 +313,22 @@ export function TodayCurveCard({ curves, model, theme, now = new Date() }) {
       <dl className="mb-8 grid grid-cols-2 gap-x-8 gap-y-6 sm:grid-cols-4">
         <div className="border-l-2 border-border pl-4">
           <dt className="text-[13px] text-muted-foreground">最新總負載 · {last.time}</dt>
-          <dd className="num mt-1.5 text-2xl font-semibold tracking-tight">{fmt(last.loadMw)} <span className="text-xs font-medium text-muted-foreground">{unitLabel}</span></dd>
+          <dd className="num mt-1.5 text-2xl font-bold tracking-tight">{fmt(last.loadMw)} <span className="text-xs font-semibold text-muted-foreground">{unitLabel}</span></dd>
         </div>
         <div className="border-l-2 border-border pl-4">
           <dt className="text-[13px] text-muted-foreground">今日目前最高 · {peakPoint.time}</dt>
-          <dd className="num mt-1.5 text-2xl font-semibold tracking-tight">{fmt(peakPoint.loadMw)} <span className="text-xs font-medium text-muted-foreground">{unitLabel}</span></dd>
+          <dd className="num mt-1.5 text-2xl font-bold tracking-tight">{fmt(peakPoint.loadMw)} <span className="text-xs font-semibold text-muted-foreground">{unitLabel}</span></dd>
         </div>
         <div className="border-l-2 border-border pl-4">
           <dt className="text-[13px] text-muted-foreground">較昨日同時段</dt>
-          <dd className="num mt-1.5 text-2xl font-semibold tracking-tight">
+          <dd className="num mt-1.5 text-2xl font-bold tracking-tight">
             {yesterdaySameTime ? `${last.loadMw >= yesterdaySameTime.loadMw ? '+' : '−'}${fmt(Math.abs(last.loadMw - yesterdaySameTime.loadMw))}` : '--'}
-            {yesterdaySameTime && <span className="text-xs font-medium text-muted-foreground"> {unitLabel}</span>}
+            {yesterdaySameTime && <span className="text-xs font-semibold text-muted-foreground"> {unitLabel}</span>}
           </dd>
         </div>
         <div className="border-l-2 border-border pl-4">
           <dt className="text-[13px] text-muted-foreground">預估尖峰 · {model?.supply?.forecastPeakHourRange || '--'}</dt>
-          <dd className="num mt-1.5 text-2xl font-semibold tracking-tight">{fmt(model?.metrics?.forecastPeakDemandMw)} <span className="text-xs font-medium text-muted-foreground">{unitLabel}</span></dd>
+          <dd className="num mt-1.5 text-2xl font-bold tracking-tight">{fmt(model?.metrics?.forecastPeakDemandMw)} <span className="text-xs font-semibold text-muted-foreground">{unitLabel}</span></dd>
         </div>
       </dl>
 
