@@ -9,7 +9,9 @@ import { buildCurvesPayload, SECTION_ENDPOINTS, taipeiDateKey } from '../js/powe
 // are ASCII digits plus an optional BOM).
 const REQUEST_HEADERS = {
   Accept: 'text/csv,text/plain,*/*',
-  'User-Agent': 'Mozilla/5.0 (compatible; taiwan-power-dashboard/0.2; +https://github.com/livejiaquan/taiwan-power-dashboard)'
+  'Accept-Language': 'zh-TW,zh;q=0.9,en;q=0.8',
+  Referer: 'https://www.taipower.com.tw/d006/loadGraph/loadGraph/load_briefing3.html',
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 taiwan-power-dashboard/0.2'
 };
 
 async function fetchText(url, { fetchImpl, requestTimeoutMs, attempts }) {
@@ -27,7 +29,7 @@ async function fetchText(url, { fetchImpl, requestTimeoutMs, attempts }) {
       if (text.length > 2_000_000) throw new Error('回應超過 2 MB 上限');
       return text;
     } catch (error) {
-      lastError = error;
+      lastError = error?.cause ? new Error(`${error.message}: ${error.cause.code || error.cause.message}`) : error;
     } finally {
       clearTimeout(timeoutId);
     }
