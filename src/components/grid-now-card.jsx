@@ -27,12 +27,25 @@ function groupShares(categories, total) {
 function Term({ label, value, unit, emphasis }) {
   return (
     <dl className="min-w-0">
-      <dt className="text-xs text-muted-foreground">{label}</dt>
-      <dd className={emphasis ? 'num mt-1 whitespace-nowrap text-[32px] font-bold leading-none tracking-tight sm:text-4xl' : 'num mt-1 whitespace-nowrap text-xl font-semibold leading-none tracking-tight sm:text-2xl'}>
+      <dt className="text-[13px] text-muted-foreground">{label}</dt>
+      <dd
+        className={emphasis
+          ? 'num mt-2 whitespace-nowrap text-[40px] font-bold leading-none tracking-tight sm:text-5xl'
+          : 'num mt-2 whitespace-nowrap text-[28px] font-semibold leading-none tracking-tight sm:text-[32px]'}
+      >
         {value}
-        {unit && <span className="ml-1 text-sm font-medium text-muted-foreground">{unit}</span>}
+        {unit && <span className="ml-1.5 text-base font-medium text-muted-foreground">{unit}</span>}
       </dd>
     </dl>
+  );
+}
+
+function Operator({ icon: Icon, label }) {
+  return (
+    <span className="hidden pb-1.5 text-subtle-foreground sm:block">
+      <Icon className="size-5" aria-hidden="true" />
+      <span className="sr-only">{label}</span>
+    </span>
   );
 }
 
@@ -49,31 +62,28 @@ export function GridNowCard({ model, timeLabel, areas }) {
   const areaTotal = latestArea ? AREA_KEYS.reduce((sum, key) => sum + latestArea.areas[key], 0) : 0;
 
   return (
-    <Card className="flex h-full flex-col p-5 sm:p-6">
-      <p className="text-[13px] font-medium text-muted-foreground">{timeLabel}用電狀況</p>
-      <div className="mt-3 grid grid-cols-2 items-end gap-x-4 gap-y-4 sm:grid-cols-[auto_auto_auto_auto_auto]">
+    <Card className="p-6 sm:p-10">
+      <div className="grid grid-cols-2 items-end gap-x-8 gap-y-8 sm:flex sm:flex-wrap sm:gap-x-10">
         <div className="col-span-2 sm:col-span-1">
           <Term label={`${timeLabel}用電負載`} value={powerValue(metrics.currentLoadMw)} unit={unitLabel} emphasis />
         </div>
-        <span className="mb-1.5 hidden text-subtle-foreground sm:block"><Divide className="size-4" aria-hidden="true" /><span className="sr-only">除以</span></span>
+        <Operator icon={Divide} label="除以" />
         <Term label="當下最大供電能力" value={powerValue(capacityMw)} unit={unitLabel} />
-        <span className="mb-1.5 hidden text-subtle-foreground sm:block"><Equal className="size-4" aria-hidden="true" /><span className="sr-only">等於</span></span>
-        <div>
-          <Term label="使用率" value={formatPercent(metrics.currentUtilizationPercent, 0)} />
-        </div>
+        <Operator icon={Equal} label="等於" />
+        <Term label="使用率" value={formatPercent(metrics.currentUtilizationPercent, 0)} />
       </div>
-      <div className="mt-4 h-2 overflow-hidden rounded-full bg-track" aria-hidden="true">
+      <div className="mt-8 h-2.5 overflow-hidden rounded-full bg-track" aria-hidden="true">
         <div className="h-full rounded-full bg-accent" style={{ width: `${Math.min(100, Math.max(0, metrics.currentUtilizationPercent))}%` }} />
       </div>
 
-      <div className="mt-6 border-t border-border pt-5">
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h3 className="text-[15px] font-semibold tracking-tight">電從哪裡來</h3>
-          <p className="num text-xs text-muted-foreground">正輸出合計 {power(total)}</p>
+      <div className="mt-12 border-t border-border pt-10">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+          <h3 className="text-lg font-semibold tracking-tight">電從哪裡來</h3>
+          <p className="num text-[13px] text-muted-foreground">機組正輸出合計 {power(total)}</p>
         </div>
 
         <div
-          className="mt-3 flex h-10 w-full overflow-hidden rounded-lg"
+          className="mt-5 flex h-12 w-full overflow-hidden rounded-xl"
           role="img"
           aria-label={`發電結構：${categories.map((c) => `${c.labelZh} ${formatPercent(share(c.netGenerationMw, total))}`).join('、')}`}
         >
@@ -83,14 +93,14 @@ export function GridNowCard({ model, timeLabel, areas }) {
               content={<span className="num"><strong>{category.labelZh}</strong> {power(category.netGenerationMw)} · {formatPercent(share(category.netGenerationMw, total))}</span>}
             >
               <span
-                className="h-full min-w-[2px] border-r-2 border-card last:border-r-0"
+                className="h-full min-w-[3px] border-r-[3px] border-card last:border-r-0"
                 style={{ width: `${share(category.netGenerationMw, total)}%`, background: fuelColor(category) }}
               />
             </Tooltip>
           ))}
         </div>
 
-        <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+        <p className="mt-4 flex flex-wrap gap-x-6 gap-y-1 text-sm text-muted-foreground">
           {groups.map((group) => (
             <span key={group.group}>
               {group.label} <span className="num font-semibold text-foreground">{formatPercent(group.percent)}</span>
@@ -98,37 +108,37 @@ export function GridNowCard({ model, timeLabel, areas }) {
           ))}
         </p>
 
-        <ul className="mt-4 grid grid-cols-2 gap-x-5 gap-y-2 sm:grid-cols-3">
+        <ul className="mt-8 grid grid-cols-2 gap-x-10 gap-y-4 sm:grid-cols-3 lg:grid-cols-4">
           {categories.map((category) => (
-            <li key={category.key} className="flex min-w-0 items-center gap-2 text-[13px]">
-              <span className="size-2.5 shrink-0 rounded-sm" style={{ background: fuelColor(category) }} aria-hidden="true" />
+            <li key={category.key} className="flex min-w-0 items-center gap-2.5 border-b border-border/70 pb-3 text-sm">
+              <span className="size-3 shrink-0 rounded" style={{ background: fuelColor(category) }} aria-hidden="true" />
               <span className="truncate">{category.labelZh}</span>
-              <span className="num ml-auto font-medium">{formatPercent(share(category.netGenerationMw, total))}</span>
+              <span className="num ml-auto font-semibold">{formatPercent(share(category.netGenerationMw, total))}</span>
             </li>
           ))}
         </ul>
       </div>
 
       {latestArea && (
-        <div className="mt-6 border-t border-border pt-5">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h3 className="text-[15px] font-semibold tracking-tight">各區用電</h3>
-            <p className="num text-xs text-muted-foreground">{latestArea.time} · 台電區域別用電曲線</p>
+        <div className="mt-12 border-t border-border pt-10">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+            <h3 className="text-lg font-semibold tracking-tight">各區用電</h3>
+            <p className="num text-[13px] text-muted-foreground">{latestArea.time} · 台電區域別用電曲線</p>
           </div>
-          <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <dl className="mt-6 grid grid-cols-2 gap-x-10 gap-y-6 sm:grid-cols-4">
             {['north', 'central', 'south', 'east'].map((key) => (
-              <li key={key} className="rounded-xl bg-muted px-3 py-2.5">
-                <p className="text-xs text-muted-foreground">{AREA_LABEL[key]}</p>
-                <p className="num mt-0.5 text-[15px] font-semibold">{power(latestArea.areas[key])}</p>
-                <p className="num text-xs text-muted-foreground">{formatPercent(share(latestArea.areas[key], areaTotal))}</p>
-              </li>
+              <div key={key}>
+                <dt className="text-[13px] text-muted-foreground">{AREA_LABEL[key]}</dt>
+                <dd className="num mt-1.5 text-xl font-semibold tracking-tight">{power(latestArea.areas[key])}</dd>
+                <dd className="num mt-0.5 text-[13px] text-muted-foreground">{formatPercent(share(latestArea.areas[key], areaTotal))}</dd>
+              </div>
             ))}
-          </ul>
+          </dl>
         </div>
       )}
 
-      <p className="mt-auto pt-5 text-xs text-muted-foreground">
-        資料時間 {supply.publishTimeText}。占比以正輸出合計為分母，不含儲能充電。
+      <p className="mt-10 text-[13px] leading-6 text-muted-foreground">
+        資料時間 {supply.publishTimeText}。占比以機組正輸出合計為分母，不含儲能充電。
       </p>
     </Card>
   );

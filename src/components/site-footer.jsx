@@ -1,7 +1,7 @@
 export function SiteFooter() {
   return (
-    <footer className="mt-12 border-t border-border">
-      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 text-[13px] text-muted-foreground sm:px-6 md:grid-cols-3">
+    <footer className="mt-24 border-t border-border">
+      <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 text-sm leading-7 text-muted-foreground sm:px-8 md:grid-cols-3">
         <div>
           <p className="font-semibold text-foreground">台灣電力即時看板</p>
           <p className="mt-2 leading-6">

@@ -13,17 +13,17 @@ function ThresholdScale({ rate, muted }) {
 
   return (
     <div aria-hidden="true">
-      <div className="relative flex h-2 gap-[2px] overflow-hidden rounded-full">
+      <div className="relative flex h-2.5 gap-[3px] overflow-hidden rounded-full">
         <div className="h-full rounded-l-full" style={{ ...segment('o'), width: at(6) }} />
         <div className="h-full" style={{ ...segment('y'), width: at(4) }} />
         <div className="h-full flex-1 rounded-r-full" style={segment('g')} />
       </div>
-      <div className="relative h-6">
-        <div className="absolute -top-[14px] -translate-x-1/2" style={{ left: `${position}%` }}>
-          <div className="h-[18px] w-[4px] rounded-full bg-foreground ring-2 ring-card" />
+      <div className="relative h-8">
+        <div className="absolute -top-[17px] -translate-x-1/2" style={{ left: `${position}%` }}>
+          <div className="h-[22px] w-[5px] rounded-full bg-foreground ring-[3px] ring-card" />
         </div>
         {[0, 6, 10, 20].map((tick) => (
-          <span key={tick} className="num absolute top-1.5 -translate-x-1/2 text-[11px] text-muted-foreground" style={{ left: at(tick) }}>
+          <span key={tick} className="num absolute top-2 -translate-x-1/2 text-xs text-muted-foreground" style={{ left: at(tick) }}>
             {tick}%
           </span>
         ))}
@@ -36,7 +36,7 @@ function ThresholdScale({ rate, muted }) {
 // thresholds are always visible next to the number they classify.
 function LevelLegend({ current, muted }) {
   return (
-    <ol className="grid gap-1.5" aria-label="台電供電燈號分級">
+    <ol className="grid gap-2" aria-label="台電供電燈號分級">
       {RESERVE_LEVELS.map((level) => {
         const active = level.code === current;
         const Icon = level.icon;
@@ -45,23 +45,32 @@ function LevelLegend({ current, muted }) {
             key={level.code}
             aria-current={active ? 'true' : undefined}
             className={cn(
-              'flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-[13px]',
+              'flex min-w-0 items-center gap-3 rounded-xl px-3 py-2.5 text-sm',
               active ? 'bg-muted ring-1 ring-border' : 'text-muted-foreground'
             )}
           >
             <span
-              className="grid size-6 shrink-0 place-items-center rounded-full"
+              className="grid size-7 shrink-0 place-items-center rounded-full"
               style={active ? statusSurface(level.token, muted) : { background: 'var(--status-off)', color: 'var(--muted-foreground)' }}
             >
               <Icon className="size-3.5" aria-hidden="true" />
             </span>
             <span className={cn('w-16 shrink-0 font-medium', active && 'text-foreground')}>{level.label}</span>
-            <span className="num min-w-0 truncate text-xs">{level.rule}</span>
-            {active && <span className="ml-auto shrink-0 text-xs font-semibold text-foreground">目前</span>}
+            <span className="num min-w-0 truncate text-[13px]">{level.rule}</span>
+            {active && <span className="ml-auto hidden shrink-0 text-[13px] font-semibold text-foreground min-[420px]:inline">目前</span>}
           </li>
         );
       })}
     </ol>
+  );
+}
+
+function Fact({ label, value }) {
+  return (
+    <div className="min-w-0">
+      <dt className="text-[13px] text-muted-foreground">{label}</dt>
+      <dd className="num mt-1.5 text-lg font-semibold tracking-tight">{value}</dd>
+    </div>
   );
 }
 
@@ -73,73 +82,62 @@ export function ReserveStatusCard({ model, freshness }) {
   const { metrics, supply } = model;
 
   return (
-    <Card className="flex h-full flex-col p-5 sm:p-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-[13px] font-medium text-muted-foreground">{status.contextLabel}</p>
-          <div className="mt-2 flex flex-wrap items-center gap-2.5">
-            {level && (
-              <span
-                className="inline-flex items-center gap-1.5 rounded-full py-1 pl-2 pr-3 text-[15px] font-semibold"
-                style={statusSurface(level.token, status.muted)}
-              >
-                <Icon className="size-4" aria-hidden="true" />
-                {level.name} · {model.health.labelZh}
-              </span>
-            )}
-            {status.modeLabel !== '來源已確認' && (
-              <span className="rounded-full border border-border px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-                {status.modeLabel}
-              </span>
-            )}
+    <Card className="grid gap-10 p-6 sm:p-10 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-14">
+      <div className="min-w-0">
+        <div className="flex flex-wrap items-center gap-3">
+          {level && (
+            <span
+              className="inline-flex items-center gap-2 rounded-full py-1.5 pl-2.5 pr-4 text-base font-semibold"
+              style={statusSurface(level.token, status.muted)}
+            >
+              <Icon className="size-[18px]" aria-hidden="true" />
+              {level.name} · {model.health.labelZh}
+            </span>
+          )}
+          {status.modeLabel !== '來源已確認' && (
+            <span className="rounded-full border border-border px-3 py-1 text-[13px] font-medium text-muted-foreground">
+              {status.modeLabel}
+            </span>
+          )}
+        </div>
+        <p className="mt-4 text-[15px] text-muted-foreground">{status.contextLabel}</p>
+
+        <div className="mt-8 flex flex-wrap items-end gap-x-6 gap-y-3">
+          <div
+            role="meter"
+            aria-label="今日尖峰預估備轉容量率"
+            aria-valuemin={0}
+            aria-valuemax={Math.max(30, Math.ceil(metrics.forecastReserveRatePercent))}
+            aria-valuenow={Math.max(0, metrics.forecastReserveRatePercent)}
+            aria-valuetext={status.ariaValueText}
+            className="num text-[64px] font-bold leading-[0.9] tracking-tight sm:text-[88px]"
+          >
+            {status.rateText}
+          </div>
+          <div className="pb-2 text-[15px] leading-7">
+            <div className="text-muted-foreground">今日尖峰預估備轉容量率</div>
+            <div className="num font-medium">{status.summary}</div>
           </div>
         </div>
+
+        <div className="mt-10 max-w-xl">
+          <ThresholdScale rate={metrics.forecastReserveRatePercent} muted={status.muted} />
+        </div>
+
+        <dl className="mt-10 grid grid-cols-2 gap-x-8 gap-y-6 border-t border-border pt-8 sm:grid-cols-4">
+          <Fact label="備轉容量" value={power(metrics.forecastReserveCapacityMw)} />
+          <Fact label="預估尖峰負載" value={power(metrics.forecastPeakDemandMw)} />
+          <Fact label="尖峰時段" value={supply.forecastPeakHourRange || '--'} />
+          <Fact label="昨日尖峰備轉" value={`${formatNumber(supply.yesterdayReserveRatePercent, 2)}%`} />
+        </dl>
       </div>
 
-      <div className="mt-5 flex flex-wrap items-end gap-x-4 gap-y-1">
-        <div
-          role="meter"
-          aria-label="今日尖峰預估備轉容量率"
-          aria-valuemin={0}
-          aria-valuemax={Math.max(30, Math.ceil(metrics.forecastReserveRatePercent))}
-          aria-valuenow={Math.max(0, metrics.forecastReserveRatePercent)}
-          aria-valuetext={status.ariaValueText}
-          className="num text-[56px] font-bold leading-none tracking-tight sm:text-[64px]"
-        >
-          {status.rateText}
+      <div className="min-w-0 lg:border-l lg:border-border lg:pl-14">
+        <h3 className="text-[15px] font-semibold">燈號怎麼看</h3>
+        <p className="mt-1.5 text-[13px] leading-6 text-muted-foreground">台電依當日尖峰備轉狀況公布，本站直接採用官方燈號。</p>
+        <div className="mt-5">
+          <LevelLegend current={status.indicator} muted={status.muted} />
         </div>
-        <div className="pb-1.5 text-[13px] leading-5">
-          <div className="text-muted-foreground">今日尖峰預估備轉容量率</div>
-          <div className="num font-medium">{status.summary}</div>
-        </div>
-      </div>
-
-      <div className="mt-5">
-        <ThresholdScale rate={metrics.forecastReserveRatePercent} muted={status.muted} />
-      </div>
-
-      <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3 rounded-xl bg-muted px-4 py-3 sm:grid-cols-4">
-        <div>
-          <dt className="text-xs text-muted-foreground">備轉容量</dt>
-          <dd className="num mt-0.5 text-sm font-semibold">{power(metrics.forecastReserveCapacityMw)}</dd>
-        </div>
-        <div>
-          <dt className="text-xs text-muted-foreground">預估尖峰負載</dt>
-          <dd className="num mt-0.5 text-sm font-semibold">{power(metrics.forecastPeakDemandMw)}</dd>
-        </div>
-        <div>
-          <dt className="text-xs text-muted-foreground">尖峰時段</dt>
-          <dd className="num mt-0.5 text-sm font-semibold">{supply.forecastPeakHourRange || '--'}</dd>
-        </div>
-        <div>
-          <dt className="text-xs text-muted-foreground">昨日尖峰備轉</dt>
-          <dd className="num mt-0.5 text-sm font-semibold">{formatNumber(supply.yesterdayReserveRatePercent, 2)}%</dd>
-        </div>
-      </dl>
-
-      <div className="mt-5">
-        <h3 className="mb-2 text-xs font-medium text-muted-foreground">燈號分級（台電官方）</h3>
-        <LevelLegend current={status.indicator} muted={status.muted} />
       </div>
     </Card>
   );

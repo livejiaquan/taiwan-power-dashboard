@@ -46,7 +46,7 @@ export function SiteHeader({ trust, loading, onRefresh, theme, onToggleTheme, au
 
   return (
     <header className="sticky top-0 z-30 border-b border-border/70 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/75">
-      <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 sm:px-6">
+      <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-5 sm:px-8">
         <a href="#top" className="flex min-w-0 items-center gap-2.5" aria-label="台灣電力即時看板，回到頁首">
           <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-foreground text-background">
             <Zap className="size-4 fill-yellow-400 text-yellow-400" aria-hidden="true" />
