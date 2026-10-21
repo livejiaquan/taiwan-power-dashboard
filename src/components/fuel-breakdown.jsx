@@ -163,11 +163,11 @@ export function FuelBreakdown({ model, theme }) {
             <caption className="sr-only">燃料別發電明細</caption>
             <thead>
               <tr className="border-b border-border text-left text-[13px] text-muted-foreground">
-                <th scope="col" className="py-2 pl-6 pr-3 font-medium sm:pl-0">燃料別</th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">淨發電</th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">占比</th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">裝置容量</th>
-                <th scope="col" className="py-2 pl-3 pr-6 text-right font-medium sm:pr-0">運轉機組</th>
+                <th scope="col" className="py-2 pl-6 pr-3 font-semibold sm:pl-0">燃料別</th>
+                <th scope="col" className="px-2 py-2 text-right font-semibold">淨發電</th>
+                <th scope="col" className="px-2 py-2 text-right font-semibold">占比</th>
+                <th scope="col" className="px-2 py-2 text-right font-semibold">裝置容量</th>
+                <th scope="col" className="py-2 pl-3 pr-6 text-right font-semibold sm:pr-0">運轉機組</th>
               </tr>
             </thead>
             <tbody>
@@ -175,13 +175,13 @@ export function FuelBreakdown({ model, theme }) {
                 const negative = category.netGenerationMw < 0;
                 return (
                   <tr key={category.key} className="border-b border-border/60 last:border-0">
-                    <th scope="row" className="py-3.5 pl-6 pr-3 text-left font-medium sm:pl-0">
+                    <th scope="row" className="py-3.5 pl-6 pr-3 text-left font-semibold sm:pl-0">
                       <span className="flex items-center gap-2">
                         <span className="size-2.5 shrink-0 rounded-sm" style={{ background: fuelColor(category) }} aria-hidden="true" />
                         {category.labelZh}
                       </span>
                     </th>
-                    <td className={cn('num px-2 py-3.5 text-right font-semibold', negative && 'text-muted-foreground')}>
+                    <td className={cn('num px-2 py-3.5 text-right font-bold', negative && 'text-muted-foreground')}>
                       {power(category.netGenerationMw)}
                     </td>
                     <td className="num px-2 py-3.5 text-right">

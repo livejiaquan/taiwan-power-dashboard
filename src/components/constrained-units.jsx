@@ -34,7 +34,7 @@ export function ConstrainedUnits({ model }) {
             <div className="rounded-2xl bg-muted px-5 py-4">
               <p className="text-xs text-muted-foreground">下列機組未發出的容量合計</p>
               <p className="num mt-1 text-2xl font-bold tracking-tight">
-                {powerValue(idleCapacity)} <span className="text-sm font-semibold text-muted-foreground">{unitLabel}</span>
+                {powerValue(idleCapacity)} <span className="text-sm font-bold text-muted-foreground">{unitLabel}</span>
               </p>
             </div>
             <ul className="mt-4 divide-y divide-border/70">
@@ -45,13 +45,13 @@ export function ConstrainedUnits({ model }) {
                   <li key={`${unit.name}-${index}`} className="py-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold">{unit.name}</p>
+                        <p className="truncate text-sm font-bold">{unit.name}</p>
                         <p className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
                           <span className="size-2 rounded-full" style={{ background: fuelColor({ key: unit.categoryKey, color: unit.color }) }} aria-hidden="true" />
                           {unit.type}
                         </p>
                       </div>
-                      <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
+                      <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-muted px-1.5 py-0.5 text-xs font-semibold text-muted-foreground">
                         <Wrench className="size-3" aria-hidden="true" />
                         {unit.note}
                       </span>

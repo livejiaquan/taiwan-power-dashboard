@@ -11,7 +11,7 @@ export function Section({ id, title, summary, actions, children, className }) {
     <section id={id} aria-labelledby={headingId} className={cn('scroll-mt-24', className)}>
       <div className="mb-5 flex flex-wrap items-end justify-between gap-x-6 gap-y-4 sm:mb-6">
         <div className="max-w-2xl">
-          <h2 id={headingId} className="display text-[24px] font-semibold sm:text-[32px]">{title}</h2>
+          <h2 id={headingId} className="display text-[24px] font-bold sm:text-[32px]">{title}</h2>
           {summary && <p className="mt-2 text-pretty text-[15px] leading-7 text-muted-foreground sm:text-[17px]">{summary}</p>}
         </div>
         {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}

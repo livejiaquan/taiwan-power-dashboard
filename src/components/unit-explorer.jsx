@@ -26,7 +26,7 @@ function FilterChip({ active, onClick, color, children }) {
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        'inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-[13px] font-medium transition',
+        'inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-[13px] font-semibold transition',
         active ? 'border-foreground bg-foreground text-background' : 'border-border bg-card text-muted-foreground hover:text-foreground'
       )}
     >
@@ -119,8 +119,8 @@ export function UnitExplorer({ model }) {
             return (
               <li key={`${unit.name}-${index}`} className="py-3.5">
                 <div className="flex items-baseline justify-between gap-3">
-                  <p className="min-w-0 truncate text-[15px] font-semibold">{unit.name}</p>
-                  <p className="num shrink-0 text-[15px] font-semibold">{power(unit.netGenerationMw)}</p>
+                  <p className="min-w-0 truncate text-[15px] font-bold">{unit.name}</p>
+                  <p className="num shrink-0 text-[15px] font-bold">{power(unit.netGenerationMw)}</p>
                 </div>
                 <div className="mt-1 flex items-center justify-between gap-3 text-[13px] text-muted-foreground">
                   <span className="flex min-w-0 items-center gap-1.5">
@@ -145,12 +145,12 @@ export function UnitExplorer({ model }) {
             <caption className="sr-only">機組即時發電量（共 {filtered.length} 筆符合）</caption>
             <thead>
               <tr className="border-b border-border text-left text-[13px] text-muted-foreground">
-                <th scope="col" className="py-3 pl-6 pr-3 font-medium sm:pl-0">機組</th>
-                <th scope="col" className="px-2 py-2 font-medium">燃料別</th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">淨發電</th>
-                <th scope="col" className="px-2 py-2 text-right font-medium">裝置容量</th>
-                <th scope="col" className="w-40 px-2 py-2 font-medium">使用率</th>
-                <th scope="col" className="py-2 pl-2 pr-5 font-medium sm:pr-0">備註</th>
+                <th scope="col" className="py-3 pl-6 pr-3 font-semibold sm:pl-0">機組</th>
+                <th scope="col" className="px-2 py-2 font-semibold">燃料別</th>
+                <th scope="col" className="px-2 py-2 text-right font-semibold">淨發電</th>
+                <th scope="col" className="px-2 py-2 text-right font-semibold">裝置容量</th>
+                <th scope="col" className="w-40 px-2 py-2 font-semibold">使用率</th>
+                <th scope="col" className="py-2 pl-2 pr-5 font-semibold sm:pr-0">備註</th>
               </tr>
             </thead>
             <tbody>
@@ -159,7 +159,7 @@ export function UnitExplorer({ model }) {
                 const color = fuelColor({ key: unit.categoryKey, color: unit.color });
                 return (
                   <tr key={`${unit.name}-${index}`} className="border-b border-border/60 last:border-0 hover:bg-muted/50">
-                    <th scope="row" className="max-w-[220px] truncate py-3.5 pl-5 pr-2 text-left font-medium sm:pl-0" title={unit.name}>
+                    <th scope="row" className="max-w-[220px] truncate py-3.5 pl-5 pr-2 text-left font-semibold sm:pl-0" title={unit.name}>
                       {unit.name}
                     </th>
                     <td className="whitespace-nowrap px-2 py-3.5 text-muted-foreground">
@@ -168,7 +168,7 @@ export function UnitExplorer({ model }) {
                         {unit.type}
                       </span>
                     </td>
-                    <td className="num whitespace-nowrap px-2 py-3.5 text-right font-semibold">{power(unit.netGenerationMw)}</td>
+                    <td className="num whitespace-nowrap px-2 py-3.5 text-right font-bold">{power(unit.netGenerationMw)}</td>
                     <td className="num whitespace-nowrap px-2 py-3.5 text-right text-muted-foreground">{power(unit.capacityMw)}</td>
                     <td className="px-2 py-3.5">
                       {factor === null ? (
@@ -206,7 +206,7 @@ export function UnitExplorer({ model }) {
             <button
               type="button"
               onClick={() => setExpanded((value) => !value)}
-              className="h-10 rounded-xl border border-border bg-card px-4 text-sm font-medium text-foreground hover:bg-muted"
+              className="h-10 rounded-xl border border-border bg-card px-4 text-sm font-semibold text-foreground hover:bg-muted"
             >
               {expanded ? '收合' : `顯示全部 ${filtered.length} 筆`}
             </button>

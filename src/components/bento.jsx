@@ -18,9 +18,9 @@ function share(value, total) {
 
 function BigValue({ value, unit }) {
   return (
-    <p className="num display text-[34px] font-semibold leading-none sm:text-[40px]">
+    <p className="num display text-[34px] font-bold leading-none sm:text-[40px]">
       {value}
-      {unit && <span className="ml-1 text-[15px] font-medium tracking-normal text-muted-foreground">{unit}</span>}
+      {unit && <span className="ml-1 text-[15px] font-semibold tracking-normal text-muted-foreground">{unit}</span>}
     </p>
   );
 }
@@ -39,7 +39,7 @@ export function LoadTile({ model, timeLabel }) {
       <div className="mt-5 flex items-center gap-3.5">
         <Ring value={metrics.currentUtilizationPercent} size={52} stroke={7} />
         <div className="min-w-0 leading-tight">
-          <p className="num text-[20px] font-semibold">{formatPercent(metrics.currentUtilizationPercent, 0)}<span className="ml-1 text-[13px] font-medium text-muted-foreground">使用率</span></p>
+          <p className="num text-[20px] font-bold">{formatPercent(metrics.currentUtilizationPercent, 0)}<span className="ml-1 text-[13px] font-semibold text-muted-foreground">使用率</span></p>
           <p className="num mt-0.5 truncate text-[13px] text-muted-foreground">供電能力 {power(capacityMw)}</p>
         </div>
       </div>
@@ -100,7 +100,7 @@ export function MixTile({ model }) {
           <li key={category.key} className="flex min-w-0 items-center gap-2 text-[14px]">
             <span className="size-2.5 shrink-0 rounded-full" style={{ background: fuelColor(category) }} aria-hidden="true" />
             <span className="truncate">{SHORT_LABEL[category.key] || category.labelZh}</span>
-            <span className="num ml-auto font-semibold">{formatPercent(share(category.netGenerationMw, total))}</span>
+            <span className="num ml-auto font-bold">{formatPercent(share(category.netGenerationMw, total))}</span>
           </li>
         ))}
       </ul>
@@ -146,12 +146,12 @@ export function WeekTile({ curves, model, todayKey }) {
             const position = Math.min(100, Math.max(0, (day.reserveRatePercent / 30) * 100));
             return (
               <li key={day.date} className="grid grid-cols-[44px_22px_52px_1fr] items-center gap-3 py-3 first:pt-1 last:pb-0">
-                <span className="text-[15px] font-semibold">{dayName(day.date, todayKey)}</span>
+                <span className="text-[15px] font-bold">{dayName(day.date, todayKey)}</span>
                 <span className="grid size-[22px] place-items-center rounded-full" style={{ background: `var(--status-${level.token}-bg)`, color: `var(--status-${level.token}-on)` }}>
                   <Icon className="size-3" aria-hidden="true" />
                   <span className="sr-only">{level.label}</span>
                 </span>
-                <span className="num text-right text-[15px] font-semibold">{formatNumber(day.reserveRatePercent, 1)}%</span>
+                <span className="num text-right text-[15px] font-bold">{formatNumber(day.reserveRatePercent, 1)}%</span>
                 <span className="relative h-[5px] rounded-full bg-track" aria-hidden="true">
                   <span className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${position}%`, background: `var(--status-${level.token}-bg)` }} />
                   <span className="absolute -top-1 h-[13px] w-px bg-muted-foreground/40" style={{ left: `${(10 / 30) * 100}%` }} />
@@ -178,7 +178,7 @@ export function RegionTile({ areas }) {
         {['north', 'central', 'south', 'east'].map((key) => (
           <div key={key}>
             <dt className="text-[13px] text-muted-foreground">{labels[key]}</dt>
-            <dd className="num mt-1 text-[20px] font-semibold">{power(latest.areas[key])}</dd>
+            <dd className="num mt-1 text-[20px] font-bold">{power(latest.areas[key])}</dd>
             <dd className="num text-[13px] text-muted-foreground">{formatPercent(share(latest.areas[key], total))}</dd>
           </div>
         ))}

@@ -30,7 +30,7 @@ function SourceTime({ label, source }) {
   return (
     <div className="min-w-0">
       <dt className="text-[13px] text-muted-foreground">{label}</dt>
-      <dd className="num mt-0.5 whitespace-nowrap text-[14px] font-medium" title={source.text}>
+      <dd className="num mt-0.5 whitespace-nowrap text-[14px] font-semibold" title={source.text}>
         {source.observedAt ? `${formatClockTime(source.observedAt)} · ${source.ageMinutes} 分鐘前` : '--'}
       </dd>
     </div>
@@ -53,7 +53,7 @@ export function TrustBanner({ trust }) {
         <div className="flex min-w-0 gap-3.5">
           <Icon className={cn('mt-0.5 size-5 shrink-0', tone.icon_)} aria-hidden="true" />
           <div className="min-w-0">
-            <h2 id="trust-title" className="text-[15px] font-semibold">{trust.title}</h2>
+            <h2 id="trust-title" className="text-[15px] font-bold">{trust.title}</h2>
             <p className="mt-1 max-w-2xl text-pretty text-sm leading-6 text-muted-foreground">{trust.message}</p>
           </div>
         </div>
@@ -62,7 +62,7 @@ export function TrustBanner({ trust }) {
           <SourceTime label="各機組發電量" source={trust.sources.generation} />
           <div className="col-span-2 min-w-0 sm:col-span-1">
             <dt className="text-[13px] text-muted-foreground">資料來源</dt>
-            <dd className="mt-0.5 text-[14px] font-medium" title={trust.sourceText}>{trust.sourceText.replace('台電官方資料 · ', '')}</dd>
+            <dd className="mt-0.5 text-[14px] font-semibold" title={trust.sourceText}>{trust.sourceText.replace('台電官方資料 · ', '')}</dd>
           </div>
         </dl>
       </div>

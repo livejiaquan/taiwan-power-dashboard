@@ -17,8 +17,8 @@ const GRADIENT = {
 function GlassStat({ label, value }) {
   return (
     <div className="min-w-0 rounded-2xl bg-white/12 px-4 py-3 ring-1 ring-white/15 backdrop-blur-md">
-      <dt className="text-[12px] font-medium text-white/75">{label}</dt>
-      <dd className="num mt-1 truncate text-[17px] font-semibold text-white">{value}</dd>
+      <dt className="text-[12px] font-bold text-white/80">{label}</dt>
+      <dd className="num mt-1 truncate text-[17px] font-bold text-white">{value}</dd>
     </div>
   );
 }
@@ -42,7 +42,7 @@ function LevelScale({ rate, muted }) {
           style={{ left: `${position}%` }}
         />
       </div>
-      <div className="num relative mt-2 h-4 text-[11px] font-medium text-white/70">
+      <div className="num relative mt-2 h-4 text-[11px] font-semibold text-white/70">
         {[0, 6, 10, 20].map((tick) => (
           <span key={tick} className="absolute -translate-x-1/2" style={{ left: `${(tick / 25) * 100}%` }}>{tick}%</span>
         ))}
@@ -76,9 +76,9 @@ export function StatusHero({ model, freshness, trust }) {
       />
       <div className="relative flex flex-wrap items-center justify-between gap-3 px-6 pt-6 sm:px-10 sm:pt-9">
         <div className="contents">
-          <h1 id="hero-title" className="text-[15px] font-semibold text-white/85 sm:text-[17px]">台灣現在的電夠不夠？</h1>
+          <h1 id="hero-title" className="text-[15px] font-bold text-white/90 sm:text-[17px]">台灣現在的電夠不夠？</h1>
           {oldest && (
-            <span className="num inline-flex items-center gap-1.5 rounded-full bg-black/15 px-3 py-1 text-[12px] font-medium text-white/90 ring-1 ring-white/15 backdrop-blur">
+            <span className="num inline-flex items-center gap-1.5 rounded-full bg-black/15 px-3 py-1 text-[12px] font-semibold text-white/90 ring-1 ring-white/15 backdrop-blur">
               <span className={cn('size-1.5 rounded-full', trust.tone === 'success' ? 'bg-[#4cd97b]' : 'bg-[#ffd60a]')} aria-hidden="true" />
               {formatClockTime(oldest.observedAt)} · {formatAge(oldest.ageMinutes)}
             </span>
@@ -87,8 +87,8 @@ export function StatusHero({ model, freshness, trust }) {
       </div>
       <div className="relative grid gap-10 px-6 pb-6 pt-2 sm:px-10 sm:pb-10 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-16">
         <div className="min-w-0">
-          <p className="mt-6 text-[15px] text-white/75 sm:mt-8">{status.contextLabel}</p>
-          <div className="mt-1 flex items-center gap-2 text-2xl font-semibold sm:text-[28px]">
+          <p className="mt-6 text-[15px] font-bold text-white/80 sm:mt-8">{status.contextLabel}</p>
+          <div className="mt-1 flex items-center gap-2 text-2xl font-bold sm:text-[28px]">
             {Icon && <Icon className="size-6 sm:size-7" aria-hidden="true" />}
             <span>{level ? `${level.name} · ${model.health.labelZh}` : model.health.labelZh}</span>
           </div>
@@ -100,11 +100,11 @@ export function StatusHero({ model, freshness, trust }) {
             aria-valuemax={Math.max(30, Math.ceil(metrics.forecastReserveRatePercent))}
             aria-valuenow={Math.max(0, metrics.forecastReserveRatePercent)}
             aria-valuetext={status.ariaValueText}
-            className="num display mt-2 text-[104px] font-extralight leading-[0.95] sm:text-[148px]"
+            className="num display mt-2 text-[96px] font-bold leading-[0.95] sm:text-[136px]"
           >
             {status.rateText}
           </div>
-          <p className="mt-3 max-w-md text-pretty text-[15px] leading-6 text-white/85">
+          <p className="mt-3 max-w-md text-pretty text-[15px] font-bold leading-6 text-white/90">
             今日尖峰預估備轉容量率，{status.summary}。
             {status.modeLabel !== '來源已確認' && <span className="ml-1 rounded-full bg-black/20 px-2 py-0.5 text-[12px]">{status.modeLabel}</span>}
           </p>
