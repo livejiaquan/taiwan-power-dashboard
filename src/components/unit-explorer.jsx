@@ -111,7 +111,36 @@ export function UnitExplorer({ model }) {
           ))}
         </div>
 
-        <div className="-mx-6 mt-6 overflow-x-auto sm:mx-0" role="region" aria-label="機組即時發電量（可捲動表格）" tabIndex={0}>
+        {/* Phones get a card list; the wide table starts at the sm breakpoint. */}
+        <ul className="mt-5 divide-y divide-border sm:hidden" aria-label="機組即時發電量">
+          {visible.map((unit, index) => {
+            const factor = Number.isFinite(unit.utilizationPercent) ? Math.min(100, Math.max(0, unit.utilizationPercent)) : null;
+            const color = fuelColor({ key: unit.categoryKey, color: unit.color });
+            return (
+              <li key={`${unit.name}-${index}`} className="py-3.5">
+                <div className="flex items-baseline justify-between gap-3">
+                  <p className="min-w-0 truncate text-[15px] font-semibold">{unit.name}</p>
+                  <p className="num shrink-0 text-[15px] font-semibold">{power(unit.netGenerationMw)}</p>
+                </div>
+                <div className="mt-1 flex items-center justify-between gap-3 text-[13px] text-muted-foreground">
+                  <span className="flex min-w-0 items-center gap-1.5">
+                    <span className="size-2 shrink-0 rounded-full" style={{ background: color }} aria-hidden="true" />
+                    <span className="truncate">{unit.type}</span>
+                    {hasNote(unit) && <span className="truncate">· {unit.note}</span>}
+                  </span>
+                  <span className="num shrink-0">{factor === null ? '' : `使用率 ${formatPercent(unit.utilizationPercent, 0)}`}</span>
+                </div>
+                {factor !== null && (
+                  <span className="mt-2 block h-1 overflow-hidden rounded-full bg-track" aria-hidden="true">
+                    <span className="block h-full rounded-full" style={{ width: `${factor}%`, background: color }} />
+                  </span>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+
+        <div className="-mx-6 mt-6 hidden overflow-x-auto sm:mx-0 sm:block" role="region" aria-label="機組即時發電量（可捲動表格）" tabIndex={0}>
           <table className="w-full min-w-[680px] text-sm">
             <caption className="sr-only">機組即時發電量（共 {filtered.length} 筆符合）</caption>
             <thead>
