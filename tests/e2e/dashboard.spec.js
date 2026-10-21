@@ -62,7 +62,8 @@ test('missing curve data degrades only the curve section', async ({ page }) => {
   await mockData(page, { now: minutesAfterSource(5), curves: null });
   await page.goto('/');
   await expect(page.getByText('綠燈 · 供電充裕')).toBeVisible();
-  await expect(page.getByText(/今日曲線暫時無法取得/)).toBeVisible();
+  await expect(page.getByRole('link', { name: /台電今日用電曲線/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '備轉容量率：近期實績與未來一週' })).toBeVisible();
 });
 
 test('power unit toggle switches between 萬瓩 and MW', async ({ page }) => {
@@ -91,4 +92,18 @@ test('auto refresh can be paused from the header', async ({ page }) => {
   const pause = page.getByRole('button', { name: '暫停自動更新' });
   await pause.click();
   await expect(page.getByRole('button', { name: '恢復自動更新' })).toHaveAttribute('aria-pressed', 'true');
+});
+
+test('the page never requests anything outside its own origin besides fonts', async ({ page, baseURL }) => {
+  const external = [];
+  page.on('request', (request) => {
+    const url = new URL(request.url());
+    if (url.origin !== new URL(baseURL).origin && !/fonts\.(googleapis|gstatic)\.com$/.test(url.hostname)) {
+      external.push(request.url());
+    }
+  });
+  await mockData(page, { now: minutesAfterSource(24 * 60 + 5) });
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: '目前無法確認供電狀態' }).first()).toBeVisible();
+  expect(external).toEqual([]);
 });

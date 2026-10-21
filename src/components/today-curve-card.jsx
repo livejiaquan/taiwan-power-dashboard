@@ -1,3 +1,4 @@
+import { ExternalLink } from 'lucide-react';
 import { lazy, Suspense, useMemo, useState } from 'react';
 
 import { convertPower, formatAge, formatNumber } from '../../js/dashboard-presenter.js';
@@ -221,11 +222,23 @@ export function TodayCurveCard({ curves, model, theme, now = new Date() }) {
       <ChartCard
         id="today"
         title="今日用電曲線"
-        summary="台電每 10 分鐘公布的今日燃料別發電曲線，目前無法取得。上方即時數字不受影響。"
+        summary="台電每 10 分鐘公布今日燃料別用電曲線。本站這次未能取得，上方的即時數字不受影響。"
       >
-        <p className="rounded-xl bg-muted px-4 py-8 text-center text-[13px] text-muted-foreground">
-          今日曲線暫時無法取得{curves?.errors?.today ? `（${curves.errors.today}）` : ''}。
-        </p>
+        <div className="flex flex-col gap-3 rounded-xl bg-muted px-4 py-5 text-[13px] leading-6 text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+          <p>
+            台電的曲線檔目前只能從台電網站直接查看，本站的自動抓取暫時被拒絕。可以先到台電官網看今日與昨日的用電曲線。
+          </p>
+          <a
+            href="https://www.taipower.com.tw/d006/loadGraph/loadGraph/load_briefing3.html"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex h-9 shrink-0 items-center gap-1.5 self-start rounded-lg border border-border bg-card px-3 text-xs font-medium text-foreground hover:bg-background sm:self-auto"
+          >
+            台電今日用電曲線
+            <ExternalLink className="size-3.5" aria-hidden="true" />
+            <span className="sr-only">（另開新視窗）</span>
+          </a>
+        </div>
       </ChartCard>
     );
   }
