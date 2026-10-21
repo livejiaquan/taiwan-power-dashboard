@@ -1,11 +1,12 @@
 import { lazy, Suspense, useMemo, useState } from 'react';
 
-import { formatMw, formatNumber, formatPercent } from '../../js/dashboard-presenter.js';
+import { formatPercent } from '../../js/dashboard-presenter.js';
 import { fuelColor, sortByFuelOrder } from '../lib/fuel.js';
 import { cn } from '../lib/utils.js';
 import { readToken } from '../lib/tokens.js';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card.jsx';
-import { Tabs, TabsList, TabsTrigger } from './ui/tabs.jsx';
+import { useUnit } from '../lib/units.jsx';
+import { ChartCard } from './chart-card.jsx';
+import { Segmented } from './ui/segmented.jsx';
 
 // ECharts is the heaviest dependency; load it after the status cards render.
 const EChart = lazy(() => import('./echart.jsx'));
@@ -25,13 +26,13 @@ function tooltipBase() {
   };
 }
 
-function donutOption(categories, total) {
+function donutOption(categories, total, power) {
   return {
     animationDuration: 500,
     tooltip: {
       ...tooltipBase(),
       trigger: 'item',
-      formatter: (item) => `<b>${item.name}</b><br/>${formatMw(item.value)} · ${formatPercent(item.percent)}`
+      formatter: (item) => `<b>${item.name}</b><br/>${power(item.value)} · ${formatPercent(item.percent)}`
     },
     series: [{
       type: 'pie',
@@ -52,7 +53,7 @@ function donutOption(categories, total) {
   };
 }
 
-function factorOption(categories) {
+function factorOption(categories, power) {
   const rows = categories.filter((category) => capacityFactor(category) !== null).reverse();
   const muted = readToken('--muted-foreground');
   return {
@@ -64,7 +65,7 @@ function factorOption(categories) {
       axisPointer: { type: 'shadow' },
       formatter: ([item]) => {
         const category = rows[item.dataIndex];
-        return `<b>${category.labelZh}</b><br/>輸出 ${formatMw(category.netGenerationMw)} / 裝置 ${formatMw(category.capacityMw)}<br/>容量使用率 ${formatPercent(item.value)}`;
+        return `<b>${category.labelZh}</b><br/>輸出 ${power(category.netGenerationMw)} / 裝置 ${power(category.capacityMw)}<br/>容量使用率 ${formatPercent(item.value)}`;
       }
     },
     xAxis: { type: 'value', max: 100, show: false },
@@ -97,33 +98,47 @@ function factorOption(categories) {
 }
 
 export function FuelBreakdown({ model, theme }) {
+  const { power, powerValue, unitLabel } = useUnit();
   const [view, setView] = useState('share');
   const ordered = useMemo(() => sortByFuelOrder(model.categories), [model.categories]);
   const positive = ordered.filter((category) => category.netGenerationMw > 0);
   const total = positive.reduce((sum, category) => sum + category.netGenerationMw, 0);
 
   const option = useMemo(
-    () => (view === 'share' ? donutOption(positive, total) : factorOption(positive)),
+    () => (view === 'share' ? donutOption(positive, total, power) : factorOption(positive, power)),
     // theme is a dependency so colours are re-read from CSS tokens on switch.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [view, model, theme]
+    [view, model, theme, power]
   );
 
   return (
-    <Card id="mix" className="scroll-mt-20">
-      <CardHeader>
-        <div>
-          <CardTitle>發電結構</CardTitle>
-          <CardDescription>依燃料別彙整的機組淨發電量、裝置容量與容量使用率</CardDescription>
-        </div>
-        <Tabs value={view} onValueChange={setView}>
-          <TabsList aria-label="圖表檢視">
-            <TabsTrigger value="share">輸出占比</TabsTrigger>
-            <TabsTrigger value="factor">容量使用率</TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </CardHeader>
-      <CardContent className="grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+    <ChartCard
+      id="mix"
+      title="發電結構"
+      summary="依燃料別彙整台電各機組的即時淨發電量。切換「容量使用率」可看各燃料別目前發出的電佔其裝置容量的比例。"
+      controls={(
+        <Segmented
+          label="圖表內容"
+          value={view}
+          onChange={setView}
+          options={[{ value: 'share', label: '輸出占比' }, { value: 'factor', label: '容量使用率' }]}
+        />
+      )}
+      csv={{
+        filename: 'taipower-fuel-mix.csv',
+        header: ['燃料別', '淨發電(MW)', '占比(%)', '裝置容量(MW)', '運轉機組', '機組數'],
+        rows: ordered.map((category) => [
+          category.labelZh,
+          category.netGenerationMw,
+          category.sharePercent,
+          category.capacityMw ?? '',
+          category.activeUnitCount,
+          category.unitCount
+        ])
+      }}
+      meta={`機組資料時間 ${model.generation?.updatedAt?.replace('T', ' ').slice(0, 16) || '--'}`}
+    >
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
         <div className="relative h-[260px] self-center sm:h-[300px]">
           <Suspense fallback={<div className="mx-auto aspect-square h-full animate-pulse rounded-full bg-muted" />}>
             <EChart
@@ -136,14 +151,14 @@ export function FuelBreakdown({ model, theme }) {
             <div className="pointer-events-none absolute inset-0 grid place-items-center text-center">
               <div>
                 <div className="text-xs text-muted-foreground">正輸出合計</div>
-                <div className="num text-2xl font-bold tracking-tight">{formatNumber(total, 0)}</div>
-                <div className="text-xs text-muted-foreground">MW</div>
+                <div className="num text-2xl font-bold tracking-tight">{powerValue(total)}</div>
+                <div className="text-xs text-muted-foreground">{unitLabel}</div>
               </div>
             </div>
           )}
         </div>
 
-        <div className="-mx-5 overflow-x-auto sm:mx-0">
+        <div className="-mx-5 overflow-x-auto sm:mx-0" role="region" aria-label="燃料別發電明細（可捲動表格）" tabIndex={0}>
           <table className="w-full min-w-[520px] text-[13px]">
             <caption className="sr-only">燃料別發電明細</caption>
             <thead>
@@ -167,12 +182,12 @@ export function FuelBreakdown({ model, theme }) {
                       </span>
                     </th>
                     <td className={cn('num px-2 py-2.5 text-right font-semibold', negative && 'text-muted-foreground')}>
-                      {formatMw(category.netGenerationMw)}
+                      {power(category.netGenerationMw)}
                     </td>
                     <td className="num px-2 py-2.5 text-right">
                       {negative ? '—' : formatPercent(category.sharePercent)}
                     </td>
-                    <td className="num px-2 py-2.5 text-right text-muted-foreground">{formatMw(category.capacityMw, 0)}</td>
+                    <td className="num px-2 py-2.5 text-right text-muted-foreground">{power(category.capacityMw)}</td>
                     <td className="num py-2.5 pl-2 pr-5 text-right text-muted-foreground sm:pr-0">
                       {category.activeUnitCount}/{category.unitCount}
                     </td>
@@ -185,7 +200,7 @@ export function FuelBreakdown({ model, theme }) {
             儲能充電負載為負值，表示電池正在充電吸收電力，不計入占比。部分機組未公布裝置容量，容量合計僅含已知值。
           </p>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </ChartCard>
   );
 }

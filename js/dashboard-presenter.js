@@ -217,3 +217,34 @@ export function getPositiveCategories(model) {
   return (model?.categories || [])
     .filter((category) => Number.isFinite(category.netGenerationMw) && category.netGenerationMw > 0);
 }
+
+// Taipower and Taiwanese media quote power in 萬瓩 (10 MW); MW is offered as
+// an alternative. Energy (度) is never mixed with power here.
+export const POWER_UNITS = Object.freeze({
+  wan: { label: '萬瓩', divisor: 10, digits: 1 },
+  mw: { label: 'MW', divisor: 1, digits: 0 }
+});
+
+export function convertPower(mw, unit = 'wan') {
+  const spec = POWER_UNITS[unit] || POWER_UNITS.wan;
+  return Number.isFinite(mw) ? mw / spec.divisor : null;
+}
+
+export function formatPowerValue(mw, unit = 'wan', digits) {
+  const spec = POWER_UNITS[unit] || POWER_UNITS.wan;
+  return formatNumber(convertPower(mw, unit), digits ?? spec.digits);
+}
+
+export function formatPower(mw, unit = 'wan', digits) {
+  if (!Number.isFinite(mw)) return '--';
+  return `${formatPowerValue(mw, unit, digits)} ${(POWER_UNITS[unit] || POWER_UNITS.wan).label}`;
+}
+
+export function formatAge(minutes) {
+  if (!Number.isFinite(minutes)) return '--';
+  if (minutes < 1) return '剛剛';
+  if (minutes < 60) return `${minutes} 分鐘前`;
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  return rest ? `${hours} 小時 ${rest} 分鐘前` : `${hours} 小時前`;
+}

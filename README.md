@@ -6,19 +6,24 @@
 
 ## Features
 
-- 首屏先回答「現在電夠不夠」：台電官方 `G/Y/O/R/B` 五燈號、尖峰預估備轉容量率與 6%/10% 門檻尺，紅/黑燈另以備轉容量 MW 說明。
-- 「電從哪裡來」100% 燃料別堆疊條，加上再生、低碳、化石三大類占比。
-- 發電結構：燃料別輸出占比圓環圖／容量使用率長條圖（ECharts）與明細表。
-- 機組查詢：202 筆機組可搜尋、依燃料別篩選、依輸出／容量／使用率排序，並可只看有檢修或限制備註的機組。
-- 每個狀態都先標示資料時間：live、delayed、stale、unavailable 由兩份官方來源時間決定，頁面每 15 秒自行重算。
-- 淺色／深色模式（預設跟隨系統），手機單欄排版，鍵盤與螢幕閱讀器可用。
-- Fail-closed：malformed、缺時間或無法取得的 feed 不會發布 sample 資料；較舊快照不會覆寫較新的 last-known-good。
+- 首屏先回答「現在電夠不夠」：台電官方五燈號（顏色＋形狀＋文字）、尖峰預估備轉容量率、常駐的燈號分級與 6%/10% 門檻尺。
+- 「用電負載 ÷ 最大供電能力 ＝ 使用率」等式、燃料別 100% 堆疊條、北中南東各區用電。
+- 今日用電曲線：台電 10 分鐘燃料別（或區域別）堆疊面積圖，疊加昨日負載、預估尖峰負載、最大供電能力與預估尖峰時段，未來時段淡化。
+- 備轉容量率趨勢：近 10 日實績、今日預估與台電未來一週預測（斜線紋理標示預測）。
+- 發電結構圓環圖／容量使用率、可搜尋篩選的 202 筆機組查詢、檢修與運轉限制清單。
+- 每張圖都有一句白話說明、資料時間、表格檢視與 CSV 下載；單位可切換萬瓩／MW。
+- 名詞與資料說明（備轉容量率、燈號、資料延遲、單位換算、驗證方法）與資料來源下載區。
+- live、delayed、stale、unavailable 由官方來源時間決定，頁面每 15 秒自行重算；可暫停自動更新（WCAG 2.2.2）。
+- 淺色／深色模式、手機單欄、鍵盤操作、`prefers-reduced-motion`；axe 檢測 WCAG 2.1 AA 0 違規（自動化測試把關）。
+- Fail-closed：核心快照驗證失敗不發布；今日曲線等補充資料逐區塊獨立失敗，不影響核心數字，也不以示範資料代替。
 
 ## Tech Stack
 
-- Vite + React 19 + Tailwind CSS v4，shadcn/ui 風格元件（Radix Tooltip/Tabs、lucide-react 圖示）。
-- ECharts（按需載入、延遲載入）繪製圖表；燃料配色參考 Electricity Maps、Open Electricity 與 grid.iamkate.com 的慣例。
+- Vite + React 19 + Tailwind CSS v4，shadcn/ui 風格元件（Radix Tooltip/Tabs/Accordion、lucide-react 圖示）。
+- ECharts（按需註冊、延遲載入、SVG renderer）。燃料配色參考 Electricity Maps、Open Electricity 與 grid.iamkate.com 慣例；圖表呈現參考 CAISO Today's Outlook、東京電力でんき予報與英國 NESO。
 - 資料驗證、新鮮度與呈現規則是框架無關的純 JS 模組（`js/`），由 `node --test` 直接測試；React 只訂閱 `js/dashboard-controller.js` 的狀態。
+- 品質工具：ESLint 9（react-hooks、jsx-a11y）、`node --test`、Playwright e2e（四種新鮮度狀態 × 桌機／手機 × 淺色／深色）加 axe 無障礙檢測，於 `.github/workflows/ci.yml` 執行。
+- 設計與工程的調查依據見 [`docs/RESEARCH.md`](docs/RESEARCH.md)。
 
 ## Data Sources
 
@@ -26,6 +31,10 @@
 | --- | --- |
 | 今日電力資訊 | `https://service.taipower.com.tw/data/opendata/apply/file/d006020/001.json` |
 | 各機組發電量即時資訊 | `https://service.taipower.com.tw/data/opendata/apply/file/d006001/001.json` |
+| 今日／昨日燃料別用電曲線 | `https://www.taipower.com.tw/d006/loadGraph/loadGraph/data/loadfueltype.csv`、`loadfueltype_1.csv` |
+| 今日區域別用電曲線 | `https://www.taipower.com.tw/d006/loadGraph/loadGraph/data/loadareas.csv` |
+| 本年度每日尖峰備轉容量率 | `https://service.taipower.com.tw/data/opendata/apply/file/d006002/001.csv` |
+| 未來一週電力供需預測 | `https://service.taipower.com.tw/data/opendata/apply/file/d006007/001.csv` |
 
 Government dataset pages:
 
@@ -46,7 +55,9 @@ Open `http://127.0.0.1:4173`. The Vite dev server mounts a same-origin proxy at 
 ## Test
 
 ```bash
-npm test
+npm run lint
+npm test            # data trust, parsers, controller (node --test)
+npm run test:e2e    # vite build + Playwright e2e + axe (needs Chromium: npx playwright install chromium)
 ```
 
 ## Production Build
@@ -58,7 +69,7 @@ npm run build      # vite build → build/web, then stage site + official snapsh
 npm run preview    # serve dist/ locally
 ```
 
-`scripts/build-static-site.js` stages the built app and a freshly validated snapshot before replacing `dist/`. If validation or fetch fails, it exits non-zero without replacing the last successful build or publishing sample data.
+`scripts/build-static-site.js` stages the built app and a freshly validated snapshot before replacing `dist/`. If validation or fetch fails, it exits non-zero without replacing the last successful build or publishing sample data. It then tries the supplementary intraday curves (`scripts/build-curve-data.js` → `api/curves.json`); each curve section fails independently and never blocks the core snapshot.
 
 ## Project Structure
 
@@ -75,14 +86,16 @@ taiwan-power-dashboard/
 │   ├── api.js                  # same-origin fetch, cache, provenance checks
 │   ├── dashboard-controller.js # loading, auto refresh, freshness re-aging
 │   ├── dashboard-presenter.js  # trust copy, reserve headline, formatting
+│   ├── curves-api.js           # optional intraday curves (client validation)
 │   ├── data-freshness.js
 │   ├── freshness-clock.js
+│   ├── power-curves.js         # loadfueltype/loadareas/d006002/d006007 parsers
 │   └── power-data.js           # Taipower parsing + validation
 ├── server/power-api.js         # dev/preview proxy (Vite plugin)
 ├── scripts/                    # static snapshot + site build
 ├── data/sample-power-data.js   # test fixture only; never shipped
 ├── docs/
-└── tests/
+└── tests/                    # node --test suites, fixtures/, e2e/ (Playwright + axe)
 ```
 
 ## Notes

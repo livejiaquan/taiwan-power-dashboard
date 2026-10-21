@@ -1,10 +1,12 @@
 import { CheckCircle2, Wrench } from 'lucide-react';
 
-import { formatMw, formatNumber } from '../../js/dashboard-presenter.js';
+
+import { useUnit } from '../lib/units.jsx';
 import { fuelColor } from '../lib/fuel.js';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card.jsx';
 
 export function ConstrainedUnits({ model }) {
+  const { power, powerValue, unitLabel } = useUnit();
   const units = model.constrainedUnits || [];
   const idleCapacity = units.reduce(
     (sum, unit) => sum + Math.max(0, (unit.capacityMw ?? 0) - Math.max(0, unit.netGenerationMw ?? 0)),
@@ -32,7 +34,7 @@ export function ConstrainedUnits({ model }) {
             <div className="rounded-xl bg-muted px-4 py-3">
               <p className="text-xs text-muted-foreground">下列機組未發出的容量合計</p>
               <p className="num mt-0.5 text-xl font-bold tracking-tight">
-                {formatNumber(idleCapacity, 0)} <span className="text-sm font-semibold text-muted-foreground">MW</span>
+                {powerValue(idleCapacity)} <span className="text-sm font-semibold text-muted-foreground">{unitLabel}</span>
               </p>
             </div>
             <ul className="mt-3 divide-y divide-border/70">
@@ -59,7 +61,7 @@ export function ConstrainedUnits({ model }) {
                         <span className="block h-full rounded-full bg-foreground/60" style={{ width: `${percent}%` }} />
                       </span>
                       <span className="num whitespace-nowrap text-xs text-muted-foreground">
-                        {formatMw(unit.netGenerationMw, 0)} / {formatMw(unit.capacityMw, 0)}
+                        {power(unit.netGenerationMw)} / {power(unit.capacityMw)}
                       </span>
                     </div>
                   </li>

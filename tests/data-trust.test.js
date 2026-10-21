@@ -324,10 +324,10 @@ test('dashboard validation detects gross cross-feed magnitude errors', () => {
 test('official G/Y/O/R/B indicators take priority over locally derived rate semantics', () => {
   const cases = [
     ['G', 'stable', '供電充裕'],
-    ['Y', 'watch', '供電稍緊'],
-    ['O', 'caution', '供電吃緊'],
-    ['R', 'alert', '供電警戒'],
-    ['B', 'emergency', '限電警戒']
+    ['Y', 'watch', '供電吃緊'],
+    ['O', 'caution', '供電警戒'],
+    ['R', 'alert', '限電警戒'],
+    ['B', 'emergency', '限電準備']
   ];
 
   for (const [indicator, level, labelZh] of cases) {
@@ -883,6 +883,7 @@ test('static site build retries transient data failures before succeeding', asyn
   const result = await buildStaticSite({
     outputDir,
     assetsDir: await makeWebAssets(t),
+    buildCurves: async () => ({ payload: { errors: {} } }),
     dataBuildAttempts: 3,
     dataBuildRetryDelayMs: 10_000,
     waitImpl: async (delayMs) => retryDelays.push(delayMs),
@@ -915,6 +916,7 @@ test('static site build still fails after the bounded data retry budget is exhau
     buildStaticSite({
       outputDir,
       assetsDir: await makeWebAssets(t),
+    buildCurves: async () => ({ payload: { errors: {} } }),
       dataBuildAttempts: 3,
       dataBuildRetryDelayMs: 0,
       buildData: async () => {
@@ -939,6 +941,7 @@ test('successful static rebuild replaces the prior site only after data is ready
   await buildStaticSite({
     outputDir,
     assetsDir: await makeWebAssets(t),
+    buildCurves: async () => ({ payload: { errors: {} } }),
     buildData: async ({ outputPath }) => {
       assert.equal(await readFile(join(outputDir, 'old-asset.js'), 'utf8'), 'obsolete\n');
       await mkdir(resolve(outputPath, '..'), { recursive: true });
@@ -948,6 +951,28 @@ test('successful static rebuild replaces the prior site only after data is ready
 
   assert.equal(await readFile(join(outputDir, 'api', 'power-data.json'), 'utf8'), 'new-official-snapshot\n');
   await assert.rejects(readFile(join(outputDir, 'old-asset.js'), 'utf8'), { code: 'ENOENT' });
+});
+
+test('static site still publishes the core snapshot when curve data fails', async (t) => {
+  const outputDir = join(REPO_ROOT, `.test-dist-${process.pid}-${Date.now()}-curves`);
+  t.after(async () => {
+    await rm(outputDir, { recursive: true, force: true });
+  });
+
+  await buildStaticSite({
+    outputDir,
+    assetsDir: await makeWebAssets(t),
+    buildData: async ({ outputPath }) => {
+      await mkdir(resolve(outputPath, '..'), { recursive: true });
+      await writeFile(outputPath, 'official-snapshot\n');
+    },
+    buildCurves: async () => {
+      throw new Error('loadGraph host refused the runner');
+    }
+  });
+
+  assert.equal(await readFile(join(outputDir, 'api', 'power-data.json'), 'utf8'), 'official-snapshot\n');
+  assert.equal(await readFile(join(outputDir, 'index.html'), 'utf8'), '<!doctype html>\n');
 });
 
 test('static site build refuses a retry budget above three attempts', async () => {

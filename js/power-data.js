@@ -123,7 +123,7 @@ const RESERVE_STATUS_BY_INDICATOR = {
   Y: {
     indicator: 'Y',
     level: 'watch',
-    labelZh: '供電稍緊',
+    labelZh: '供電吃緊',
     labelEn: 'Watch',
     color: '#ca8a04',
     icon: 'bi-activity',
@@ -132,7 +132,7 @@ const RESERVE_STATUS_BY_INDICATOR = {
   O: {
     indicator: 'O',
     level: 'caution',
-    labelZh: '供電吃緊',
+    labelZh: '供電警戒',
     labelEn: 'Caution',
     color: '#ea580c',
     icon: 'bi-exclamation-triangle-fill',
@@ -141,7 +141,7 @@ const RESERVE_STATUS_BY_INDICATOR = {
   R: {
     indicator: 'R',
     level: 'alert',
-    labelZh: '供電警戒',
+    labelZh: '限電警戒',
     labelEn: 'Alert',
     color: '#dc2626',
     icon: 'bi-exclamation-octagon-fill',
@@ -150,7 +150,7 @@ const RESERVE_STATUS_BY_INDICATOR = {
   B: {
     indicator: 'B',
     level: 'emergency',
-    labelZh: '限電警戒',
+    labelZh: '限電準備',
     labelEn: 'Emergency',
     color: '#1f2937',
     icon: 'bi-exclamation-diamond-fill',
@@ -161,8 +161,8 @@ const RESERVE_STATUS_BY_INDICATOR = {
 const RESERVE_STATUS = Object.values(RESERVE_STATUS_BY_INDICATOR);
 
 const RESERVE_RANGES = [
-  { label: '吃緊', start: 0, end: 6, color: '#ea580c' },
-  { label: '稍緊', start: 6, end: 10, color: '#ca8a04' },
+  { label: '警戒', start: 0, end: 6, color: '#ea580c' },
+  { label: '吃緊', start: 6, end: 10, color: '#ca8a04' },
   { label: '充裕', start: 10, end: 20, color: '#059669' }
 ];
 

@@ -11,5 +11,5 @@ export function useDashboard() {
   }, [controller]);
 
   const snapshot = useSyncExternalStore(controller.subscribe, controller.getSnapshot);
-  return { ...snapshot, refresh: controller.refresh };
+  return { ...snapshot, refresh: controller.refresh, setAutoRefresh: controller.setAutoRefresh };
 }

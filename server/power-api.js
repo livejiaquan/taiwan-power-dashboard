@@ -1,4 +1,8 @@
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+
 import { fetchJsonWithTimeout } from '../js/fetch-json.js';
+import { runCurveBuild } from '../scripts/build-curve-data.js';
 import {
   buildDashboardModel,
   GENERATION_ENDPOINT,
@@ -6,6 +10,7 @@ import {
 } from '../js/power-data.js';
 
 const DEFAULT_CACHE_TTL_MS = 2 * 60 * 1000;
+const devCurvesPath = join(tmpdir(), 'taiwan-power-dashboard-dev-curves.json');
 
 function fetchOfficialJson(url) {
   return fetchJsonWithTimeout(url, {
@@ -91,13 +96,41 @@ export function createPowerDataHandler({
   };
 }
 
-export function powerApiPlugin(options) {
+export function createCurvesHandler({
+  buildCurves = runCurveBuild,
+  now = () => Date.now(),
+  cacheTtlMs = DEFAULT_CACHE_TTL_MS
+} = {}) {
+  let cache = null;
+
+  return async function handleCurves(request, response) {
+    const nowMs = now();
+    if (cache && nowMs - cache.timestamp < cacheTtlMs && !request.url.includes('force=1')) {
+      sendJson(response, 200, cache.payload);
+      return;
+    }
+    try {
+      const { payload } = await buildCurves({ outputPath: devCurvesPath, now: () => new Date(nowMs) });
+      cache = { timestamp: nowMs, payload };
+      sendJson(response, 200, payload);
+    } catch (error) {
+      sendJson(response, 502, { error: error.message });
+    }
+  };
+}
+
+export function powerApiPlugin(options = {}) {
   const handler = createPowerDataHandler(options);
+  const curvesHandler = createCurvesHandler(options.curves);
   const mount = (server) => {
     server.middlewares.use((request, response, next) => {
       const path = request.url.split('?')[0];
       if (path === '/api/power-data' || path === '/api/power-data.json') {
         handler(request, response);
+        return;
+      }
+      if (path === '/api/curves' || path === '/api/curves.json') {
+        curvesHandler(request, response);
         return;
       }
       next();
