@@ -43,8 +43,10 @@ export function curvesPayload() {
 export async function mockData(page, { power = powerPayload(), curves = curvesPayload(), now } = {}) {
   if (now) await page.clock.install({ time: now });
   await page.route(/fonts\.(googleapis|gstatic)\.com/, (route) => route.abort());
-  await page.route('**/api/power-data.json*', (route) => route.fulfill({ json: power }));
-  await page.route('**/api/curves.json*', (route) => (curves
+  // Cover both the static snapshot and the dev/preview proxy routes so a test
+  // never falls through to live Taipower requests.
+  await page.route(/\/api\/power-data(\.json)?(\?|$)/, (route) => route.fulfill({ json: power }));
+  await page.route(/\/api\/curves(\.json)?(\?|$)/, (route) => (curves
     ? route.fulfill({ json: curves })
     : route.fulfill({ status: 404, body: '' })));
 }
