@@ -5,7 +5,8 @@ on:
     branches:
       - main
   schedule:
-    - cron: '*/10 * * * *'
+    # Offset from :00 where GitHub's scheduler is most congested.
+    - cron: '4-59/10 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -27,6 +28,10 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
 
       - name: Run tests
         run: npm test

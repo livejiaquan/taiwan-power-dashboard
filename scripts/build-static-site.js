@@ -1,14 +1,18 @@
-import { cp, mkdir, mkdtemp, rename, rm, writeFile } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, rename, rm, stat, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { runCurveBuild } from './build-curve-data.js';
 import { runBuild as buildStaticData } from './build-static-data.js';
+import { taipeiDateKey } from '../js/power-curves.js';
 
 const projectRoot = resolve(fileURLToPath(new URL('..', import.meta.url)));
 
 export async function buildStaticSite({
   outputDir = resolve(projectRoot, 'dist'),
+  assetsDir = resolve(projectRoot, 'build/web'),
   buildData = buildStaticData,
+  buildCurves = runCurveBuild,
   dataBuildAttempts = 3,
   dataBuildRetryDelayMs = 10_000,
   waitImpl = (delayMs) => new Promise((resolveWait) => setTimeout(resolveWait, delayMs))
@@ -27,6 +31,13 @@ export async function buildStaticSite({
     throw new TypeError('Static data build wait implementation must be a function');
   }
 
+  const resolvedAssetsDir = resolve(assetsDir);
+  try {
+    if (!(await stat(join(resolvedAssetsDir, 'index.html'))).isFile()) throw new Error('not a file');
+  } catch {
+    throw new Error(`Missing built web app at ${resolvedAssetsDir}; run "vite build" first`);
+  }
+
   const stagingRoot = await mkdtemp(join(projectRoot, '.power-site-build-'));
   const stagedSite = join(stagingRoot, 'site');
   const previousSite = join(stagingRoot, 'previous');
@@ -34,18 +45,15 @@ export async function buildStaticSite({
   let preservePrevious = false;
   try {
     await mkdir(stagedSite);
-    await Promise.all([
-      cp(resolve(projectRoot, 'index.html'), join(stagedSite, 'index.html')),
-      cp(resolve(projectRoot, 'css'), join(stagedSite, 'css'), { recursive: true }),
-      cp(resolve(projectRoot, 'js'), join(stagedSite, 'js'), { recursive: true }),
-      writeFile(join(stagedSite, '.nojekyll'), '')
-    ]);
+    await cp(resolvedAssetsDir, stagedSite, { recursive: true });
+    await writeFile(join(stagedSite, '.nojekyll'), '');
 
     const dataOutputPath = join(stagedSite, 'api/power-data.json');
     let lastError = null;
+    let dataResult = null;
     for (let attempt = 1; attempt <= dataBuildAttempts; attempt += 1) {
       try {
-        await buildData({ outputPath: dataOutputPath });
+        dataResult = await buildData({ outputPath: dataOutputPath });
         lastError = null;
         break;
       } catch (error) {
@@ -59,6 +67,21 @@ export async function buildStaticSite({
       }
     }
     if (lastError) throw lastError;
+
+    // Intraday curves are supplementary: a failure is logged and recorded in
+    // curves.json, but never blocks publishing the validated core snapshot.
+    try {
+      const supplyObservedAt = dataResult?.payload?.model?.feeds?.supply?.observedAt;
+      const { payload } = await buildCurves({
+        outputPath: join(stagedSite, 'api/curves.json'),
+        todayKey: supplyObservedAt ? taipeiDateKey(supplyObservedAt) : undefined
+      });
+      for (const [section, message] of Object.entries(payload?.errors || {})) {
+        console.warn(`Curve section ${section} unavailable: ${message}`);
+      }
+    } catch (error) {
+      console.warn(`Curve data build failed; publishing without curves: ${error.message}`);
+    }
 
     await mkdir(dirname(resolvedOutputDir), { recursive: true });
     try {

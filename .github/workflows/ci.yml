@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches-ignore:
+      - gh-pages
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit and data-trust tests
+        run: npm test
+
+      - name: Build web app
+        run: npx vite build
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: End-to-end, accessibility and responsive checks
+        run: npx playwright test
+
+      # Informational: confirms whether the runner can reach the optional
+      # loadGraph curve files (they sit behind CloudFront). Never fails CI.
+      - name: Probe Taipower curve endpoints
+        if: always()
+        continue-on-error: true
+        run: node scripts/build-curve-data.js && node -e "const p=require('./api/curves.json');console.log(JSON.stringify({today:p.today?.points.length??null,yesterday:p.yesterday?.points.length??null,areas:p.areas?.points.length??null,recentDays:p.recentDays?.length??null,forecast:p.forecast?.length??null,errors:p.errors},null,2))"
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: test-results/
+          retention-days: 7
