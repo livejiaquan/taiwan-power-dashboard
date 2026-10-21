@@ -44,6 +44,13 @@ jobs:
       - name: End-to-end, accessibility and responsive checks
         run: npx playwright test
 
+      # Informational: confirms whether the runner can reach the optional
+      # loadGraph curve files (they sit behind CloudFront). Never fails CI.
+      - name: Probe Taipower curve endpoints
+        if: always()
+        continue-on-error: true
+        run: node scripts/build-curve-data.js && node -e "const p=require('./api/curves.json');console.log(JSON.stringify({today:p.today?.points.length??null,yesterday:p.yesterday?.points.length??null,areas:p.areas?.points.length??null,recentDays:p.recentDays?.length??null,forecast:p.forecast?.length??null,errors:p.errors},null,2))"
+
       - name: Upload Playwright report
         if: failure()
         uses: actions/upload-artifact@v4
