@@ -161,6 +161,37 @@ test('visibility, focus, and pageshow events immediately re-age rendered freshne
   assert.equal(controller.getSnapshot().result.model, null);
 });
 
+test('pausing auto refresh stops network polling but not freshness re-aging', async (t) => {
+  const originals = { setInterval: globalThis.setInterval, clearInterval: globalThis.clearInterval };
+  t.after(() => Object.assign(globalThis, originals));
+  const active = new Map();
+  let nextId = 0;
+  globalThis.setInterval = (callback, delay) => {
+    nextId += 1;
+    active.set(nextId, delay);
+    return nextId;
+  };
+  globalThis.clearInterval = (id) => active.delete(id);
+
+  const { createDashboardController } = await import('../js/dashboard-controller.js');
+  let fetches = 0;
+  const api = { fetchDashboard: async () => { fetches += 1; return { model: null, freshness: { state: 'unavailable', usable: false } }; } };
+  const controller = createDashboardController({ api, documentRef: null, windowRef: null });
+  controller.start();
+  await flushTurns();
+  assert.deepEqual([...active.values()].sort((a, b) => a - b), [15_000, 600_000]);
+
+  controller.setAutoRefresh(false);
+  assert.equal(controller.getSnapshot().autoRefresh, false);
+  assert.deepEqual([...active.values()], [15_000]);
+
+  controller.setAutoRefresh(true);
+  await flushTurns();
+  assert.deepEqual([...active.values()].sort((a, b) => a - b), [15_000, 600_000]);
+  assert.equal(fetches, 2);
+  controller.stop();
+});
+
 test('reserve headline is qualified by freshness and greys out stale snapshots', async () => {
   const { describeReserveStatus } = await import('../js/dashboard-presenter.js');
   const model = {

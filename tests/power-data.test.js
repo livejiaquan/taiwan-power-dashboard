@@ -154,13 +154,13 @@ test('maps reserve rate into readable threshold guidance', () => {
   assert.equal(low.indicator, 'O');
   assert.equal(low.source, 'derived-fallback');
   assert.equal(low.level, 'caution');
-  assert.equal(low.labelZh, '供電吃緊');
+  assert.equal(low.labelZh, '供電警戒');
   assert.equal(low.markerPercent, 24.5);
   assert.equal(low.distanceFromStableLinePercent, -5.1);
   assert.equal(low.summary, '低於供電充裕門檻 5.1 個百分點');
   assert.deepEqual(low.ranges, [
-    { label: '吃緊', start: 0, end: 6, color: '#ea580c' },
-    { label: '稍緊', start: 6, end: 10, color: '#ca8a04' },
+    { label: '警戒', start: 0, end: 6, color: '#ea580c' },
+    { label: '吃緊', start: 6, end: 10, color: '#ca8a04' },
     { label: '充裕', start: 10, end: 20, color: '#059669' }
   ]);
 

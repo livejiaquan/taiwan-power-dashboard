@@ -1,7 +1,8 @@
 import { ArrowDownWideNarrow, Search, Wrench } from 'lucide-react';
 import { useDeferredValue, useMemo, useState } from 'react';
 
-import { formatMw, formatPercent } from '../../js/dashboard-presenter.js';
+import { formatPercent } from '../../js/dashboard-presenter.js';
+import { useUnit } from '../lib/units.jsx';
 import { fuelColor, sortByFuelOrder } from '../lib/fuel.js';
 import { cn } from '../lib/utils.js';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card.jsx';
@@ -36,7 +37,8 @@ function FilterChip({ active, onClick, color, children }) {
 }
 
 export function UnitExplorer({ model }) {
-  const units = model.generation?.units || [];
+  const { power } = useUnit();
+  const units = useMemo(() => model.generation?.units || [], [model.generation]);
   const categories = useMemo(() => sortByFuelOrder(model.categories), [model.categories]);
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('all');
@@ -109,7 +111,7 @@ export function UnitExplorer({ model }) {
           ))}
         </div>
 
-        <div className="-mx-5 mt-4 overflow-x-auto sm:mx-0">
+        <div className="-mx-5 mt-4 overflow-x-auto sm:mx-0" role="region" aria-label="機組即時發電量（可捲動表格）" tabIndex={0}>
           <table className="w-full min-w-[640px] text-[13px]">
             <caption className="sr-only">機組即時發電量（共 {filtered.length} 筆符合）</caption>
             <thead>
@@ -137,8 +139,8 @@ export function UnitExplorer({ model }) {
                         {unit.type}
                       </span>
                     </td>
-                    <td className="num whitespace-nowrap px-2 py-2.5 text-right font-semibold">{formatMw(unit.netGenerationMw)}</td>
-                    <td className="num whitespace-nowrap px-2 py-2.5 text-right text-muted-foreground">{formatMw(unit.capacityMw)}</td>
+                    <td className="num whitespace-nowrap px-2 py-2.5 text-right font-semibold">{power(unit.netGenerationMw)}</td>
+                    <td className="num whitespace-nowrap px-2 py-2.5 text-right text-muted-foreground">{power(unit.capacityMw)}</td>
                     <td className="px-2 py-2.5">
                       {factor === null ? (
                         <span className="text-subtle-foreground">--</span>

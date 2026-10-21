@@ -21,7 +21,7 @@ export function createDashboardController({
   documentRef = globalThis.document,
   windowRef = globalThis.window
 } = {}) {
-  let snapshot = { result: null, loading: false, ready: false };
+  let snapshot = { result: null, loading: false, ready: false, autoRefresh: true };
   let autoRefreshId = null;
   const listeners = new Set();
   const cleanups = [];
@@ -90,8 +90,27 @@ export function createDashboardController({
     listen(windowRef, 'pageshow', freshnessClock.tick);
 
     load();
-    autoRefreshId = globalThis.setInterval(() => load(true), autoRefreshMs);
+    if (snapshot.autoRefresh) startAutoRefresh();
     freshnessClock.start();
+  }
+
+  function startAutoRefresh() {
+    globalThis.clearInterval(autoRefreshId);
+    autoRefreshId = globalThis.setInterval(() => load(true), autoRefreshMs);
+  }
+
+  // Viewers may pause network refresh (WCAG 2.2.2). Freshness keeps re-aging
+  // either way, so a paused page still turns delayed/stale on time.
+  function setAutoRefresh(enabled) {
+    if (enabled === snapshot.autoRefresh) return;
+    if (enabled) {
+      startAutoRefresh();
+      load(true);
+    } else {
+      globalThis.clearInterval(autoRefreshId);
+      autoRefreshId = null;
+    }
+    setSnapshot({ autoRefresh: enabled });
   }
 
   function stop() {
@@ -105,6 +124,7 @@ export function createDashboardController({
     start,
     stop,
     refresh: () => load(true),
+    setAutoRefresh,
     tick: freshnessClock.tick,
     getSnapshot: () => snapshot,
     subscribe(listener) {

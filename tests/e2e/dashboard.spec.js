@@ -1,0 +1,94 @@
+import AxeBuilder from '@axe-core/playwright';
+import { expect, test } from '@playwright/test';
+
+import { minutesAfterSource, mockData } from './fixtures.js';
+
+async function expectNoAxeViolations(page) {
+  const results = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+    .analyze();
+  expect(results.violations.map((violation) => `${violation.id}: ${violation.nodes.length}`)).toEqual([]);
+}
+
+async function expectNoHorizontalScroll(page) {
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(0);
+}
+
+test('live data shows the official light, curves and passes axe', async ({ page }) => {
+  await mockData(page, { now: minutesAfterSource(5) });
+  await page.goto('/');
+
+  await expect(page.getByRole('heading', { name: '官方資料已確認' })).toBeVisible();
+  await expect(page.getByText('綠燈 · 供電充裕')).toBeVisible();
+  await expect(page.getByRole('meter', { name: '今日尖峰預估備轉容量率' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '今日用電曲線' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '備轉容量率：近期實績與未來一週' })).toBeVisible();
+  await expect(page.locator('#today [role="img"]').first()).toBeVisible();
+
+  await expectNoHorizontalScroll(page);
+  await expectNoAxeViolations(page);
+});
+
+test('dark theme also passes axe', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await mockData(page, { now: minutesAfterSource(5) });
+  await page.goto('/');
+  await expect(page.getByText('綠燈 · 供電充裕')).toBeVisible();
+  await expectNoAxeViolations(page);
+});
+
+test('delayed and stale snapshots are labelled before any number', async ({ page }) => {
+  await mockData(page, { now: minutesAfterSource(35) });
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: /^資料延遲 3[5-6] 分鐘$/ })).toBeVisible();
+  await expect(page.getByText('延遲資料中的台電供電燈號')).toBeVisible();
+
+  await page.clock.fastForward('30:00');
+  await expect(page.getByRole('heading', { name: /^非即時快照 · \d+ 分鐘前$/ })).toBeVisible();
+  await expect(page.getByText('最後快照中的台電供電燈號')).toBeVisible();
+});
+
+test('snapshots older than 24 hours show no numbers at all', async ({ page }) => {
+  await mockData(page, { now: minutesAfterSource(24 * 60 + 5) });
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: '目前無法確認供電狀態' }).first()).toBeVisible();
+  await expect(page.getByRole('meter')).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: '今日用電曲線' })).toHaveCount(0);
+  await expectNoAxeViolations(page);
+});
+
+test('missing curve data degrades only the curve section', async ({ page }) => {
+  await mockData(page, { now: minutesAfterSource(5), curves: null });
+  await page.goto('/');
+  await expect(page.getByText('綠燈 · 供電充裕')).toBeVisible();
+  await expect(page.getByText(/今日曲線暫時無法取得/)).toBeVisible();
+});
+
+test('power unit toggle switches between 萬瓩 and MW', async ({ page }) => {
+  await mockData(page, { now: minutesAfterSource(5) });
+  await page.goto('/');
+  const unitGroup = page.getByRole('group', { name: '功率單位' });
+  await expect(page.locator('#status').getByText('萬瓩').first()).toBeVisible();
+  await unitGroup.getByRole('button', { name: 'MW' }).click();
+  await expect(unitGroup.getByRole('button', { name: 'MW' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#status').getByText('MW').first()).toBeVisible();
+});
+
+test('every chart offers an accessible table view', async ({ page }) => {
+  await mockData(page, { now: minutesAfterSource(5) });
+  await page.goto('/');
+  const card = page.locator('#today');
+  await card.getByRole('tab', { name: '表格' }).click();
+  const table = card.getByRole('table');
+  await expect(table).toBeVisible();
+  await expect(table.getByRole('rowheader', { name: '00:10' })).toBeVisible();
+});
+
+test('auto refresh can be paused from the header', async ({ page }) => {
+  await mockData(page, { now: minutesAfterSource(5) });
+  await page.goto('/');
+  const pause = page.getByRole('button', { name: '暫停自動更新' });
+  await pause.click();
+  await expect(page.getByRole('button', { name: '恢復自動更新' })).toHaveAttribute('aria-pressed', 'true');
+});

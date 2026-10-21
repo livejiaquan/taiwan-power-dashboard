@@ -62,7 +62,7 @@ export function TrustBanner({ trust }) {
           <SourceChip label="各機組發電量" source={trust.sources.generation} />
           <div className="col-span-2 min-w-0 rounded-lg border border-border/80 bg-card/70 px-3 py-2 sm:col-span-1">
             <dt className="text-[11px] font-medium text-muted-foreground">資料來源</dt>
-            <dd className="mt-0.5 truncate text-[13px] font-medium" title={trust.sourceText}>{trust.sourceText}</dd>
+            <dd className="mt-0.5 truncate text-[13px] font-medium" title={trust.sourceText}>{trust.sourceText.replace('台電官方資料 · ', '')}</dd>
           </div>
         </dl>
       </div>
