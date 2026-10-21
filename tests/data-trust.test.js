@@ -110,6 +110,12 @@ function buildOfficialFetch({
   };
 }
 
+async function makeWebAssets(t) {
+  const directory = await makeTemporaryDirectory(t);
+  await writeFile(join(directory, 'index.html'), '<!doctype html>\n');
+  return directory;
+}
+
 async function makeTemporaryDirectory(t) {
   const directory = await mkdtemp(join(tmpdir(), 'taiwan-power-dashboard-test-'));
   t.after(async () => {
@@ -876,6 +882,7 @@ test('static site build retries transient data failures before succeeding', asyn
 
   const result = await buildStaticSite({
     outputDir,
+    assetsDir: await makeWebAssets(t),
     dataBuildAttempts: 3,
     dataBuildRetryDelayMs: 10_000,
     waitImpl: async (delayMs) => retryDelays.push(delayMs),
@@ -907,6 +914,7 @@ test('static site build still fails after the bounded data retry budget is exhau
   await assert.rejects(
     buildStaticSite({
       outputDir,
+      assetsDir: await makeWebAssets(t),
       dataBuildAttempts: 3,
       dataBuildRetryDelayMs: 0,
       buildData: async () => {
@@ -930,6 +938,7 @@ test('successful static rebuild replaces the prior site only after data is ready
 
   await buildStaticSite({
     outputDir,
+    assetsDir: await makeWebAssets(t),
     buildData: async ({ outputPath }) => {
       assert.equal(await readFile(join(outputDir, 'old-asset.js'), 'utf8'), 'obsolete\n');
       await mkdir(resolve(outputPath, '..'), { recursive: true });

@@ -1,4 +1,4 @@
-import { cp, mkdir, mkdtemp, rename, rm, writeFile } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, rename, rm, stat, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -8,6 +8,7 @@ const projectRoot = resolve(fileURLToPath(new URL('..', import.meta.url)));
 
 export async function buildStaticSite({
   outputDir = resolve(projectRoot, 'dist'),
+  assetsDir = resolve(projectRoot, 'build/web'),
   buildData = buildStaticData,
   dataBuildAttempts = 3,
   dataBuildRetryDelayMs = 10_000,
@@ -27,6 +28,13 @@ export async function buildStaticSite({
     throw new TypeError('Static data build wait implementation must be a function');
   }
 
+  const resolvedAssetsDir = resolve(assetsDir);
+  try {
+    if (!(await stat(join(resolvedAssetsDir, 'index.html'))).isFile()) throw new Error('not a file');
+  } catch {
+    throw new Error(`Missing built web app at ${resolvedAssetsDir}; run "vite build" first`);
+  }
+
   const stagingRoot = await mkdtemp(join(projectRoot, '.power-site-build-'));
   const stagedSite = join(stagingRoot, 'site');
   const previousSite = join(stagingRoot, 'previous');
@@ -34,12 +42,8 @@ export async function buildStaticSite({
   let preservePrevious = false;
   try {
     await mkdir(stagedSite);
-    await Promise.all([
-      cp(resolve(projectRoot, 'index.html'), join(stagedSite, 'index.html')),
-      cp(resolve(projectRoot, 'css'), join(stagedSite, 'css'), { recursive: true }),
-      cp(resolve(projectRoot, 'js'), join(stagedSite, 'js'), { recursive: true }),
-      writeFile(join(stagedSite, '.nojekyll'), '')
-    ]);
+    await cp(resolvedAssetsDir, stagedSite, { recursive: true });
+    await writeFile(join(stagedSite, '.nojekyll'), '');
 
     const dataOutputPath = join(stagedSite, 'api/power-data.json');
     let lastError = null;
