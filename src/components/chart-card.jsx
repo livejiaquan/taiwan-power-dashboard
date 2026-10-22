@@ -38,13 +38,13 @@ export function ChartCard({
               <TabsPrimitive.List aria-label={`${title}檢視方式`} className="inline-flex rounded-xl bg-muted p-1">
                 <TabsPrimitive.Trigger
                   value="chart"
-                  className="inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-[13px] font-semibold text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+                  className="inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-[13px] pointer-coarse:h-11 font-semibold text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
                 >
                   <BarChart3 className="size-3.5" aria-hidden="true" />圖表
                 </TabsPrimitive.Trigger>
                 <TabsPrimitive.Trigger
                   value="table"
-                  className="inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-[13px] font-semibold text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+                  className="inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-[13px] pointer-coarse:h-11 font-semibold text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
                 >
                   <Table2 className="size-3.5" aria-hidden="true" />表格
                 </TabsPrimitive.Trigger>
@@ -54,7 +54,7 @@ export function ChartCard({
               <button
                 type="button"
                 onClick={() => downloadCsv(csv.filename, csv.header, csv.rows)}
-                className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-border bg-card px-3.5 text-[13px] font-semibold hover:bg-muted"
+                className="inline-flex h-11 items-center gap-1.5 rounded-control border border-border bg-card px-3.5 text-[13px] font-semibold hover:bg-muted"
               >
                 <Download className="size-3.5" aria-hidden="true" />
                 CSV<span className="sr-only">下載{title}資料</span>
