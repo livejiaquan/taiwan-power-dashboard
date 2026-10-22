@@ -4,7 +4,7 @@
 
 線上版：https://livejiaquan.github.io/taiwan-power-dashboard/
 
-![首屏：資料時效細帶、台電五燈號燈號板與今日尖峰備轉容量率](docs/screenshots/v2-desktop-1440-light.jpg)
+![首屏：資料時效細帶、台電五燈號燈號板與今日尖峰備轉容量率](docs/screenshots/v3-live-1440-light.jpg)
 
 產品 mission、研究證據與 roadmap 見 [`docs/PRODUCT.md`](docs/PRODUCT.md)；production 的 freshness、fallback 與 validation 規則見 [`docs/DATA_TRUST_CONTRACT.md`](docs/DATA_TRUST_CONTRACT.md)。
 

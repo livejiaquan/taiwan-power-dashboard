@@ -52,7 +52,7 @@ function Dashboard() {
         onToggleAutoRefresh={() => setAutoRefresh(!autoRefresh)}
       />
 
-      <main id="main-content" tabIndex={-1} className="mx-auto max-w-[1180px] px-4 pb-32 pt-4 outline-none sm:px-6 sm:pt-8 lg:pb-16">
+      <main id="main-content" tabIndex={-1} className="mx-auto max-w-[1280px] px-4 pb-32 pt-4 outline-none sm:px-6 sm:pt-8 lg:pb-16">
         {!trust ? (
           <LoadingState />
         ) : (
@@ -62,7 +62,7 @@ function Dashboard() {
               {model ? (
                 <StatusHero model={model} freshness={freshness} />
               ) : (
-                <h1 className="display px-1 pt-6 text-[32px] font-semibold sm:text-5xl">台灣現在的電夠不夠？</h1>
+                <h1 className="display px-1 pt-6 text-3xl font-semibold sm:text-5xl">台灣現在的電夠不夠？</h1>
               )}
               {model && (
                 <div className="grid gap-3 sm:gap-4 lg:grid-cols-12">
@@ -79,7 +79,7 @@ function Dashboard() {
                 <BelowFold curves={curves} curvesForToday={curvesForToday} model={restModel} todayKey={todayKey} theme={theme} />
               </Suspense>
             ) : (
-              <div className="mt-5 space-y-20">
+              <div className="mt-6 space-y-16">
                 <UnavailableState onRetry={refresh} loading={loading} />
                 <Suspense fallback={null}>
                   <AboutSection />

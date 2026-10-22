@@ -75,7 +75,7 @@ function buildOption(rows, unit, unitLabel) {
       axisLine: { lineStyle: { color: tokens.border } },
       axisLabel: {
         color: tokens.muted,
-        fontSize: 11,
+        fontSize: 12,
         interval: 0,
         formatter: (dateKey, index) => {
           const [, month, day] = dateKey.split('-');
@@ -87,7 +87,7 @@ function buildOption(rows, unit, unitLabel) {
     yAxis: {
       type: 'value',
       min: 0,
-      axisLabel: { color: tokens.muted, fontSize: 11, formatter: '{value}%' },
+      axisLabel: { color: tokens.muted, fontSize: 12, formatter: '{value}%' },
       splitLine: { lineStyle: { color: tokens.grid } }
     },
     series: [{
@@ -156,7 +156,7 @@ export function ReserveTrendCard({ curves, model, todayKey, theme }) {
   if (!option) {
     return (
       <ChartCard id="trend" title="備轉容量率：近期實績與未來一週" summary="每日尖峰備轉容量率資料目前無法取得。">
-        <p className="rounded-xl bg-muted px-4 py-8 text-center text-[13px] text-muted-foreground">資料暫時無法取得。</p>
+        <p className="rounded-xl bg-muted px-4 py-8 text-center text-base text-muted-foreground">資料暫時無法取得。</p>
       </ChartCard>
     );
   }
@@ -199,13 +199,13 @@ export function ReserveTrendCard({ curves, model, todayKey, theme }) {
       <div className="h-[300px] sm:h-[340px]">
         <DeferredChart option={option} className="h-full w-full" ariaLabel="每日尖峰備轉容量率長條圖，完整數值請切換為表格檢視。" />
       </div>
-      <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-[13px] text-muted-foreground" aria-label="圖例">
-        <li className="flex items-center gap-1.5"><span className="size-2.5 rounded-sm bg-status-g" aria-hidden="true" />實績</li>
-        <li className="flex items-center gap-1.5"><span className="size-2.5 rounded-sm border-[1.5px] border-status-g bg-status-g/30" aria-hidden="true" />今日預估</li>
-        <li className="flex items-center gap-1.5">
+      <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground" aria-label="圖例">
+        <li className="flex items-center gap-2"><span className="size-2.5 rounded-sm bg-status-g" aria-hidden="true" />實績</li>
+        <li className="flex items-center gap-2"><span className="size-2.5 rounded-sm border-[1.5px] border-status-g bg-status-g/30" aria-hidden="true" />今日預估</li>
+        <li className="flex items-center gap-2">
           <span className="size-2.5 rounded-sm border-[1.5px] border-status-g bg-[repeating-linear-gradient(135deg,var(--status-g)_0_1.5px,transparent_1.5px_4px)]" aria-hidden="true" />預測
         </li>
-        <li className="flex items-center gap-1.5"><span className="h-0 w-4 border-t-2 border-dashed border-status-g" aria-hidden="true" />10% 充裕門檻</li>
+        <li className="flex items-center gap-2"><span className="h-0 w-4 border-t-2 border-dashed border-status-g" aria-hidden="true" />10% 充裕門檻</li>
       </ul>
     </ChartCard>
   );

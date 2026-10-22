@@ -34,22 +34,22 @@ export function SiteHeader({ loading, onRefresh, theme, onToggleTheme, autoRefre
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/72 backdrop-blur-xl backdrop-saturate-150">
-      <div className="mx-auto flex h-14 max-w-[1180px] items-center gap-1 px-3 sm:gap-2 sm:px-6">
+      <div className="mx-auto flex h-14 max-w-[1280px] items-center gap-1 px-4 sm:gap-2 sm:px-6">
         <a href="#top" className="flex h-11 min-w-0 items-center gap-2" aria-label="台灣電力即時看板，回到頁首">
           <span className="grid size-7 shrink-0 place-items-center rounded-[9px] bg-foreground text-background">
             <Zap className="size-3.5 fill-[#ffd60a] text-[#ffd60a]" aria-hidden="true" />
           </span>
-          <span className="truncate text-[15px] font-bold tracking-tight">台灣電力</span>
+          <span className="truncate text-base font-bold tracking-tight">台灣電力</span>
         </a>
 
-        <nav aria-label="頁內導覽" className="mx-auto hidden items-center gap-1 text-[13px] text-foreground/70 lg:flex">
+        <nav aria-label="頁內導覽" className="mx-auto hidden items-center gap-1 text-sm text-foreground/70 lg:flex">
           {NAV.map(([href, label]) => (
             <a key={href} className="inline-flex h-11 items-center rounded-full px-3 transition hover:bg-foreground/[0.06] hover:text-foreground" href={href}>{label}</a>
           ))}
         </nav>
 
         <div className="ml-auto flex items-center gap-1 lg:ml-0">
-          <div className="mr-1 inline-flex rounded-full bg-foreground/[0.06] p-0.5" role="group" aria-label="功率單位">
+          <div className="mr-1 inline-flex rounded-full bg-foreground/[0.06] p-1" role="group" aria-label="功率單位">
             {[['wan', '萬瓩'], ['mw', 'MW']].map(([value, label]) => (
               <button
                 key={value}
@@ -57,7 +57,7 @@ export function SiteHeader({ loading, onRefresh, theme, onToggleTheme, autoRefre
                 aria-pressed={unit === value}
                 onClick={() => setUnit(value)}
                 className={cn(
-                  'h-11 rounded-full px-3 text-[13px] font-bold transition',
+                  'h-11 rounded-full px-3 text-sm font-bold transition',
                   unit === value ? 'bg-card text-foreground shadow-sm' : 'text-foreground/75 hover:text-foreground'
                 )}
               >
