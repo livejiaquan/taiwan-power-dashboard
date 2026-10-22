@@ -11,10 +11,10 @@ export function Tile({ icon: Icon, label, children, className, aside, id }) {
     <section
       id={id}
       aria-labelledby={headingId}
-      className={cn('flex min-w-0 flex-col rounded-[28px] bg-card p-5 shadow-card ring-1 ring-border sm:p-6', id && 'scroll-mt-24', className)}
+      className={cn('flex min-w-0 flex-col rounded-[20px] bg-card p-5 ring-1 ring-border sm:p-6', id && 'scroll-mt-24', className)}
     >
       <div className="flex items-center justify-between gap-3">
-        <h2 id={headingId} className="flex items-center gap-1.5 text-[13px] font-bold text-muted-foreground">
+        <h2 id={headingId} className="flex items-center gap-1.5 text-[14px] font-semibold text-muted-foreground">
           {Icon && <Icon className="size-3.5" aria-hidden="true" />}
           {label}
         </h2>

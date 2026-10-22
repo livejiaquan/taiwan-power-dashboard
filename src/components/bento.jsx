@@ -1,11 +1,10 @@
-import { CalendarDays, Leaf, MapPin, PieChart, Zap } from 'lucide-react';
+import { CalendarDays, MapPin, PieChart, Zap } from 'lucide-react';
 
 import { formatNumber, formatPercent, getPositiveCategories } from '../../js/dashboard-presenter.js';
 import { AREA_KEYS } from '../../js/power-curves.js';
 import { fuelColor, fuelStyle, sortByFuelOrder } from '../lib/fuel.js';
 import { levelFor } from '../lib/status.js';
 import { useUnit } from '../lib/units.jsx';
-import { Ring } from './ui/ring.jsx';
 import { Tile } from './ui/tile.jsx';
 import { Tooltip } from './ui/tooltip.jsx';
 
@@ -18,9 +17,9 @@ function share(value, total) {
 
 function BigValue({ value, unit }) {
   return (
-    <p className="num display text-[34px] font-bold leading-none sm:text-[40px]">
+    <p className="num text-[32px] font-semibold leading-none sm:text-[44px]">
       {value}
-      {unit && <span className="ml-1 text-[15px] font-semibold tracking-normal text-muted-foreground">{unit}</span>}
+      {unit && <span className="ml-1 font-sans text-[13px] font-medium text-muted-foreground sm:text-[15px]">{unit}</span>}
     </p>
   );
 }
@@ -29,44 +28,64 @@ function Caption({ children }) {
   return <p className="mt-auto pt-4 text-pretty text-[13px] leading-5 text-muted-foreground">{children}</p>;
 }
 
-export function LoadTile({ model, timeLabel }) {
-  const { powerValue, unitLabel, power } = useUnit();
-  const { metrics, supply } = model;
-  const capacityMw = supply.realHourMaxSupplyCapacityMw ?? metrics.forecastMaxSupplyCapacityMw;
+function Meter({ value, color }) {
   return (
-    <Tile id="now" icon={Zap} label={`${timeLabel}用電`}>
-      <BigValue value={powerValue(metrics.currentLoadMw)} unit={unitLabel} />
-      <div className="mt-5 flex items-center gap-3.5">
-        <Ring value={metrics.currentUtilizationPercent} size={52} stroke={7} />
-        <div className="min-w-0 leading-tight">
-          <p className="num text-[20px] font-bold">{formatPercent(metrics.currentUtilizationPercent, 0)}<span className="ml-1 text-[13px] font-semibold text-muted-foreground">使用率</span></p>
-          <p className="num mt-0.5 truncate text-[13px] text-muted-foreground">供電能力 {power(capacityMw)}</p>
-        </div>
-      </div>
-      <Caption>使用率＝目前用電 ÷ 當下最大供電能力。</Caption>
-    </Tile>
+    <span className="mt-3 block h-1.5 overflow-hidden rounded-full bg-track" aria-hidden="true">
+      <span className="block h-full rounded-full" style={{ width: `${Math.max(0, Math.min(100, value))}%`, background: color }} />
+    </span>
   );
 }
 
-export function RenewableTile({ model }) {
-  const { metrics } = model;
+function NowCell({ label, children, note }) {
+  return (
+    <div className="flex min-w-0 flex-col px-5 py-5 sm:px-6">
+      <dt className="text-[14px] font-semibold text-muted-foreground">{label}</dt>
+      <dd className="mt-2 flex min-w-0 flex-1 flex-col">{children}</dd>
+      {note && <dd className="mt-3 text-pretty text-[13px] leading-5 text-muted-foreground">{note}</dd>}
+    </div>
+  );
+}
+
+// One instant, four readings: they share a panel and hairlines instead of four
+// separate cards (GridStatus' KPI row), because they are the same moment.
+export function NowPanel({ model, timeLabel }) {
+  const { powerValue, unitLabel, power } = useUnit();
+  const { metrics, supply } = model;
+  const capacityMw = supply.realHourMaxSupplyCapacityMw ?? metrics.forecastMaxSupplyCapacityMw;
   const categories = getPositiveCategories(model);
   const total = categories.reduce((sum, category) => sum + category.netGenerationMw, 0);
   const top = categories
     .filter((category) => fuelStyle(category.key).group === 'renewable')
     .sort((a, b) => b.netGenerationMw - a.netGenerationMw)
     .slice(0, 2);
+
   return (
-    <Tile icon={Leaf} label="再生能源">
-      <div className="flex items-center justify-between gap-4">
-        <BigValue value={formatNumber(metrics.renewableSharePercent, 1)} unit="%" />
-        <Ring value={metrics.renewableSharePercent} size={64} stroke={8} color="#34c759" />
-      </div>
-      <Caption>
-        {top.map((category) => `${category.labelZh} ${formatPercent(share(category.netGenerationMw, total))}`).join('、')}
-        {top.length ? '。' : ''}低碳占比 {formatPercent(metrics.lowCarbonSharePercent)}。
-      </Caption>
-    </Tile>
+    <section id="now" aria-labelledby="now-title" className="scroll-mt-24 rounded-[20px] bg-card ring-1 ring-border lg:col-span-12">
+      <h2 id="now-title" className="flex items-center gap-1.5 px-5 pt-5 text-[14px] font-semibold text-muted-foreground sm:px-6">
+        <Zap className="size-3.5" aria-hidden="true" />
+        {timeLabel === '目前' ? '此刻的電網' : '快照當下的電網'}
+      </h2>
+      <dl className="mt-1 grid grid-cols-2 gap-px overflow-hidden rounded-b-[20px] bg-border lg:grid-cols-4 [&>*]:bg-card">
+        <NowCell label={`${timeLabel}用電`} note={`最大供電能力 ${power(capacityMw)}`}>
+          <BigValue value={powerValue(metrics.currentLoadMw)} unit={unitLabel} />
+        </NowCell>
+        <NowCell label="使用率" note="目前用電 ÷ 當下最大供電能力">
+          <BigValue value={formatNumber(metrics.currentUtilizationPercent, 0)} unit="%" />
+          <Meter value={metrics.currentUtilizationPercent} color="var(--accent)" />
+        </NowCell>
+        <NowCell
+          label="再生能源"
+          note={top.map((category) => `${category.labelZh} ${formatPercent(share(category.netGenerationMw, total))}`).join('、')}
+        >
+          <BigValue value={formatNumber(metrics.renewableSharePercent, 1)} unit="%" />
+          <Meter value={metrics.renewableSharePercent} color="var(--status-g)" />
+        </NowCell>
+        <NowCell label="低碳占比" note="再生能源、核能與儲能放電">
+          <BigValue value={formatNumber(metrics.lowCarbonSharePercent, 1)} unit="%" />
+          <Meter value={metrics.lowCarbonSharePercent} color="#5fb3a1" />
+        </NowCell>
+      </dl>
+    </section>
   );
 }
 
@@ -77,9 +96,9 @@ export function MixTile({ model }) {
   const ranked = [...categories].sort((a, b) => b.netGenerationMw - a.netGenerationMw);
 
   return (
-    <Tile icon={PieChart} label="電從哪裡來" className="sm:col-span-2" aside={<span className="num text-[12px] text-muted-foreground">合計 {power(total)}</span>}>
+    <Tile icon={PieChart} label="電從哪裡來" className="lg:col-span-7" aside={<span className="num text-[12px] text-muted-foreground">合計 {power(total)}</span>}>
       <div
-        className="flex h-11 w-full overflow-hidden rounded-[14px]"
+        className="flex h-12 w-full overflow-hidden rounded-[12px]"
         role="img"
         aria-label={`發電結構：${ranked.map((c) => `${c.labelZh} ${formatPercent(share(c.netGenerationMw, total))}`).join('、')}`}
       >
@@ -95,12 +114,13 @@ export function MixTile({ model }) {
           </Tooltip>
         ))}
       </div>
-      <ul className="mt-5 grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3">
+      <ul className="mt-5 grid gap-x-8 sm:grid-cols-2">
         {ranked.map((category) => (
-          <li key={category.key} className="flex min-w-0 items-center gap-2 text-[14px]">
-            <span className="size-2.5 shrink-0 rounded-full" style={{ background: fuelColor(category) }} aria-hidden="true" />
+          <li key={category.key} className="flex min-w-0 items-center gap-2.5 border-b border-border py-2.5 text-[15px]">
+            <span className="size-2.5 shrink-0 rounded-[3px]" style={{ background: fuelColor(category) }} aria-hidden="true" />
             <span className="truncate">{SHORT_LABEL[category.key] || category.labelZh}</span>
-            <span className="num ml-auto font-bold">{formatPercent(share(category.netGenerationMw, total))}</span>
+            <span className="num ml-auto text-[14px] text-muted-foreground">{power(category.netGenerationMw)}</span>
+            <span className="num w-14 text-right text-[16px] font-semibold">{formatPercent(share(category.netGenerationMw, total))}</span>
           </li>
         ))}
       </ul>
@@ -135,7 +155,7 @@ export function WeekTile({ curves, model, todayKey }) {
   ].filter(Boolean);
 
   return (
-    <Tile id="week" icon={CalendarDays} label="未來一週備轉預估" className="sm:col-span-2 lg:row-span-2">
+    <Tile id="week" icon={CalendarDays} label="未來一週備轉預估" className="lg:col-span-5">
       {days.length <= 1 ? (
         <p className="text-[14px] text-muted-foreground">台電一週預測暫時無法取得。</p>
       ) : (
@@ -145,13 +165,13 @@ export function WeekTile({ curves, model, todayKey }) {
             const Icon = level.icon;
             const position = Math.min(100, Math.max(0, (day.reserveRatePercent / 30) * 100));
             return (
-              <li key={day.date} className="grid grid-cols-[44px_22px_52px_1fr] items-center gap-3 py-3 first:pt-1 last:pb-0">
+              <li key={day.date} className="grid grid-cols-[44px_22px_56px_1fr] items-center gap-3 py-2.5 first:pt-1 last:pb-0">
                 <span className="text-[15px] font-bold">{dayName(day.date, todayKey)}</span>
                 <span className="grid size-[22px] place-items-center rounded-full" style={{ background: `var(--status-${level.token}-bg)`, color: `var(--status-${level.token}-on)` }}>
                   <Icon className="size-3" aria-hidden="true" />
                   <span className="sr-only">{level.label}</span>
                 </span>
-                <span className="num text-right text-[15px] font-bold">{formatNumber(day.reserveRatePercent, 1)}%</span>
+                <span className="num text-right text-[17px] font-semibold">{formatNumber(day.reserveRatePercent, 1)}%</span>
                 <span className="relative h-[5px] rounded-full bg-track" aria-hidden="true">
                   <span className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${position}%`, background: `var(--status-${level.token}-bg)` }} />
                   <span className="absolute -top-1 h-[13px] w-px bg-muted-foreground/40" style={{ left: `${(10 / 30) * 100}%` }} />
@@ -173,7 +193,7 @@ export function RegionTile({ areas }) {
   const total = AREA_KEYS.reduce((sum, key) => sum + latest.areas[key], 0);
   const labels = { north: '北部', central: '中部', south: '南部', east: '東部' };
   return (
-    <Tile icon={MapPin} label={`各區用電 · ${latest.time}`} className="sm:col-span-2 lg:col-span-4">
+    <Tile icon={MapPin} label={`各區用電 · ${latest.time}`} className="lg:col-span-12">
       <dl className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
         {['north', 'central', 'south', 'east'].map((key) => (
           <div key={key}>
