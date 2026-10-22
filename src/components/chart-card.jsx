@@ -27,10 +27,10 @@ export function ChartCard({
   return (
     <section id={id} className={cn('scroll-mt-24', className)} aria-labelledby={headingId}>
       <TabsPrimitive.Root value={view} onValueChange={setView}>
-        <div className="mb-5 flex flex-wrap items-end justify-between gap-x-6 gap-y-4 sm:mb-6">
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-4 sm:mb-6">
           <div className="max-w-2xl">
-            <h2 id={headingId} className="display text-[24px] font-bold sm:text-[32px]">{title}</h2>
-            {summary && <p className="mt-2 text-pretty text-[15px] leading-7 text-muted-foreground sm:text-[17px]">{summary}</p>}
+            <h2 id={headingId} className="display text-2xl font-bold sm:text-3xl">{title}</h2>
+            {summary && <p className="mt-2 text-pretty text-base leading-7 text-muted-foreground sm:text-lg">{summary}</p>}
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {controls}
@@ -38,13 +38,13 @@ export function ChartCard({
               <TabsPrimitive.List aria-label={`${title}檢視方式`} className="inline-flex rounded-xl bg-muted p-1">
                 <TabsPrimitive.Trigger
                   value="chart"
-                  className="inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-[13px] pointer-coarse:h-11 font-semibold text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+                  className="inline-flex h-9 items-center gap-2 rounded-lg px-3 text-sm pointer-coarse:h-11 font-semibold text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
                 >
                   <BarChart3 className="size-3.5" aria-hidden="true" />圖表
                 </TabsPrimitive.Trigger>
                 <TabsPrimitive.Trigger
                   value="table"
-                  className="inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-[13px] pointer-coarse:h-11 font-semibold text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+                  className="inline-flex h-9 items-center gap-2 rounded-lg px-3 text-sm pointer-coarse:h-11 font-semibold text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
                 >
                   <Table2 className="size-3.5" aria-hidden="true" />表格
                 </TabsPrimitive.Trigger>
@@ -54,7 +54,7 @@ export function ChartCard({
               <button
                 type="button"
                 onClick={() => downloadCsv(csv.filename, csv.header, csv.rows)}
-                className="inline-flex h-11 items-center gap-1.5 rounded-control border border-border bg-card px-3.5 text-[13px] font-semibold hover:bg-muted"
+                className="inline-flex h-11 items-center gap-2 rounded-control border border-border bg-card px-4 text-sm font-semibold hover:bg-muted"
               >
                 <Download className="size-3.5" aria-hidden="true" />
                 CSV<span className="sr-only">下載{title}資料</span>
@@ -73,7 +73,7 @@ export function ChartCard({
             </TabsPrimitive.Content>
           )}
           {(meta || footnote) && (
-            <div className="mt-6 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 border-t border-border pt-4 text-[13px] leading-6 text-muted-foreground">
+            <div className="mt-6 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 border-t border-border pt-4 text-base text-muted-foreground">
               {footnote && <p className="max-w-3xl">{footnote}</p>}
               {meta && <p className="num ml-auto">{meta}</p>}
             </div>
@@ -86,11 +86,11 @@ export function ChartCard({
 
 export function DataTable({ caption, columns, rows, maxHeight = 420 }) {
   return (
-    <div className="-mx-6 overflow-auto sm:mx-0" style={{ maxHeight }} role="region" aria-label={`${caption}（可捲動表格）`} tabIndex={0}>
+    <div className="-mx-5 overflow-auto sm:mx-0" style={{ maxHeight }} role="region" aria-label={`${caption}（可捲動表格）`} tabIndex={0}>
       <table className="w-full min-w-[480px] text-sm">
         <caption className="sr-only">{caption}</caption>
         <thead className="sticky top-0 bg-card">
-          <tr className="border-b border-border text-[13px] text-muted-foreground">
+          <tr className="border-b border-border text-sm text-muted-foreground">
             {columns.map((column, index) => (
               <th
                 key={column.key}
@@ -98,8 +98,8 @@ export function DataTable({ caption, columns, rows, maxHeight = 420 }) {
                 className={cn(
                   'whitespace-nowrap px-3 py-3 font-semibold',
                   column.numeric ? 'text-right' : 'text-left',
-                  index === 0 && 'pl-6 sm:pl-0',
-                  index === columns.length - 1 && 'pr-6 sm:pr-0'
+                  index === 0 && 'pl-5 sm:pl-0',
+                  index === columns.length - 1 && 'pr-5 sm:pr-0'
                 )}
               >
                 {column.label}
@@ -119,8 +119,8 @@ export function DataTable({ caption, columns, rows, maxHeight = 420 }) {
                     className={cn(
                       'whitespace-nowrap px-3 py-3',
                       column.numeric ? 'num text-right' : 'text-left',
-                      index === 0 && 'pl-6 font-semibold sm:pl-0',
-                      index === columns.length - 1 && 'pr-6 sm:pr-0'
+                      index === 0 && 'pl-5 font-semibold sm:pl-0',
+                      index === columns.length - 1 && 'pr-5 sm:pr-0'
                     )}
                   >
                     {row[column.key]}
