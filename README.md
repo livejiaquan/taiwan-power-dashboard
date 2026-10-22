@@ -2,11 +2,16 @@
 
 以台電官方開放資料呈現台灣供電狀態、資料新鮮度與發電結構的公共看板。
 
+線上版：https://livejiaquan.github.io/taiwan-power-dashboard/
+
+![首屏：資料時效細帶、台電五燈號燈號板與今日尖峰備轉容量率](docs/screenshots/after-desktop-light.jpg)
+
 產品 mission、研究證據與 roadmap 見 [`docs/PRODUCT.md`](docs/PRODUCT.md)；production 的 freshness、fallback 與 validation 規則見 [`docs/DATA_TRUST_CONTRACT.md`](docs/DATA_TRUST_CONTRACT.md)。
 
 ## Features
 
-- 首屏先回答「現在電夠不夠」：台電官方五燈號（顏色＋形狀＋文字）、尖峰預估備轉容量率、常駐的燈號分級與 6%/10% 門檻尺。
+- 首屏先回答「現在電夠不夠」：仿實體號誌的台電五燈號燈號板（燈位＋顏色＋形狀＋文字）、尖峰預估備轉容量率、0–25% 門檻尺。
+- 資料時效細帶永遠在數字之前：兩份來源各自的時間與「幾分鐘前」；快照過期時燈號降亮度加斜線、標「非即時」，並提供台電官網連結。
 - 「用電負載 ÷ 最大供電能力 ＝ 使用率」等式、燃料別 100% 堆疊條、北中南東各區用電。
 - 今日用電曲線：台電 10 分鐘燃料別（或區域別）堆疊面積圖，疊加昨日負載、預估尖峰負載、最大供電能力與預估尖峰時段，未來時段淡化。
 - 備轉容量率趨勢：近 10 日實績、今日預估與台電未來一週預測（斜線紋理標示預測）。
@@ -23,7 +28,8 @@
 - ECharts（按需註冊、延遲載入、SVG renderer）。燃料配色參考 Electricity Maps、Open Electricity 與 grid.iamkate.com 慣例；圖表呈現參考 CAISO Today's Outlook、東京電力でんき予報與英國 NESO。
 - 資料驗證、新鮮度與呈現規則是框架無關的純 JS 模組（`js/`），由 `node --test` 直接測試；React 只訂閱 `js/dashboard-controller.js` 的狀態。
 - 品質工具：ESLint 9（react-hooks、jsx-a11y）、`node --test`、Playwright e2e（四種新鮮度狀態 × 桌機／手機 × 淺色／深色）加 axe 無障礙檢測，於 `.github/workflows/ci.yml` 執行。
-- 設計與工程的調查依據見 [`docs/RESEARCH.md`](docs/RESEARCH.md)。
+- 設計與工程的調查依據見 [`docs/RESEARCH.md`](docs/RESEARCH.md)；介面改版的同類產品研究（Electricity Maps、GridStatus、EIA、NESO、でんき予報等）見 [`docs/design-research.md`](docs/design-research.md)。
+- 字體：Barlow／Barlow Semi Condensed（Google Fonts）搭配系統中文字體；冷調鋼灰與夜藍雙主題。
 
 ## Data Sources
 
