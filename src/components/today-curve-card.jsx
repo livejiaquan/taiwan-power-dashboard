@@ -224,7 +224,7 @@ export function TodayCurveCard({ curves, model, theme, now = new Date() }) {
         title="今日用電曲線"
         summary="台電每 10 分鐘公布今日燃料別用電曲線。本站這次未能取得，上方的即時數字不受影響。"
       >
-        <div className="flex flex-col gap-3 rounded-xl bg-muted px-4 py-5 text-[13px] leading-6 text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-5 text-[15px] leading-7 text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:gap-10">
           <p>
             台電的曲線檔目前只能從台電網站直接查看，本站的自動抓取暫時被拒絕。可以先到台電官網看今日與昨日的用電曲線。
           </p>
@@ -232,7 +232,7 @@ export function TodayCurveCard({ curves, model, theme, now = new Date() }) {
             href="https://www.taipower.com.tw/d006/loadGraph/loadGraph/load_briefing3.html"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex h-9 shrink-0 items-center gap-1.5 self-start rounded-lg border border-border bg-card px-3 text-xs font-medium text-foreground hover:bg-background sm:self-auto"
+            className="inline-flex h-11 shrink-0 items-center gap-2 self-start rounded-xl bg-foreground px-4 text-sm font-semibold text-background hover:opacity-90 sm:self-auto"
           >
             台電今日用電曲線
             <ExternalLink className="size-3.5" aria-hidden="true" />
@@ -285,7 +285,7 @@ export function TodayCurveCard({ curves, model, theme, now = new Date() }) {
             ]}
           />
           {curves.yesterday && (
-            <label className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-border bg-card px-2.5 text-xs font-medium">
+            <label className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl border border-border bg-card px-3.5 text-[13px] font-semibold">
               <input
                 type="checkbox"
                 checked={showYesterday}
@@ -310,25 +310,25 @@ export function TodayCurveCard({ curves, model, theme, now = new Date() }) {
       meta={`曲線資料至 ${last.time}（${formatAge(ageMinutes)}）· 台電今日用電曲線`}
       footnote="燃氣、燃煤含民營電廠。儲能充電為負值畫在 0 以下。台電未公布全天預測曲線，因此以預估尖峰負載與時段呈現。"
     >
-      <dl className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div className="rounded-xl bg-muted px-3.5 py-2.5">
-          <dt className="text-xs text-muted-foreground">最新總負載 · {last.time}</dt>
-          <dd className="num mt-0.5 text-lg font-semibold">{fmt(last.loadMw)} <span className="text-xs font-medium text-muted-foreground">{unitLabel}</span></dd>
+      <dl className="mb-8 grid grid-cols-2 gap-x-8 gap-y-6 sm:grid-cols-4">
+        <div className="border-l-2 border-border pl-4">
+          <dt className="text-[13px] text-muted-foreground">最新總負載 · {last.time}</dt>
+          <dd className="num mt-1.5 text-2xl font-bold tracking-tight">{fmt(last.loadMw)} <span className="text-xs font-semibold text-muted-foreground">{unitLabel}</span></dd>
         </div>
-        <div className="rounded-xl bg-muted px-3.5 py-2.5">
-          <dt className="text-xs text-muted-foreground">今日目前最高 · {peakPoint.time}</dt>
-          <dd className="num mt-0.5 text-lg font-semibold">{fmt(peakPoint.loadMw)} <span className="text-xs font-medium text-muted-foreground">{unitLabel}</span></dd>
+        <div className="border-l-2 border-border pl-4">
+          <dt className="text-[13px] text-muted-foreground">今日目前最高 · {peakPoint.time}</dt>
+          <dd className="num mt-1.5 text-2xl font-bold tracking-tight">{fmt(peakPoint.loadMw)} <span className="text-xs font-semibold text-muted-foreground">{unitLabel}</span></dd>
         </div>
-        <div className="rounded-xl bg-muted px-3.5 py-2.5">
-          <dt className="text-xs text-muted-foreground">較昨日同時段</dt>
-          <dd className="num mt-0.5 text-lg font-semibold">
+        <div className="border-l-2 border-border pl-4">
+          <dt className="text-[13px] text-muted-foreground">較昨日同時段</dt>
+          <dd className="num mt-1.5 text-2xl font-bold tracking-tight">
             {yesterdaySameTime ? `${last.loadMw >= yesterdaySameTime.loadMw ? '+' : '−'}${fmt(Math.abs(last.loadMw - yesterdaySameTime.loadMw))}` : '--'}
-            {yesterdaySameTime && <span className="text-xs font-medium text-muted-foreground"> {unitLabel}</span>}
+            {yesterdaySameTime && <span className="text-xs font-semibold text-muted-foreground"> {unitLabel}</span>}
           </dd>
         </div>
-        <div className="rounded-xl bg-muted px-3.5 py-2.5">
-          <dt className="text-xs text-muted-foreground">預估尖峰 · {model?.supply?.forecastPeakHourRange || '--'}</dt>
-          <dd className="num mt-0.5 text-lg font-semibold">{fmt(model?.metrics?.forecastPeakDemandMw)} <span className="text-xs font-medium text-muted-foreground">{unitLabel}</span></dd>
+        <div className="border-l-2 border-border pl-4">
+          <dt className="text-[13px] text-muted-foreground">預估尖峰 · {model?.supply?.forecastPeakHourRange || '--'}</dt>
+          <dd className="num mt-1.5 text-2xl font-bold tracking-tight">{fmt(model?.metrics?.forecastPeakDemandMw)} <span className="text-xs font-semibold text-muted-foreground">{unitLabel}</span></dd>
         </div>
       </dl>
 
@@ -338,7 +338,7 @@ export function TodayCurveCard({ curves, model, theme, now = new Date() }) {
         </p>
       )}
 
-      <div className={cn('h-[300px] sm:h-[360px]', stale && 'opacity-70 grayscale')}>
+      <div className={cn('h-[320px] sm:h-[400px]', stale && 'opacity-70 grayscale')}>
         <Suspense fallback={<div className="h-full animate-pulse rounded-xl bg-muted" />}>
           <EChart
             option={option}
@@ -348,7 +348,7 @@ export function TodayCurveCard({ curves, model, theme, now = new Date() }) {
         </Suspense>
       </div>
 
-      <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-muted-foreground" aria-label="圖例">
+      <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-[13px] text-muted-foreground" aria-label="圖例">
         {(legendKeys || [...AREA_KEYS].reverse()).map((key) => (
           <li key={key} className="flex items-center gap-1.5">
             <span

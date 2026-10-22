@@ -30,7 +30,7 @@ const FAQ = [
                 <span className="grid size-6 shrink-0 place-items-center rounded-full" style={statusSurface(level.token)}>
                   <Icon className="size-3.5" aria-hidden="true" />
                 </span>
-                <span className="w-24 shrink-0 font-medium text-foreground">{level.name}・{level.label}</span>
+                <span className="w-24 shrink-0 font-semibold text-foreground">{level.name}・{level.label}</span>
                 <span className="num">{level.rule}</span>
               </li>
             );
@@ -85,19 +85,19 @@ const DATASETS = [
 
 export function AboutSection() {
   return (
-    <section id="about" aria-labelledby="about-title" className="grid scroll-mt-20 gap-4 lg:grid-cols-12">
-      <Card className="p-5 sm:p-6 lg:col-span-7">
-        <h2 id="about-title" className="text-base font-semibold tracking-tight">名詞與資料說明</h2>
+    <section id="about" aria-labelledby="about-title" className="grid scroll-mt-24 gap-6 lg:grid-cols-12 lg:gap-8">
+      <Card className="p-6 sm:p-8 lg:col-span-7">
+        <h2 id="about-title" className="text-xl font-bold tracking-tight">名詞與資料說明</h2>
         <Accordion.Root type="multiple" className="mt-3 divide-y divide-border">
           {FAQ.map((item) => (
             <Accordion.Item key={item.id} value={item.id}>
               <Accordion.Header>
-                <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 py-3.5 text-left text-[14px] font-medium hover:text-accent">
+                <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 py-5 text-left text-[15px] font-semibold hover:text-accent">
                   {item.question}
                   <ChevronDown className="size-4 shrink-0 text-muted-foreground transition group-data-[state=open]:rotate-180" aria-hidden="true" />
                 </Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Content className="space-y-2.5 pb-4 text-[13px] leading-6 text-muted-foreground">
+              <Accordion.Content className="space-y-3 pb-6 text-sm leading-7 text-muted-foreground">
                 {item.answer}
               </Accordion.Content>
             </Accordion.Item>
@@ -105,15 +105,15 @@ export function AboutSection() {
         </Accordion.Root>
       </Card>
 
-      <Card className="p-5 sm:p-6 lg:col-span-5">
-        <h2 className="text-base font-semibold tracking-tight">資料來源與下載</h2>
-        <p className="mt-1 text-[13px] leading-5 text-muted-foreground">
+      <Card className="p-6 sm:p-8 lg:col-span-5">
+        <h2 className="text-xl font-bold tracking-tight">資料來源與下載</h2>
+        <p className="mt-2 text-sm leading-7 text-muted-foreground">
           資料提供：台灣電力股份有限公司，依政府資料開放授權條款第 1 版使用。即時資料為速報，台電可能事後修正，正式數據請以台電公告為準。
         </p>
-        <ul className="mt-4 divide-y divide-border text-[13px]">
+        <ul className="mt-5 divide-y divide-border text-sm">
           {DATASETS.map(([name, url, cadence]) => (
-            <li key={url} className="flex items-center justify-between gap-3 py-2.5">
-              <a href={url} target="_blank" rel="noreferrer" className="inline-flex min-w-0 items-center gap-1.5 font-medium hover:text-accent hover:underline">
+            <li key={url} className="flex items-center justify-between gap-4 py-4">
+              <a href={url} target="_blank" rel="noreferrer" className="inline-flex min-w-0 items-center gap-1.5 font-semibold hover:text-accent hover:underline">
                 <span className="truncate">{name}</span>
                 <ExternalLink className="size-3 shrink-0" aria-hidden="true" />
                 <span className="sr-only">（另開新視窗）</span>
@@ -123,10 +123,10 @@ export function AboutSection() {
           ))}
         </ul>
         <div className="mt-4 flex flex-wrap gap-2">
-          <a href="api/power-data.json" className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-xs font-medium hover:bg-muted">
+          <a href="api/power-data.json" className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-xs font-semibold hover:bg-muted">
             <Download className="size-3.5" aria-hidden="true" />本站快照 JSON
           </a>
-          <a href="api/curves.json" className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-xs font-medium hover:bg-muted">
+          <a href="api/curves.json" className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-xs font-semibold hover:bg-muted">
             <Download className="size-3.5" aria-hidden="true" />曲線資料 JSON
           </a>
         </div>

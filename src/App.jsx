@@ -1,14 +1,16 @@
 import { describeTrustState } from '../js/dashboard-presenter.js';
 import { taipeiDateKey } from '../js/power-curves.js';
 import { AboutSection } from './components/about-section.jsx';
+import { LoadTile, MixTile, RegionTile, RenewableTile, WeekTile } from './components/bento.jsx';
 import { ConstrainedUnits } from './components/constrained-units.jsx';
 import { FuelBreakdown } from './components/fuel-breakdown.jsx';
-import { GridNowCard } from './components/grid-now-card.jsx';
-import { ReserveStatusCard } from './components/reserve-status-card.jsx';
+import { MobileTabBar } from './components/mobile-tab-bar.jsx';
 import { ReserveTrendCard } from './components/reserve-trend-card.jsx';
+import { Section } from './components/section.jsx';
 import { SiteFooter } from './components/site-footer.jsx';
 import { SiteHeader } from './components/site-header.jsx';
 import { LoadingState, UnavailableState } from './components/states.jsx';
+import { StatusHero } from './components/status-hero.jsx';
 import { TodayCurveCard } from './components/today-curve-card.jsx';
 import { TrustBanner } from './components/trust-banner.jsx';
 import { TooltipProvider } from './components/ui/tooltip.jsx';
@@ -36,12 +38,11 @@ function Dashboard() {
     <div id="top" className="min-h-screen">
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-card focus:px-3 focus:py-2 focus:shadow-lg"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-3 focus:z-50 focus:rounded-full focus:bg-card focus:px-4 focus:py-2 focus:shadow-lg"
       >
         跳至主要內容
       </a>
       <SiteHeader
-        trust={trust}
         loading={loading}
         onRefresh={refresh}
         theme={theme}
@@ -50,49 +51,61 @@ function Dashboard() {
         onToggleAutoRefresh={() => setAutoRefresh(!autoRefresh)}
       />
 
-      <main id="main-content" tabIndex={-1} className="mx-auto max-w-7xl space-y-4 px-4 pb-4 pt-6 outline-none sm:px-6 lg:space-y-5 lg:pt-8">
-        <div className="mb-1 max-w-3xl">
-          <h1 className="text-[26px] font-bold leading-tight tracking-tight sm:text-3xl">台灣現在的電夠不夠？</h1>
-          <p className="mt-2 text-[15px] leading-6 text-muted-foreground">
-            直接採用台電官方燈號、備轉容量與即時發電資料；每個數字都標示官方資料時間，延遲或過期時會明確提示。
-          </p>
-        </div>
-
+      <main id="main-content" tabIndex={-1} className="mx-auto max-w-[1120px] px-4 pb-32 pt-4 outline-none sm:px-6 sm:pt-8 lg:pb-16">
         {!trust ? (
           <LoadingState />
         ) : (
           <>
-            <TrustBanner trust={trust} />
+            <div className="space-y-4 sm:space-y-5">
+              {model ? (
+                <StatusHero model={model} freshness={freshness} trust={trust} />
+              ) : (
+                <h1 className="display px-1 pt-6 text-[32px] font-semibold sm:text-5xl">台灣現在的電夠不夠？</h1>
+              )}
+              <TrustBanner trust={trust} />
+              {model && (
+                <div className="grid grid-flow-dense gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
+                  <LoadTile model={model} timeLabel={timeLabel} />
+                  <RenewableTile model={model} />
+                  <WeekTile curves={curves} model={model} todayKey={todayKey} />
+                  <MixTile model={model} />
+                  <RegionTile areas={curvesForToday?.areas} />
+                </div>
+              )}
+            </div>
+
             {model ? (
-              <>
-                <section id="status" aria-label="供電狀態" className="grid scroll-mt-20 gap-4 lg:grid-cols-12 lg:gap-5">
-                  <div className="lg:col-span-5">
-                    <ReserveStatusCard model={model} freshness={freshness} />
-                  </div>
-                  <div className="lg:col-span-7">
-                    <GridNowCard model={model} timeLabel={timeLabel} areas={curvesForToday?.areas} />
-                  </div>
-                </section>
+              <div className="mt-20 space-y-20 sm:mt-28 sm:space-y-28">
                 <TodayCurveCard curves={curvesForToday} model={model} theme={theme} />
                 <ReserveTrendCard curves={curves} model={model} todayKey={todayKey} theme={theme} />
                 <FuelBreakdown model={model} theme={theme} />
-                <div className="grid gap-4 lg:gap-5 xl:grid-cols-12">
-                  <div className="min-w-0 xl:col-span-8">
-                    <UnitExplorer model={model} />
+                <Section
+                  id="units"
+                  title="機組"
+                  summary="台電公布的每一部機組即時淨發電量，以及目前檢修或運轉受限的大型機組。"
+                >
+                  <div className="grid gap-4 sm:gap-5 xl:grid-cols-12">
+                    <div className="min-w-0 xl:col-span-8">
+                      <UnitExplorer model={model} />
+                    </div>
+                    <div className="xl:col-span-4">
+                      <ConstrainedUnits model={model} />
+                    </div>
                   </div>
-                  <div className="xl:col-span-4">
-                    <ConstrainedUnits model={model} />
-                  </div>
-                </div>
-              </>
+                </Section>
+                <AboutSection />
+              </div>
             ) : (
-              <UnavailableState onRetry={refresh} loading={loading} />
+              <div className="mt-5 space-y-20">
+                <UnavailableState onRetry={refresh} loading={loading} />
+                <AboutSection />
+              </div>
             )}
-            <AboutSection />
           </>
         )}
       </main>
       <SiteFooter />
+      <MobileTabBar />
     </div>
   );
 }

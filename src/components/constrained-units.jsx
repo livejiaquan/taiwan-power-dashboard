@@ -14,10 +14,10 @@ export function ConstrainedUnits({ model }) {
   );
 
   return (
-    <Card className="flex flex-col">
+    <Card className="flex h-full flex-col">
       <CardHeader>
         <div>
-          <CardTitle>檢修與運轉限制</CardTitle>
+          <CardTitle as="h3">檢修與運轉限制</CardTitle>
           <CardDescription>依官方備註列出裝置容量最大的機組</CardDescription>
         </div>
       </CardHeader>
@@ -31,27 +31,27 @@ export function ConstrainedUnits({ model }) {
           </div>
         ) : (
           <>
-            <div className="rounded-xl bg-muted px-4 py-3">
+            <div className="rounded-2xl bg-muted px-5 py-4">
               <p className="text-xs text-muted-foreground">下列機組未發出的容量合計</p>
-              <p className="num mt-0.5 text-xl font-bold tracking-tight">
-                {powerValue(idleCapacity)} <span className="text-sm font-semibold text-muted-foreground">{unitLabel}</span>
+              <p className="num mt-1 text-2xl font-bold tracking-tight">
+                {powerValue(idleCapacity)} <span className="text-sm font-bold text-muted-foreground">{unitLabel}</span>
               </p>
             </div>
-            <ul className="mt-3 divide-y divide-border/70">
+            <ul className="mt-4 divide-y divide-border/70">
               {units.map((unit, index) => {
                 const output = Math.max(0, unit.netGenerationMw ?? 0);
                 const percent = unit.capacityMw > 0 ? Math.min(100, (output / unit.capacityMw) * 100) : 0;
                 return (
-                  <li key={`${unit.name}-${index}`} className="py-3">
+                  <li key={`${unit.name}-${index}`} className="py-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="truncate text-[13px] font-semibold">{unit.name}</p>
+                        <p className="truncate text-sm font-bold">{unit.name}</p>
                         <p className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
                           <span className="size-2 rounded-full" style={{ background: fuelColor({ key: unit.categoryKey, color: unit.color }) }} aria-hidden="true" />
                           {unit.type}
                         </p>
                       </div>
-                      <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
+                      <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-muted px-1.5 py-0.5 text-xs font-semibold text-muted-foreground">
                         <Wrench className="size-3" aria-hidden="true" />
                         {unit.note}
                       </span>
