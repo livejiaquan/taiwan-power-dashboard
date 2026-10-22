@@ -11,7 +11,7 @@ import { UnitExplorer } from './unit-explorer.jsx';
 // screen's bundle stays small and this code loads while the status paints.
 export default function BelowFold({ curves, curvesForToday, model, todayKey, theme }) {
   return (
-    <div className="mt-16 space-y-16 sm:mt-24 sm:space-y-24">
+    <div className="mt-16 space-y-16 sm:mt-16 sm:space-y-16">
       <TodayCurveCard curves={curvesForToday} model={model} theme={theme} />
       <ReserveTrendCard curves={curves} model={model} todayKey={todayKey} theme={theme} />
       <FuelBreakdown model={model} theme={theme} />
@@ -20,7 +20,7 @@ export default function BelowFold({ curves, curvesForToday, model, todayKey, the
         title="機組"
         summary="台電公布的每一部機組即時淨發電量，以及目前檢修或運轉受限的大型機組。"
       >
-        <div className="grid gap-4 sm:gap-5 xl:grid-cols-12">
+        <div className="grid gap-4 sm:gap-6 xl:grid-cols-12">
           <div className="min-w-0 xl:col-span-8">
             <UnitExplorer model={model} />
           </div>

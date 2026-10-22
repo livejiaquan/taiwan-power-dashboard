@@ -26,7 +26,7 @@ function FilterChip({ active, onClick, color, children }) {
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        'inline-flex h-9 shrink-0 items-center pointer-coarse:h-11 gap-1.5 rounded-full border px-3.5 text-[13px] font-semibold transition',
+        'inline-flex h-9 shrink-0 items-center pointer-coarse:h-11 gap-2 rounded-full border px-4 text-sm font-semibold transition',
         active ? 'border-foreground bg-foreground text-background' : 'border-border bg-card text-muted-foreground hover:text-foreground'
       )}
     >
@@ -76,7 +76,7 @@ export function UnitExplorer({ model }) {
               value={query}
               onChange={(event) => { setQuery(event.target.value); setExpanded(false); }}
               placeholder="搜尋機組名稱，例如 大潭、台中"
-              className="h-11 w-full rounded-control border border-border bg-card pl-10 pr-3 text-sm placeholder:text-subtle-foreground focus:outline-2 focus:outline-ring"
+              className="h-11 w-full rounded-control border border-border bg-card pl-12 pr-3 text-sm placeholder:text-subtle-foreground focus:outline-2 focus:outline-ring"
             />
           </label>
           <div className="flex items-center gap-2 lg:ml-auto">
@@ -97,7 +97,7 @@ export function UnitExplorer({ model }) {
           </div>
         </div>
 
-        <div className="-mx-6 mt-5 flex gap-2 overflow-x-auto px-6 pb-1 sm:mx-0 sm:flex-wrap sm:px-0" role="group" aria-label="燃料別篩選">
+        <div className="-mx-5 mt-6 flex gap-2 overflow-x-auto px-5 pb-1 sm:mx-0 sm:flex-wrap sm:px-0" role="group" aria-label="燃料別篩選">
           <FilterChip active={category === 'all'} onClick={() => { setCategory('all'); setExpanded(false); }}>全部</FilterChip>
           {categories.map((item) => (
             <FilterChip
@@ -112,18 +112,18 @@ export function UnitExplorer({ model }) {
         </div>
 
         {/* Phones get a card list; the wide table starts at the sm breakpoint. */}
-        <ul className="mt-5 divide-y divide-border sm:hidden" aria-label="機組即時發電量">
+        <ul className="mt-6 divide-y divide-border sm:hidden" aria-label="機組即時發電量">
           {visible.map((unit, index) => {
             const factor = Number.isFinite(unit.utilizationPercent) ? Math.min(100, Math.max(0, unit.utilizationPercent)) : null;
             const color = fuelColor({ key: unit.categoryKey, color: unit.color });
             return (
-              <li key={`${unit.name}-${index}`} className="py-3.5">
+              <li key={`${unit.name}-${index}`} className="py-4">
                 <div className="flex items-baseline justify-between gap-3">
-                  <p className="min-w-0 truncate text-[15px] font-bold">{unit.name}</p>
-                  <p className="num shrink-0 text-[15px] font-bold">{power(unit.netGenerationMw)}</p>
+                  <p className="min-w-0 truncate text-base font-bold">{unit.name}</p>
+                  <p className="num shrink-0 text-base font-bold">{power(unit.netGenerationMw)}</p>
                 </div>
-                <div className="mt-1 flex items-center justify-between gap-3 text-[13px] text-muted-foreground">
-                  <span className="flex min-w-0 items-center gap-1.5">
+                <div className="mt-1 flex items-center justify-between gap-3 text-sm text-muted-foreground">
+                  <span className="flex min-w-0 items-center gap-2">
                     <span className="size-2 shrink-0 rounded-full" style={{ background: color }} aria-hidden="true" />
                     <span className="truncate">{unit.type}</span>
                     {hasNote(unit) && <span className="truncate">· {unit.note}</span>}
@@ -140,12 +140,12 @@ export function UnitExplorer({ model }) {
           })}
         </ul>
 
-        <div className="-mx-6 mt-6 hidden overflow-x-auto sm:mx-0 sm:block" role="region" aria-label="機組即時發電量（可捲動表格）" tabIndex={0}>
+        <div className="-mx-5 mt-6 hidden overflow-x-auto sm:mx-0 sm:block" role="region" aria-label="機組即時發電量（可捲動表格）" tabIndex={0}>
           <table className="w-full min-w-[680px] text-sm">
             <caption className="sr-only">機組即時發電量（共 {filtered.length} 筆符合）</caption>
             <thead>
-              <tr className="border-b border-border text-left text-[13px] text-muted-foreground">
-                <th scope="col" className="py-3 pl-6 pr-3 font-semibold sm:pl-0">機組</th>
+              <tr className="border-b border-border text-left text-sm text-muted-foreground">
+                <th scope="col" className="py-3 pl-5 pr-3 font-semibold sm:pl-0">機組</th>
                 <th scope="col" className="px-2 py-2 font-semibold">燃料別</th>
                 <th scope="col" className="px-2 py-2 text-right font-semibold">淨發電</th>
                 <th scope="col" className="px-2 py-2 text-right font-semibold">裝置容量</th>
@@ -159,18 +159,18 @@ export function UnitExplorer({ model }) {
                 const color = fuelColor({ key: unit.categoryKey, color: unit.color });
                 return (
                   <tr key={`${unit.name}-${index}`} className="border-b border-border/60 last:border-0 hover:bg-muted/50">
-                    <th scope="row" className="max-w-[220px] truncate py-3.5 pl-5 pr-2 text-left font-semibold sm:pl-0" title={unit.name}>
+                    <th scope="row" className="max-w-[220px] truncate py-4 pl-5 pr-2 text-left font-semibold sm:pl-0" title={unit.name}>
                       {unit.name}
                     </th>
-                    <td className="whitespace-nowrap px-2 py-3.5 text-muted-foreground">
-                      <span className="flex items-center gap-1.5">
+                    <td className="whitespace-nowrap px-2 py-4 text-muted-foreground">
+                      <span className="flex items-center gap-2">
                         <span className="size-2 shrink-0 rounded-full" style={{ background: color }} aria-hidden="true" />
                         {unit.type}
                       </span>
                     </td>
-                    <td className="num whitespace-nowrap px-2 py-3.5 text-right font-bold">{power(unit.netGenerationMw)}</td>
-                    <td className="num whitespace-nowrap px-2 py-3.5 text-right text-muted-foreground">{power(unit.capacityMw)}</td>
-                    <td className="px-2 py-3.5">
+                    <td className="num whitespace-nowrap px-2 py-4 text-right font-bold">{power(unit.netGenerationMw)}</td>
+                    <td className="num whitespace-nowrap px-2 py-4 text-right text-muted-foreground">{power(unit.capacityMw)}</td>
+                    <td className="px-2 py-4">
                       {factor === null ? (
                         <span className="text-subtle-foreground">--</span>
                       ) : (
@@ -178,13 +178,13 @@ export function UnitExplorer({ model }) {
                           <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-track">
                             <span className="block h-full rounded-full" style={{ width: `${factor}%`, background: color }} />
                           </span>
-                          <span className="num w-11 text-right text-xs text-muted-foreground">{formatPercent(unit.utilizationPercent, 0)}</span>
+                          <span className="num w-11 text-right text-sm text-muted-foreground">{formatPercent(unit.utilizationPercent, 0)}</span>
                         </span>
                       )}
                     </td>
-                    <td className="py-3.5 pl-2 pr-5 sm:pr-0">
+                    <td className="py-4 pl-2 pr-5 sm:pr-0">
                       {hasNote(unit) ? (
-                        <span className="inline-flex max-w-[180px] items-center gap-1 truncate rounded-md bg-muted px-1.5 py-0.5 text-xs text-muted-foreground" title={unit.note}>
+                        <span className="inline-flex max-w-[180px] items-center gap-1 truncate rounded-md bg-muted px-2 py-1 text-sm text-muted-foreground" title={unit.note}>
                           <Wrench className="size-3 shrink-0" aria-hidden="true" />
                           {unit.note}
                         </span>
@@ -196,11 +196,11 @@ export function UnitExplorer({ model }) {
             </tbody>
           </table>
           {filtered.length === 0 && (
-            <p className="py-10 text-center text-[13px] text-muted-foreground">沒有符合條件的機組。</p>
+            <p className="py-12 text-center text-base text-muted-foreground">沒有符合條件的機組。</p>
           )}
         </div>
 
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 text-[13px] text-muted-foreground">
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 text-sm text-muted-foreground">
           <span className="num">顯示 {visible.length} / {filtered.length} 筆</span>
           {filtered.length > PAGE_SIZE && (
             <button

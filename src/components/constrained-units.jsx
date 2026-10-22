@@ -23,7 +23,7 @@ export function ConstrainedUnits({ model }) {
       </CardHeader>
       <CardContent className="flex-1">
         {units.length === 0 ? (
-          <div className="grid h-full place-items-center py-10 text-center text-[13px] text-muted-foreground">
+          <div className="grid h-full place-items-center py-12 text-center text-base text-muted-foreground">
             <div>
               <CheckCircle2 className="mx-auto mb-2 size-6 text-status-g" aria-hidden="true" />
               目前資料中沒有檢修或限制備註。
@@ -32,7 +32,7 @@ export function ConstrainedUnits({ model }) {
         ) : (
           <>
             <div className="rounded-2xl bg-muted px-5 py-4">
-              <p className="text-xs text-muted-foreground">下列機組未發出的容量合計</p>
+              <p className="text-sm text-muted-foreground">下列機組未發出的容量合計</p>
               <p className="num mt-1 text-2xl font-bold tracking-tight">
                 {powerValue(idleCapacity)} <span className="text-sm font-bold text-muted-foreground">{unitLabel}</span>
               </p>
@@ -46,12 +46,12 @@ export function ConstrainedUnits({ model }) {
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <p className="truncate text-sm font-bold">{unit.name}</p>
-                        <p className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
                           <span className="size-2 rounded-full" style={{ background: fuelColor({ key: unit.categoryKey, color: unit.color }) }} aria-hidden="true" />
                           {unit.type}
                         </p>
                       </div>
-                      <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-muted px-1.5 py-0.5 text-xs font-semibold text-muted-foreground">
+                      <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-muted px-2 py-1 text-sm font-semibold text-muted-foreground">
                         <Wrench className="size-3" aria-hidden="true" />
                         {unit.note}
                       </span>
@@ -60,7 +60,7 @@ export function ConstrainedUnits({ model }) {
                       <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-track">
                         <span className="block h-full rounded-full bg-foreground/60" style={{ width: `${percent}%` }} />
                       </span>
-                      <span className="num whitespace-nowrap text-xs text-muted-foreground">
+                      <span className="num whitespace-nowrap text-sm text-muted-foreground">
                         {power(unit.netGenerationMw)} / {power(unit.capacityMw)}
                       </span>
                     </div>

@@ -115,17 +115,17 @@ function buildOption({ curves, model, mode, showYesterday, unit, unitLabel }) {
         {
           xAxis: lastMs,
           lineStyle: { color: tokens.foreground, type: 'solid', width: 1, opacity: 0.55 },
-          label: { formatter: `最新 ${last.time}`, position: 'end', color: tokens.foreground, fontSize: 11, fontWeight: 600, fontFamily: FONT_FAMILY }
+          label: { formatter: `最新 ${last.time}`, position: 'end', color: tokens.foreground, fontSize: 12, fontWeight: 600, fontFamily: FONT_FAMILY }
         },
         ...(Number.isFinite(model?.metrics?.forecastPeakDemandMw) ? [{
           yAxis: value(model.metrics.forecastPeakDemandMw),
           lineStyle: { color: tokens.muted, type: [6, 4], width: 1.2 },
-          label: { formatter: '預估尖峰負載', position: 'insideStartTop', color: tokens.muted, fontSize: 11, fontFamily: FONT_FAMILY }
+          label: { formatter: '預估尖峰負載', position: 'insideStartTop', color: tokens.muted, fontSize: 12, fontFamily: FONT_FAMILY }
         }] : []),
         ...(Number.isFinite(model?.metrics?.forecastMaxSupplyCapacityMw) ? [{
           yAxis: value(model.metrics.forecastMaxSupplyCapacityMw),
           lineStyle: { color: '#16a34a', type: [2, 3], width: 1.4 },
-          label: { formatter: '今日最大供電能力', position: 'insideStartTop', color: '#16a34a', fontSize: 11, fontFamily: FONT_FAMILY }
+          label: { formatter: '今日最大供電能力', position: 'insideStartTop', color: '#16a34a', fontSize: 12, fontFamily: FONT_FAMILY }
         }] : [])
       ]
     },
@@ -135,7 +135,7 @@ function buildOption({ curves, model, mode, showYesterday, unit, unitLabel }) {
         // Hours after the latest point have no actual data yet.
         [{ xAxis: lastMs, itemStyle: { color: tokens.grid, opacity: 0.55 } }, { xAxis: start + DAY_MS }],
         ...(band ? [[
-          { xAxis: band[0], itemStyle: { color: '#f59e0b', opacity: 0.08 }, label: { show: true, formatter: '預估尖峰時段', position: 'insideTop', color: tokens.muted, fontSize: 11, fontFamily: FONT_FAMILY } },
+          { xAxis: band[0], itemStyle: { color: '#f59e0b', opacity: 0.08 }, label: { show: true, formatter: '預估尖峰時段', position: 'insideTop', color: tokens.muted, fontSize: 12, fontFamily: FONT_FAMILY } },
           { xAxis: band[1] }
         ]] : [])
       ]
@@ -189,14 +189,14 @@ function buildOption({ curves, model, mode, showYesterday, unit, unitLabel }) {
       axisLine: { lineStyle: { color: tokens.border } },
       axisTick: { show: false },
       splitLine: { show: false },
-      axisLabel: { color: tokens.muted, fontSize: 11, formatter: (ms) => clock(ms).replace('24:00', '00:00'), hideOverlap: true }
+      axisLabel: { color: tokens.muted, fontSize: 12, formatter: (ms) => clock(ms).replace('24:00', '00:00'), hideOverlap: true }
     },
     yAxis: {
       type: 'value',
       splitNumber: 4,
       // Leave just enough room below zero for storage charging.
       min: (extent) => (extent.min < 0 ? Math.floor(extent.min / (unit === 'wan' ? 100 : 1000)) * (unit === 'wan' ? 100 : 1000) : 0),
-      axisLabel: { color: tokens.muted, fontSize: 11, formatter: (v) => formatNumber(v, 0) },
+      axisLabel: { color: tokens.muted, fontSize: 12, formatter: (v) => formatNumber(v, 0) },
       splitLine: { lineStyle: { color: tokens.grid } }
     },
     series
@@ -224,7 +224,7 @@ export function TodayCurveCard({ curves, model, theme, now = new Date() }) {
         title="今日用電曲線"
         summary="台電每 10 分鐘公布今日燃料別用電曲線。本站這次未能取得，上方的即時數字不受影響。"
       >
-        <div className="flex flex-col gap-5 text-[15px] leading-7 text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:gap-10">
+        <div className="flex flex-col gap-6 text-base leading-7 text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:gap-12">
           <p>
             台電的曲線檔目前只能從台電網站直接查看，本站的自動抓取暫時被拒絕。可以先到台電官網看今日與昨日的用電曲線。
           </p>
@@ -285,7 +285,7 @@ export function TodayCurveCard({ curves, model, theme, now = new Date() }) {
             ]}
           />
           {curves.yesterday && (
-            <label className="inline-flex h-11 cursor-pointer items-center gap-2 rounded-control border border-border bg-card px-3.5 text-[13px] font-semibold">
+            <label className="inline-flex h-11 cursor-pointer items-center gap-2 rounded-control border border-border bg-card px-4 text-sm font-semibold">
               <input
                 type="checkbox"
                 checked={showYesterday}
@@ -312,28 +312,28 @@ export function TodayCurveCard({ curves, model, theme, now = new Date() }) {
     >
       <dl className="mb-8 grid grid-cols-2 gap-x-8 gap-y-6 sm:grid-cols-4">
         <div className="border-l-2 border-border pl-4">
-          <dt className="text-[13px] text-muted-foreground">最新總負載 · {last.time}</dt>
-          <dd className="num mt-1.5 text-2xl font-bold tracking-tight">{fmt(last.loadMw)} <span className="text-xs font-semibold text-muted-foreground">{unitLabel}</span></dd>
+          <dt className="text-sm text-muted-foreground">最新總負載 · {last.time}</dt>
+          <dd className="num mt-2 text-2xl font-bold tracking-tight">{fmt(last.loadMw)} <span className="text-sm font-semibold text-muted-foreground">{unitLabel}</span></dd>
         </div>
         <div className="border-l-2 border-border pl-4">
-          <dt className="text-[13px] text-muted-foreground">今日目前最高 · {peakPoint.time}</dt>
-          <dd className="num mt-1.5 text-2xl font-bold tracking-tight">{fmt(peakPoint.loadMw)} <span className="text-xs font-semibold text-muted-foreground">{unitLabel}</span></dd>
+          <dt className="text-sm text-muted-foreground">今日目前最高 · {peakPoint.time}</dt>
+          <dd className="num mt-2 text-2xl font-bold tracking-tight">{fmt(peakPoint.loadMw)} <span className="text-sm font-semibold text-muted-foreground">{unitLabel}</span></dd>
         </div>
         <div className="border-l-2 border-border pl-4">
-          <dt className="text-[13px] text-muted-foreground">較昨日同時段</dt>
-          <dd className="num mt-1.5 text-2xl font-bold tracking-tight">
+          <dt className="text-sm text-muted-foreground">較昨日同時段</dt>
+          <dd className="num mt-2 text-2xl font-bold tracking-tight">
             {yesterdaySameTime ? `${last.loadMw >= yesterdaySameTime.loadMw ? '+' : '−'}${fmt(Math.abs(last.loadMw - yesterdaySameTime.loadMw))}` : '--'}
-            {yesterdaySameTime && <span className="text-xs font-semibold text-muted-foreground"> {unitLabel}</span>}
+            {yesterdaySameTime && <span className="text-sm font-semibold text-muted-foreground"> {unitLabel}</span>}
           </dd>
         </div>
         <div className="border-l-2 border-border pl-4">
-          <dt className="text-[13px] text-muted-foreground">預估尖峰 · {model?.supply?.forecastPeakHourRange || '--'}</dt>
-          <dd className="num mt-1.5 text-2xl font-bold tracking-tight">{fmt(model?.metrics?.forecastPeakDemandMw)} <span className="text-xs font-semibold text-muted-foreground">{unitLabel}</span></dd>
+          <dt className="text-sm text-muted-foreground">預估尖峰 · {model?.supply?.forecastPeakHourRange || '--'}</dt>
+          <dd className="num mt-2 text-2xl font-bold tracking-tight">{fmt(model?.metrics?.forecastPeakDemandMw)} <span className="text-sm font-semibold text-muted-foreground">{unitLabel}</span></dd>
         </div>
       </dl>
 
       {stale && (
-        <p className="mb-3 rounded-lg bg-muted px-3 py-2 text-xs text-muted-foreground">
+        <p className="mb-3 rounded-lg bg-muted px-4 py-2 text-base text-muted-foreground">
           曲線最後一筆是 {formatAge(ageMinutes)}，不代表目前用電。
         </p>
       )}
@@ -346,9 +346,9 @@ export function TodayCurveCard({ curves, model, theme, now = new Date() }) {
         />
       </div>
 
-      <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-[13px] text-muted-foreground" aria-label="圖例">
+      <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground" aria-label="圖例">
         {(legendKeys || [...AREA_KEYS].reverse()).map((key) => (
-          <li key={key} className="flex items-center gap-1.5">
+          <li key={key} className="flex items-center gap-2">
             <span
               className="size-2.5 rounded-sm"
               style={{ background: legendKeys ? fuelColorByKey(key) : AREA_STYLE[key].color }}
@@ -357,15 +357,15 @@ export function TodayCurveCard({ curves, model, theme, now = new Date() }) {
             {legendKeys ? fuelLabel(key) : AREA_STYLE[key].label}
           </li>
         ))}
-        <li className="flex items-center gap-1.5">
+        <li className="flex items-center gap-2">
           <span className="h-0.5 w-4 bg-foreground" aria-hidden="true" />總負載
         </li>
         {showYesterday && curves.yesterday && (
-          <li className="flex items-center gap-1.5">
+          <li className="flex items-center gap-2">
             <span className="h-0 w-4 border-t-2 border-dashed border-muted-foreground" aria-hidden="true" />昨日負載
           </li>
         )}
-        <li className="flex items-center gap-1.5">
+        <li className="flex items-center gap-2">
           <span className="h-0 w-4 border-t-2 border-dotted border-[#16a34a]" aria-hidden="true" />最大供電能力
         </li>
       </ul>

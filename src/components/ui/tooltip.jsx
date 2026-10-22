@@ -13,7 +13,7 @@ export function Tooltip({ content, children, side = 'top' }) {
           side={side}
           sideOffset={6}
           className={cn(
-            'z-50 max-w-72 rounded-lg border border-border bg-popover px-3 py-2 text-xs leading-5 text-popover-foreground shadow-lg'
+            'z-50 max-w-72 rounded-lg border border-border bg-popover px-3 py-2 text-sm leading-6 text-popover-foreground shadow-lg'
           )}
         >
           {content}
