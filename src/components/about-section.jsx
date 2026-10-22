@@ -112,8 +112,8 @@ export function AboutSection() {
         </p>
         <ul className="mt-5 divide-y divide-border text-sm">
           {DATASETS.map(([name, url, cadence]) => (
-            <li key={url} className="flex items-center justify-between gap-4 py-4">
-              <a href={url} target="_blank" rel="noreferrer" className="inline-flex min-w-0 items-center gap-1.5 font-semibold hover:text-accent hover:underline">
+            <li key={url} className="flex items-center justify-between gap-4 py-1.5">
+              <a href={url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 min-w-0 items-center gap-1.5 font-semibold hover:text-accent hover:underline">
                 <span className="truncate">{name}</span>
                 <ExternalLink className="size-3 shrink-0" aria-hidden="true" />
                 <span className="sr-only">（另開新視窗）</span>
@@ -123,10 +123,10 @@ export function AboutSection() {
           ))}
         </ul>
         <div className="mt-4 flex flex-wrap gap-2">
-          <a href="api/power-data.json" className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-xs font-semibold hover:bg-muted">
+          <a href="api/power-data.json" className="inline-flex h-9 items-center gap-1.5 rounded-lg pointer-coarse:h-11 border border-border bg-card px-3 text-xs font-semibold hover:bg-muted">
             <Download className="size-3.5" aria-hidden="true" />本站快照 JSON
           </a>
-          <a href="api/curves.json" className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-xs font-semibold hover:bg-muted">
+          <a href="api/curves.json" className="inline-flex h-9 items-center gap-1.5 rounded-lg pointer-coarse:h-11 border border-border bg-card px-3 text-xs font-semibold hover:bg-muted">
             <Download className="size-3.5" aria-hidden="true" />曲線資料 JSON
           </a>
         </div>

@@ -4,7 +4,7 @@
 
 線上版：https://livejiaquan.github.io/taiwan-power-dashboard/
 
-![首屏：資料時效細帶、台電五燈號燈號板與今日尖峰備轉容量率](docs/screenshots/after-desktop-light.jpg)
+![首屏：資料時效細帶、台電五燈號燈號板與今日尖峰備轉容量率](docs/screenshots/v2-desktop-1440-light.jpg)
 
 產品 mission、研究證據與 roadmap 見 [`docs/PRODUCT.md`](docs/PRODUCT.md)；production 的 freshness、fallback 與 validation 規則見 [`docs/DATA_TRUST_CONTRACT.md`](docs/DATA_TRUST_CONTRACT.md)。
 
@@ -29,7 +29,8 @@
 - 資料驗證、新鮮度與呈現規則是框架無關的純 JS 模組（`js/`），由 `node --test` 直接測試；React 只訂閱 `js/dashboard-controller.js` 的狀態。
 - 品質工具：ESLint 9（react-hooks、jsx-a11y）、`node --test`、Playwright e2e（四種新鮮度狀態 × 桌機／手機 × 淺色／深色）加 axe 無障礙檢測，於 `.github/workflows/ci.yml` 執行。
 - 設計與工程的調查依據見 [`docs/RESEARCH.md`](docs/RESEARCH.md)；介面改版的同類產品研究（Electricity Maps、GridStatus、EIA、NESO、でんき予報等）見 [`docs/design-research.md`](docs/design-research.md)。
-- 字體：Barlow／Barlow Semi Condensed（Google Fonts）搭配系統中文字體；冷調鋼灰與夜藍雙主題。
+- 字體：Barlow／Barlow Semi Condensed（Fontsource 自架、OFL-1.1，只載 Latin 子集）搭配系統中文字體；冷調鋼灰與夜藍雙主題。設計語言（字體、色彩、間距、動效）與對比實測見 [`docs/design-research.md`](docs/design-research.md#設計語言)；使用者研究與裝置評估見 [`docs/ux-research.md`](docs/ux-research.md)。
+- 效能：首屏以外的內容與 ECharts 分塊延後載入、背景時間切片渲染；HTML 先畫出骨架，資料快照與 JS 並行下載。
 
 ## Data Sources
 

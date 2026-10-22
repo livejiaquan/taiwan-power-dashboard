@@ -1,5 +1,5 @@
 import { ExternalLink } from 'lucide-react';
-import { lazy, Suspense, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { convertPower, formatAge, formatNumber } from '../../js/dashboard-presenter.js';
 import { AREA_KEYS, FUEL_CURVE_KEYS } from '../../js/power-curves.js';
@@ -8,9 +8,9 @@ import { fuelColorByKey, fuelLabel, fuelStyle } from '../lib/fuel.js';
 import { useUnit } from '../lib/units.jsx';
 import { cn } from '../lib/utils.js';
 import { ChartCard } from './chart-card.jsx';
+import { DeferredChart } from './deferred-chart.jsx';
 import { Segmented } from './ui/segmented.jsx';
 
-const EChart = lazy(() => import('./echart.jsx'));
 
 const AREA_STYLE = {
   north: { label: '北部', color: '#3b6fd8' },
@@ -285,7 +285,7 @@ export function TodayCurveCard({ curves, model, theme, now = new Date() }) {
             ]}
           />
           {curves.yesterday && (
-            <label className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl border border-border bg-card px-3.5 text-[13px] font-semibold">
+            <label className="inline-flex h-11 cursor-pointer items-center gap-2 rounded-control border border-border bg-card px-3.5 text-[13px] font-semibold">
               <input
                 type="checkbox"
                 checked={showYesterday}
@@ -339,13 +339,11 @@ export function TodayCurveCard({ curves, model, theme, now = new Date() }) {
       )}
 
       <div className={cn('h-[320px] sm:h-[400px]', stale && 'opacity-70 grayscale')}>
-        <Suspense fallback={<div className="h-full animate-pulse rounded-xl bg-muted" />}>
-          <EChart
-            option={option}
-            className="h-full w-full"
-            ariaLabel={`今日用電曲線，${summary}最新 ${last.time} 總負載 ${fmt(last.loadMw)} ${unitLabel}。完整數值請切換為表格檢視。`}
-          />
-        </Suspense>
+        <DeferredChart
+          option={option}
+          className="h-full w-full"
+          ariaLabel={`今日用電曲線，${summary}最新 ${last.time} 總負載 ${fmt(last.loadMw)} ${unitLabel}。完整數值請切換為表格檢視。`}
+        />
       </div>
 
       <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-[13px] text-muted-foreground" aria-label="圖例">

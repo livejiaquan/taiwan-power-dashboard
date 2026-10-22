@@ -4,11 +4,23 @@ import { defineConfig } from 'vite';
 
 import { powerApiPlugin } from './server/power-api.js';
 
+// Production only: start fetching the published snapshot in parallel with the
+// app bundle. The dev server has no static snapshot, so it is left out there.
+function preloadSnapshot() {
+  return {
+    name: 'preload-snapshot',
+    apply: 'build',
+    transformIndexHtml: () => [
+      { tag: 'link', attrs: { rel: 'preload', href: 'api/power-data.json', as: 'fetch', crossorigin: 'anonymous' }, injectTo: 'head' }
+    ]
+  };
+}
+
 export default defineConfig({
   // Relative asset URLs so the same build works under the GitHub Pages
   // project path (/taiwan-power-dashboard/) and at a custom-domain root.
   base: './',
-  plugins: [react(), tailwindcss(), powerApiPlugin()],
+  plugins: [react(), tailwindcss(), powerApiPlugin(), preloadSnapshot()],
   server: {
     host: '127.0.0.1',
     port: 4173,

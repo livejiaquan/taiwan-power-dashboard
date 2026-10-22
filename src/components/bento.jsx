@@ -60,12 +60,12 @@ export function NowPanel({ model, timeLabel }) {
     .slice(0, 2);
 
   return (
-    <section id="now" aria-labelledby="now-title" className="scroll-mt-24 rounded-[20px] bg-card ring-1 ring-border lg:col-span-12">
+    <section id="now" aria-labelledby="now-title" className="scroll-mt-24 rounded-panel bg-card ring-1 ring-border lg:col-span-12">
       <h2 id="now-title" className="flex items-center gap-1.5 px-5 pt-5 text-[14px] font-semibold text-muted-foreground sm:px-6">
         <Zap className="size-3.5" aria-hidden="true" />
         {timeLabel === '目前' ? '此刻的電網' : '快照當下的電網'}
       </h2>
-      <dl className="mt-1 grid grid-cols-2 gap-px overflow-hidden rounded-b-[20px] bg-border lg:grid-cols-4 [&>*]:bg-card">
+      <dl className="mt-1 grid grid-cols-2 gap-px overflow-hidden rounded-b-panel bg-border lg:grid-cols-4 [&>*]:bg-card">
         <NowCell label={`${timeLabel}用電`} note={`最大供電能力 ${power(capacityMw)}`}>
           <BigValue value={powerValue(metrics.currentLoadMw)} unit={unitLabel} />
         </NowCell>

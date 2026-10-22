@@ -1,12 +1,12 @@
-import { lazy, Suspense, useMemo } from 'react';
+import { useMemo } from 'react';
 
 import { convertPower, formatNumber, formatPercent } from '../../js/dashboard-presenter.js';
 import { chartTokens, FONT_FAMILY, tooltipStyle } from '../lib/chart-theme.js';
 import { readToken } from '../lib/tokens.js';
 import { useUnit } from '../lib/units.jsx';
 import { ChartCard } from './chart-card.jsx';
+import { DeferredChart } from './deferred-chart.jsx';
 
-const EChart = lazy(() => import('./echart.jsx'));
 
 const WEEKDAY = ['日', '一', '二', '三', '四', '五', '六'];
 
@@ -197,9 +197,7 @@ export function ReserveTrendCard({ curves, model, todayKey, theme }) {
       footnote="過去日期的尖峰負載由「備轉容量 ÷ 備轉容量率」推算，與台電公布值誤差在 1 MW 等級。"
     >
       <div className="h-[300px] sm:h-[340px]">
-        <Suspense fallback={<div className="h-full animate-pulse rounded-xl bg-muted" />}>
-          <EChart option={option} className="h-full w-full" ariaLabel="每日尖峰備轉容量率長條圖，完整數值請切換為表格檢視。" />
-        </Suspense>
+        <DeferredChart option={option} className="h-full w-full" ariaLabel="每日尖峰備轉容量率長條圖，完整數值請切換為表格檢視。" />
       </div>
       <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-[13px] text-muted-foreground" aria-label="圖例">
         <li className="flex items-center gap-1.5"><span className="size-2.5 rounded-sm bg-status-g" aria-hidden="true" />實績</li>
