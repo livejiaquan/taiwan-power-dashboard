@@ -1,7 +1,7 @@
 import { describeTrustState } from '../js/dashboard-presenter.js';
 import { taipeiDateKey } from '../js/power-curves.js';
 import { AboutSection } from './components/about-section.jsx';
-import { LoadTile, MixTile, RegionTile, RenewableTile, WeekTile } from './components/bento.jsx';
+import { MixTile, NowPanel, RegionTile, WeekTile } from './components/bento.jsx';
 import { ConstrainedUnits } from './components/constrained-units.jsx';
 import { FuelBreakdown } from './components/fuel-breakdown.jsx';
 import { MobileTabBar } from './components/mobile-tab-bar.jsx';
@@ -51,22 +51,21 @@ function Dashboard() {
         onToggleAutoRefresh={() => setAutoRefresh(!autoRefresh)}
       />
 
-      <main id="main-content" tabIndex={-1} className="mx-auto max-w-[1120px] px-4 pb-32 pt-4 outline-none sm:px-6 sm:pt-8 lg:pb-16">
+      <main id="main-content" tabIndex={-1} className="mx-auto max-w-[1180px] px-4 pb-32 pt-4 outline-none sm:px-6 sm:pt-8 lg:pb-16">
         {!trust ? (
           <LoadingState />
         ) : (
           <>
-            <div className="space-y-4 sm:space-y-5">
+            <div className="space-y-3 sm:space-y-4">
+              <TrustBanner trust={trust} />
               {model ? (
-                <StatusHero model={model} freshness={freshness} trust={trust} />
+                <StatusHero model={model} freshness={freshness} />
               ) : (
                 <h1 className="display px-1 pt-6 text-[32px] font-semibold sm:text-5xl">台灣現在的電夠不夠？</h1>
               )}
-              <TrustBanner trust={trust} />
               {model && (
-                <div className="grid grid-flow-dense gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
-                  <LoadTile model={model} timeLabel={timeLabel} />
-                  <RenewableTile model={model} />
+                <div className="grid gap-3 sm:gap-4 lg:grid-cols-12">
+                  <NowPanel model={model} timeLabel={timeLabel} />
                   <WeekTile curves={curves} model={model} todayKey={todayKey} />
                   <MixTile model={model} />
                   <RegionTile areas={curvesForToday?.areas} />
@@ -75,7 +74,7 @@ function Dashboard() {
             </div>
 
             {model ? (
-              <div className="mt-20 space-y-20 sm:mt-28 sm:space-y-28">
+              <div className="mt-16 space-y-16 sm:mt-24 sm:space-y-24">
                 <TodayCurveCard curves={curvesForToday} model={model} theme={theme} />
                 <ReserveTrendCard curves={curves} model={model} todayKey={todayKey} theme={theme} />
                 <FuelBreakdown model={model} theme={theme} />

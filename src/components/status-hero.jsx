@@ -1,97 +1,134 @@
-import { describeReserveStatus, formatAge, formatClockTime, formatNumber } from '../../js/dashboard-presenter.js';
-import { levelFor } from '../lib/status.js';
+import { describeReserveStatus, formatNumber } from '../../js/dashboard-presenter.js';
+import { levelFor, RESERVE_LEVELS } from '../lib/status.js';
 import { useUnit } from '../lib/units.jsx';
 import { cn } from '../lib/utils.js';
 
-// One calm gradient per official light, like the sky in iOS Weather: the whole
-// hero tells the status before any number is read. Stale snapshots turn grey.
-const GRADIENT = {
-  g: 'linear-gradient(155deg, #13804f 0%, #0d6a50 50%, #0a524b 100%)',
-  y: 'linear-gradient(155deg, #a86c00 0%, #8f5a00 55%, #6e4500 100%)',
-  o: 'linear-gradient(155deg, #c4520a 0%, #a33f07 55%, #7d3005 100%)',
-  r: 'linear-gradient(155deg, #c42a1f 0%, #a01f17 55%, #7c1912 100%)',
-  b: 'linear-gradient(155deg, #3a3a3c 0%, #1c1c1e 55%, #0a0a0b 100%)',
-  off: 'linear-gradient(155deg, #6e6e73 0%, #57575c 55%, #3f3f43 100%)'
+// Lamp colours are fixed: the housing is always dark, like a real signal head,
+// so the lamps read the same in light and dark themes.
+const LAMP = {
+  g: '#3ddc84',
+  y: '#ffd23f',
+  o: '#ff8a3d',
+  r: '#ff4f4f',
+  b: '#f1f5f9'
 };
+const SHORT = { G: '綠', Y: '黃', O: '橘', R: '紅', B: '黑' };
 
-function GlassStat({ label, value }) {
+function Lamp({ level, active, snapshot }) {
+  const color = LAMP[level.token];
+  const Icon = level.icon;
+  const lit = active && !snapshot;
   return (
-    <div className="min-w-0 rounded-2xl bg-white/12 px-4 py-3 ring-1 ring-white/15 backdrop-blur-md">
-      <dt className="text-[12px] font-bold text-white/80">{label}</dt>
-      <dd className="num mt-1 truncate text-[17px] font-bold text-white">{value}</dd>
-    </div>
+    <li className="flex min-w-0 flex-col items-center gap-2">
+      <span
+        className={cn(
+          'relative grid aspect-square w-full max-w-[64px] place-items-center rounded-full transition-[box-shadow,background] duration-500',
+          !active && 'bg-[#1a2633] ring-1 ring-inset ring-white/[0.06]'
+        )}
+        style={
+          active
+            ? {
+                background: level.token === 'b'
+                  ? 'radial-gradient(circle at 50% 40%, #2b3440, #05080c 70%)'
+                  : `radial-gradient(circle at 40% 35%, #ffffffcc 0%, ${color} 38%, ${color} 70%, color-mix(in srgb, ${color} 60%, #000) 100%)`,
+                boxShadow: lit
+                  ? `0 0 0 3px ${level.token === 'b' ? '#f1f5f9' : `color-mix(in srgb, ${color} 35%, transparent)`}, 0 0 36px 4px color-mix(in srgb, ${color} 55%, transparent)`
+                  : `0 0 0 3px ${level.token === 'b' ? '#94a3b8' : `color-mix(in srgb, ${color} 30%, transparent)`}`,
+                opacity: snapshot ? 0.55 : 1
+              }
+            : undefined
+        }
+      >
+        {active && snapshot && (
+          <span
+            className="absolute inset-0 rounded-full"
+            style={{ background: 'repeating-linear-gradient(135deg, rgb(11 19 28 / 0.55) 0 3px, transparent 3px 7px)' }}
+          />
+        )}
+        {active && (
+          <Icon
+            className={cn('relative size-[42%]', level.token === 'b' ? 'text-white' : 'text-[#0b131c]/80')}
+            strokeWidth={2.4}
+          />
+        )}
+      </span>
+      <span className={cn('text-[12px] font-semibold', active ? 'text-white' : 'text-white/45')}>{SHORT[level.code]}燈</span>
+    </li>
   );
 }
 
-// A UV-index style scale: five official levels on one bar with a marker for
-// today. The three percentage bands are drawn to scale; R/B are MW-based.
-function LevelScale({ rate, muted }) {
-  const position = Math.min(100, Math.max(0, (rate / 25) * 100));
+// The official 0–25% band rule: orange ≤ 6%, yellow < 10%, green above. Red and
+// black are judged on reserve megawatts, so they sit outside this ruler.
+function ThresholdRuler({ rate, muted }) {
+  const max = 25;
+  const at = (value) => `${(Math.min(max, Math.max(0, value)) / max) * 100}%`;
   return (
-    <div aria-hidden="true">
-      <div
-        className="relative h-[6px] rounded-full"
-        style={{
-          background: muted
-            ? 'rgb(255 255 255 / 0.35)'
-            : 'linear-gradient(90deg, #ff6b4a 0%, #ff9f0a 22%, #ffd60a 34%, #ffd60a 40%, #4cd97b 46%, #34c759 100%)'
-        }}
-      >
-        <span
-          className="absolute top-1/2 size-[14px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_0_3px_rgb(0_0_0/0.18)]"
-          style={{ left: `${position}%` }}
-        />
+    <div aria-hidden="true" className="mt-6">
+      <div className="relative flex h-2 overflow-hidden rounded-full">
+        <span style={{ width: at(6), background: LAMP.o }} />
+        <span style={{ width: `calc(${at(10)} - ${at(6)})`, background: LAMP.y }} />
+        <span className="flex-1" style={{ background: LAMP.g }} />
+        {muted && <span className="absolute inset-0 bg-[#0e1823]/55" />}
       </div>
-      <div className="num relative mt-2 h-4 text-[11px] font-semibold text-white/70">
+      <div className="relative h-5">
+        <span
+          className="absolute -top-[14px] size-4 -translate-x-1/2 rounded-full border-[3px] border-[#0e1823] bg-white"
+          style={{ left: at(rate) }}
+        />
         {[0, 6, 10, 20].map((tick) => (
-          <span key={tick} className="absolute -translate-x-1/2" style={{ left: `${(tick / 25) * 100}%` }}>{tick}%</span>
+          <span key={tick} className={cn('num absolute top-1.5 text-[12px] font-medium text-white/60', tick > 0 && '-translate-x-1/2')} style={{ left: at(tick) }}>
+            {tick}%
+          </span>
         ))}
       </div>
     </div>
   );
 }
 
-export function StatusHero({ model, freshness, trust }) {
+function Stat({ label, value }) {
+  return (
+    <div className="min-w-0 px-5 py-4 sm:px-6">
+      <dt className="text-[13px] text-muted-foreground">{label}</dt>
+      <dd className="num mt-0.5 truncate text-[22px] font-semibold leading-tight">{value}</dd>
+    </div>
+  );
+}
+
+export function StatusHero({ model, freshness }) {
   const { power } = useUnit();
   const status = describeReserveStatus(model, freshness);
   const level = levelFor(status.indicator);
   const Icon = level?.icon;
-  const gradient = status.muted ? GRADIENT.off : GRADIENT[level?.token] || GRADIENT.off;
-  const oldest = [trust.sources.supply, trust.sources.generation]
-    .filter((source) => source.observedAt)
-    .sort((a, b) => a.observedAt - b.observedAt)[0];
+  const snapshot = status.muted;
   const { metrics, supply } = model;
+  const qualifier = snapshot ? '非即時' : status.modeLabel === '延遲' ? '延遲資料' : null;
 
   return (
     <section
       id="status"
       aria-labelledby="hero-title"
-      className="relative scroll-mt-24 overflow-hidden rounded-[32px] text-white shadow-[0_20px_60px_-24px_rgb(0_0_0/0.45)] sm:rounded-[36px]"
-      style={{ background: gradient }}
+      className="scroll-mt-24 overflow-hidden rounded-[28px] bg-card ring-1 ring-border"
     >
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{ background: 'radial-gradient(120% 90% at 90% -10%, rgb(255 255 255 / 0.16), transparent 55%), radial-gradient(80% 60% at -10% 110%, rgb(0 0 0 / 0.25), transparent 60%)' }}
-        aria-hidden="true"
-      />
-      <div className="relative flex flex-wrap items-center justify-between gap-3 px-6 pt-6 sm:px-10 sm:pt-9">
-        <div className="contents">
-          <h1 id="hero-title" className="text-[15px] font-bold text-white/90 sm:text-[17px]">台灣現在的電夠不夠？</h1>
-          {oldest && (
-            <span className="num inline-flex items-center gap-1.5 rounded-full bg-black/15 px-3 py-1 text-[12px] font-semibold text-white/90 ring-1 ring-white/15 backdrop-blur">
-              <span className={cn('size-1.5 rounded-full', trust.tone === 'success' ? 'bg-[#4cd97b]' : 'bg-[#ffd60a]')} aria-hidden="true" />
-              {formatClockTime(oldest.observedAt)} · {formatAge(oldest.ageMinutes)}
-            </span>
-          )}
-        </div>
-      </div>
-      <div className="relative grid gap-10 px-6 pb-6 pt-2 sm:px-10 sm:pb-10 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-16">
-        <div className="min-w-0">
-          <p className="mt-6 text-[15px] font-bold text-white/80 sm:mt-8">{status.contextLabel}</p>
-          <div className="mt-1 flex items-center gap-2 text-2xl font-bold sm:text-[28px]">
-            {Icon && <Icon className="size-6 sm:size-7" aria-hidden="true" />}
+      <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)]">
+        <div className="min-w-0 px-6 pb-7 pt-6 sm:px-9 sm:pb-9 sm:pt-8">
+          <h1 id="hero-title" className="text-[15px] font-semibold text-muted-foreground">台灣現在的電夠不夠？</h1>
+          <p className="mt-6 flex flex-wrap items-center gap-2 text-[14px] text-muted-foreground sm:mt-8">
+            {qualifier && (
+              <span className="rounded-md bg-foreground px-1.5 py-0.5 text-[12px] font-semibold text-background">{qualifier}</span>
+            )}
+            {status.contextLabel}
+          </p>
+          <p className="mt-1.5 flex items-center gap-2.5 text-[24px] font-bold sm:text-[28px]">
+            {Icon && (
+              <span
+                className="grid size-8 shrink-0 place-items-center rounded-full"
+                style={{ background: `var(--status-${snapshot ? 'off' : level.token}-bg)`, color: `var(--status-${snapshot ? 'off' : level.token}-on)` }}
+              >
+                <Icon className="size-[18px]" aria-hidden="true" strokeWidth={2.4} />
+              </span>
+            )}
             <span>{level ? `${level.name} · ${model.health.labelZh}` : model.health.labelZh}</span>
-          </div>
+          </p>
 
           <div
             role="meter"
@@ -100,26 +137,40 @@ export function StatusHero({ model, freshness, trust }) {
             aria-valuemax={Math.max(30, Math.ceil(metrics.forecastReserveRatePercent))}
             aria-valuenow={Math.max(0, metrics.forecastReserveRatePercent)}
             aria-valuetext={status.ariaValueText}
-            className="num display mt-2 text-[96px] font-bold leading-[0.95] sm:text-[136px]"
+            className="num mt-3 text-[104px] font-semibold leading-[0.9] tracking-[-0.02em] sm:text-[148px]"
           >
             {status.rateText}
           </div>
-          <p className="mt-3 max-w-md text-pretty text-[15px] font-bold leading-6 text-white/90">
+          <p className="mt-4 max-w-md text-pretty text-[16px] leading-7">
             今日尖峰預估備轉容量率，{status.summary}。
-            {status.modeLabel !== '來源已確認' && <span className="ml-1 rounded-full bg-black/20 px-2 py-0.5 text-[12px]">{status.modeLabel}</span>}
           </p>
         </div>
 
-        <div className="flex flex-col justify-end gap-6">
-          <LevelScale rate={metrics.forecastReserveRatePercent} muted={status.muted} />
-          <dl className="grid grid-cols-2 gap-2.5">
-            <GlassStat label="備轉容量" value={power(metrics.forecastReserveCapacityMw)} />
-            <GlassStat label="預估尖峰負載" value={power(metrics.forecastPeakDemandMw)} />
-            <GlassStat label="尖峰時段" value={supply.forecastPeakHourRange || '--'} />
-            <GlassStat label="昨日尖峰備轉" value={`${formatNumber(supply.yesterdayReserveRatePercent, 2)}%`} />
-          </dl>
+        <div className="flex flex-col justify-center bg-[#0e1823] px-6 dark:bg-[#08101a] dark:ring-1 dark:ring-inset dark:ring-white/[0.05] py-7 text-white sm:px-9 sm:py-9">
+          <div
+            role="img"
+            aria-label={`台電官方五級燈號，${snapshot ? '最後快照時為' : '目前為'}${level ? level.name : '未知'}`}
+          >
+            <p className="text-[13px] font-medium text-white/65">台電供電燈號{snapshot && '（最後快照）'}</p>
+            <ol className="mt-4 grid grid-cols-5 gap-3 rounded-[22px] bg-[#09111a] p-3.5 ring-1 ring-white/[0.06] sm:gap-4 sm:p-4">
+              {RESERVE_LEVELS.map((item) => (
+                <Lamp key={item.code} level={item} active={item.code === level?.code} snapshot={snapshot} />
+              ))}
+            </ol>
+          </div>
+          <ThresholdRuler rate={metrics.forecastReserveRatePercent} muted={snapshot} />
+          <p className="mt-1 text-pretty text-[12px] leading-5 text-white/60">
+            黃燈以下以百分比判定；紅、黑燈改看備轉容量是否降至 90 萬瓩、50 萬瓩以下。
+          </p>
         </div>
       </div>
+
+      <dl className="grid grid-cols-2 gap-px border-t border-border bg-border sm:grid-cols-4 [&>*]:bg-card">
+        <Stat label="備轉容量" value={power(metrics.forecastReserveCapacityMw)} />
+        <Stat label="預估尖峰負載" value={power(metrics.forecastPeakDemandMw)} />
+        <Stat label="尖峰時段" value={supply.forecastPeakHourRange || '--'} />
+        <Stat label="昨日尖峰備轉" value={`${formatNumber(supply.yesterdayReserveRatePercent, 2)}%`} />
+      </dl>
     </section>
   );
 }
