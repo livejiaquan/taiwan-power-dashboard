@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { formatPercent } from '../../js/dashboard-presenter.js';
 import { fuelColor, sortByFuelOrder } from '../lib/fuel.js';
@@ -6,10 +6,10 @@ import { cn } from '../lib/utils.js';
 import { readToken } from '../lib/tokens.js';
 import { useUnit } from '../lib/units.jsx';
 import { ChartCard } from './chart-card.jsx';
+import { DeferredChart } from './deferred-chart.jsx';
 import { Segmented } from './ui/segmented.jsx';
 
 // ECharts is the heaviest dependency; load it after the status cards render.
-const EChart = lazy(() => import('./echart.jsx'));
 
 function capacityFactor(category) {
   if (!Number.isFinite(category.capacityMw) || category.capacityMw <= 0) return null;
@@ -140,13 +140,12 @@ export function FuelBreakdown({ model, theme }) {
     >
       <div className="grid gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-12">
         <div className="relative h-[260px] self-center sm:h-[300px]">
-          <Suspense fallback={<div className="mx-auto aspect-square h-full animate-pulse rounded-full bg-muted" />}>
-            <EChart
-              option={option}
-              className="h-full w-full"
-              ariaLabel={view === 'share' ? '燃料別輸出占比圓環圖' : '燃料別容量使用率長條圖'}
-            />
-          </Suspense>
+          <DeferredChart
+            placeholderClassName="mx-auto aspect-square rounded-full"
+            option={option}
+            className="h-full w-full"
+            ariaLabel={view === 'share' ? '燃料別輸出占比圓環圖' : '燃料別容量使用率長條圖'}
+          />
           {view === 'share' && (
             <div className="pointer-events-none absolute inset-0 grid place-items-center text-center">
               <div>

@@ -23,7 +23,8 @@ function Lamp({ level, active, snapshot }) {
       <span
         className={cn(
           'relative grid aspect-square w-full max-w-[64px] place-items-center rounded-full transition-[box-shadow,background] duration-500',
-          !active && 'bg-[#1a2633] ring-1 ring-inset ring-white/[0.06]'
+          !active && 'bg-[#1a2633] ring-1 ring-inset ring-white/[0.06]',
+          lit && 'animate-lamp-on'
         )}
         style={
           active
@@ -107,12 +108,12 @@ export function StatusHero({ model, freshness }) {
     <section
       id="status"
       aria-labelledby="hero-title"
-      className="scroll-mt-24 overflow-hidden rounded-[28px] bg-card ring-1 ring-border"
+      className="scroll-mt-24 overflow-hidden rounded-hero bg-card ring-1 ring-border"
     >
       <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)]">
-        <div className="min-w-0 px-6 pb-7 pt-6 sm:px-9 sm:pb-9 sm:pt-8">
+        <div className="min-w-0 px-6 pb-7 pt-5 sm:px-9 sm:pb-9 sm:pt-8">
           <h1 id="hero-title" className="text-[15px] font-semibold text-muted-foreground">台灣現在的電夠不夠？</h1>
-          <p className="mt-6 flex flex-wrap items-center gap-2 text-[14px] text-muted-foreground sm:mt-8">
+          <p className="mt-4 flex flex-wrap items-center gap-2 text-[14px] text-muted-foreground sm:mt-8">
             {qualifier && (
               <span className="rounded-md bg-foreground px-1.5 py-0.5 text-[12px] font-semibold text-background">{qualifier}</span>
             )}

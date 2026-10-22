@@ -12,9 +12,6 @@
     <meta property="og:title" content="台灣電力即時看板" />
     <meta property="og:description" content="台電官方資料：今日供電燈號、備轉容量率、發電結構與機組輸出。" />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f172a'/%3E%3Cpath d='M36 8 16 36h14l-3 20 21-30H34z' fill='%23facc15'/%3E%3C/svg%3E" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap" rel="stylesheet" />
     <script>
       try {
         const saved = localStorage.getItem('tpd-theme');
@@ -23,7 +20,28 @@
     </script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- First paint before the app bundle runs; React replaces it with the
+           same header height and skeleton blocks. -->
+      <div class="min-h-screen">
+        <div class="sticky top-0 z-40 border-b border-border bg-background">
+          <div class="mx-auto flex h-14 max-w-[1180px] items-center gap-2 px-3 sm:px-6">
+            <span class="grid size-7 place-items-center rounded-[9px] bg-foreground" aria-hidden="true">
+              <svg viewBox="0 0 24 24" class="size-3.5" fill="#ffd60a"><path d="M13 2 3 14h9l-1 8 10-12h-9z" /></svg>
+            </span>
+            <span class="text-[15px] font-bold">台灣電力</span>
+          </div>
+        </div>
+        <main class="mx-auto max-w-[1180px] px-4 pt-4 sm:px-6 sm:pt-8">
+          <div class="space-y-3 sm:space-y-4" aria-busy="true">
+            <div class="h-[60px] rounded-panel bg-muted"></div>
+            <div class="h-[820px] rounded-hero bg-muted sm:h-[760px] lg:h-[440px]"></div>
+            <div class="h-[268px] rounded-panel bg-muted lg:h-[180px]"></div>
+            <p class="sr-only">正在載入台電資料…</p>
+          </div>
+        </main>
+      </div>
+    </div>
     <noscript>此看板需要啟用 JavaScript 才能讀取台電官方資料。</noscript>
     <script type="module" src="/src/main.jsx"></script>
   </body>

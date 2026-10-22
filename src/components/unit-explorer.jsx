@@ -26,7 +26,7 @@ function FilterChip({ active, onClick, color, children }) {
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        'inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-[13px] font-semibold transition',
+        'inline-flex h-9 shrink-0 items-center pointer-coarse:h-11 gap-1.5 rounded-full border px-3.5 text-[13px] font-semibold transition',
         active ? 'border-foreground bg-foreground text-background' : 'border-border bg-card text-muted-foreground hover:text-foreground'
       )}
     >
@@ -76,7 +76,7 @@ export function UnitExplorer({ model }) {
               value={query}
               onChange={(event) => { setQuery(event.target.value); setExpanded(false); }}
               placeholder="搜尋機組名稱，例如 大潭、台中"
-              className="h-11 w-full rounded-xl border border-border bg-card pl-10 pr-3 text-sm placeholder:text-subtle-foreground focus:outline-2 focus:outline-ring"
+              className="h-11 w-full rounded-control border border-border bg-card pl-10 pr-3 text-sm placeholder:text-subtle-foreground focus:outline-2 focus:outline-ring"
             />
           </label>
           <div className="flex items-center gap-2 lg:ml-auto">
@@ -86,7 +86,7 @@ export function UnitExplorer({ model }) {
               id="unit-sort"
               value={sort}
               onChange={(event) => setSort(event.target.value)}
-              className="h-11 rounded-xl border border-border bg-card px-3 text-sm"
+              className="h-11 rounded-control border border-border bg-card px-3 text-sm"
             >
               {Object.entries(SORTS).map(([key, value]) => <option key={key} value={key}>{value.label}</option>)}
             </select>
@@ -206,7 +206,7 @@ export function UnitExplorer({ model }) {
             <button
               type="button"
               onClick={() => setExpanded((value) => !value)}
-              className="h-10 rounded-xl border border-border bg-card px-4 text-sm font-semibold text-foreground hover:bg-muted"
+              className="h-11 rounded-control border border-border bg-card px-4 text-sm font-semibold text-foreground hover:bg-muted"
             >
               {expanded ? '收合' : `顯示全部 ${filtered.length} 筆`}
             </button>

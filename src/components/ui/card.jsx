@@ -3,7 +3,7 @@ import { cn } from '../../lib/utils.js';
 export function Card({ className, ...props }) {
   return (
     <section
-      className={cn('rounded-[20px] bg-card text-card-foreground ring-1 ring-border', className)}
+      className={cn('rounded-panel bg-card text-card-foreground ring-1 ring-border', className)}
       {...props}
     />
   );

@@ -122,6 +122,27 @@
   --shadow-card: 0 0 0 1px rgb(255 255 255 / 0.02);
 }
 
+/* Design language (see docs/design-research.md#設計語言). Three radii encode
+   hierarchy: the hero is the only 28px surface, panels are 20px, controls
+   12px. One easing curve for every state change. */
+@theme {
+  --radius-hero: 28px;
+  --radius-panel: 20px;
+  --radius-control: 12px;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --default-transition-duration: 160ms;
+  --default-transition-timing-function: var(--ease-standard);
+  /* The page's one orchestrated motion: the answering lamp powers on. */
+  --animate-lamp-on: lamp-on 900ms var(--ease-standard) 150ms both;
+
+  @keyframes lamp-on {
+    from {
+      box-shadow: none;
+      filter: brightness(0.35) saturate(0.4);
+    }
+  }
+}
+
 @theme inline {
   --font-sans: 'Barlow', 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', system-ui, sans-serif;
   --font-display: 'Barlow Semi Condensed', 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', system-ui, sans-serif;
