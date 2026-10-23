@@ -70,7 +70,7 @@ function getTrustHealthMessage(result) {
 
   return state === 'live'
     ? `官方燈號：${indicator} · ${health.labelZh}。`
-    : `最後成功快照的官方燈號：${indicator} · ${health.labelZh}。`;
+    : `最後更新時的官方燈號：${indicator} · ${health.labelZh}。`;
 }
 
 const REFRESH_MESSAGES = {
@@ -89,24 +89,31 @@ export function describeTrustState(result) {
     ? state === 'live' ? metadataReason : '本次更新未取得較新資料。'
     : null;
 
+  const age = formatDataAge(freshness.ageMinutes);
   const stateCopy = {
     live: {
       tone: metadataReason ? 'warning' : 'success',
-      title: metadataReason ? '目前使用最後成功資料' : '官方資料已確認',
-      message: `兩份台電來源均在 20 分鐘內；較舊一份為 ${freshness.ageMinutes} 分鐘前。`,
-      badge: metadataReason ? '最後成功資料' : '最新資料'
+      title: metadataReason ? '顯示最後成功資料' : '資料即時',
+      message: `兩份台電來源中較舊的一份為 ${age}。`,
+      badge: '即時'
     },
     delayed: {
       tone: 'warning',
-      title: `資料延遲 ${freshness.ageMinutes} 分鐘`,
-      message: '以下為最後成功資料，不能視為此刻的供電狀態。頁面會持續重新檢查。',
-      badge: '延遲資料'
+      title: `資料稍舊 · ${age}`,
+      message: `兩份台電來源中較舊的一份為 ${age}。${UPDATE_CADENCE}`,
+      badge: '稍舊'
     },
     stale: {
-      tone: 'stale',
-      title: `非即時快照 · ${freshness.ageMinutes} 分鐘前`,
-      message: '資料已超過 60 分鐘；下方數字只代表最後成功快照，不代表目前供電。',
-      badge: '非即時快照'
+      tone: 'warning',
+      title: `資料過舊 · ${age}`,
+      message: `兩份台電來源中較舊的一份為 ${age}。${UPDATE_CADENCE}`,
+      badge: '過舊'
+    },
+    expired: {
+      tone: 'warning',
+      title: `超過 24 小時的資料 · ${age}`,
+      message: `以下是 ${age}的最後成功資料。${UPDATE_CADENCE}`,
+      badge: '超過 24 小時'
     },
     unavailable: {
       tone: 'error',
@@ -153,29 +160,22 @@ export function describeTrustState(result) {
 
 // Headline wording for the reserve status, qualified by freshness so a delayed
 // or stale snapshot can never read like a statement about right now.
+// Headline wording for the reserve status. Live and slightly old data keep the
+// official light's colour; data over six hours old turns neutral and is
+// described as the light at the last update, so it never reads as "now".
 export function describeReserveStatus(model, freshness) {
   const { health, reserveGuide, supply } = model;
   const state = freshness?.state;
-  const isStale = state === 'stale';
-  const isDelayed = state === 'delayed';
+  const isOld = state === 'stale' || state === 'expired';
   const indicator = supply.forecastReserveIndicator;
 
   return {
     indicator,
     level: health.level,
-    color: isStale ? '#64748b' : health.color,
-    muted: isStale,
-    headline: isStale
-      ? `最後快照：${health.labelZh}`
-      : isDelayed
-        ? `延遲資料：${health.labelZh}`
-        : health.labelZh,
-    contextLabel: isStale
-      ? '最後快照中的台電供電燈號'
-      : isDelayed
-        ? '延遲資料中的台電供電燈號'
-        : '台電今日供電燈號',
-    modeLabel: isStale ? '非即時' : isDelayed ? '延遲' : '來源已確認',
+    color: isOld ? '#64748b' : health.color,
+    muted: isOld,
+    headline: isOld ? `最後更新時：${health.labelZh}` : health.labelZh,
+    contextLabel: isOld ? '最後更新時的台電供電燈號' : '台電今日供電燈號',
     rateText: formatPercent(reserveGuide.displayRatePercent, reserveGuide.displayPrecision),
     marginText: formatPercentagePoints(
       reserveGuide.displayDistanceFromStableLinePercent,
@@ -183,10 +183,53 @@ export function describeReserveStatus(model, freshness) {
     ),
     summary: reserveGuide.summary,
     criterion: reserveGuide.description,
-    ariaValueText: `${isStale ? '最後快照，非即時，' : isDelayed ? '延遲資料，' : ''}${
+    ariaValueText: `${isOld ? '最後更新時，' : ''}${
       formatPercent(reserveGuide.displayRatePercent, reserveGuide.displayPrecision)
     }，官方 ${indicator} 燈，${health.labelZh}`
   };
+}
+
+// One label for both feeds, keyed to the older one: 「資料時間 HH:MM · N 小時前」.
+// Only 過舊 and older add a sentence and the official link; nothing here is
+// worded as broken, because the numbers are still the last official ones.
+export function describeDataTime(freshness) {
+  const state = freshness?.state;
+  const at = freshness?.oldestObservedAt;
+  if (!at || state === 'unavailable' || !DATA_TIME_TIERS[state]) return null;
+  const tier = DATA_TIME_TIERS[state];
+  const clock = state === 'expired' ? formatShortDateTime(at) : formatClockTime(at);
+  return {
+    tier: state,
+    tierLabel: tier.label,
+    tone: tier.tone,
+    label: `資料時間 ${clock} · ${formatDataAge(freshness.ageMinutes)}`,
+    note: tier.note ? tier.note(formatClockTime(at)) : null,
+    showOfficialLink: Boolean(tier.note)
+  };
+}
+
+const UPDATE_CADENCE = '本站每 3–4 小時更新一次，最新數據請見台電官網。';
+
+const DATA_TIME_TIERS = {
+  live: { label: '即時', tone: 'live' },
+  delayed: { label: '稍舊', tone: 'amber' },
+  stale: { label: '過舊', tone: 'amber', note: (clock) => `GitHub 排程延遲，最後成功更新 ${clock}。${UPDATE_CADENCE}` },
+  expired: { label: '超過 24 小時', tone: 'amber', note: () => `這是 24 小時前的資料。${UPDATE_CADENCE}` }
+};
+
+function formatShortDateTime(date) {
+  const taipei = new Date(date.getTime() + 8 * 60 * 60 * 1000);
+  return `${taipei.getUTCMonth() + 1}/${taipei.getUTCDate()} ${formatClockTime(date)}`;
+}
+
+// Relative age in the unit a reader would say aloud: minutes under an hour,
+// whole hours under two days, then days.
+export function formatDataAge(minutes) {
+  if (!Number.isFinite(minutes)) return '--';
+  if (minutes < 1) return '剛剛';
+  if (minutes < 60) return `${minutes} 分鐘前`;
+  if (minutes < 48 * 60) return `${Math.floor(minutes / 60)} 小時前`;
+  return `${Math.floor(minutes / (24 * 60))} 天前`;
 }
 
 function getFeedTimes(result) {

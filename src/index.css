@@ -40,7 +40,7 @@
   --status-off-bg: #64748b;
   --status-off-on: #ffffff;
   --status-g-text: #15803d;
-  --status-y-text: #a16207;
+  --status-y-text: #854d0e;
   --status-o-text: #c2410c;
   --status-r-text: #b91c1c;
   --status-b-text: #13202c;
@@ -206,6 +206,7 @@
   --color-status-b: var(--status-b);
   --color-status-off: var(--status-off);
   --color-status-g-text: var(--status-g-text);
+  --color-status-y-text: var(--status-y-text);
   --shadow-card: var(--shadow-card);
 }
 
