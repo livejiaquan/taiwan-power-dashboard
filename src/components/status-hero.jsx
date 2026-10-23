@@ -28,7 +28,7 @@ function LampTile({ level, snapshot }) {
         className="grid size-[76px] place-items-center rounded-panel"
         style={{ background: `var(--status-${key}-bg)`, color: `var(--status-${key}-on)` }}
       >
-        {Icon && <Icon className="size-8" strokeWidth={2.2} aria-hidden="true" />}
+        {Icon && <Icon className="size-6" aria-hidden="true" />}
       </span>
       <span className="text-sm font-semibold text-muted-foreground">{level ? level.name : '燈號'}</span>
     </div>

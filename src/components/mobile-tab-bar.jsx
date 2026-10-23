@@ -1,10 +1,10 @@
-import { Activity, BarChart3, Cpu, Info } from 'lucide-react';
+import { BarChart3, BookOpen, Cpu, Gauge } from 'lucide-react';
 
 const TABS = [
-  ['#status', '狀態', Activity],
+  ['#status', '狀態', Gauge],
   ['#trend', '趨勢', BarChart3],
   ['#units', '機組', Cpu],
-  ['#about', '說明', Info]
+  ['#about', '說明', BookOpen]
 ];
 
 // Flat bottom bar for phones, in the reference's fixed bottom-strip slot:
@@ -20,7 +20,7 @@ export function MobileTabBar() {
         {TABS.map(([href, label, Icon]) => (
           <li key={href}>
             <a href={href} className="flex min-w-14 flex-col items-center gap-1 px-3 py-2 text-xs font-medium text-muted-foreground transition hover:text-foreground">
-              <Icon className="size-[18px]" aria-hidden="true" />
+              <Icon className="size-6" aria-hidden="true" />
               {label}
             </a>
           </li>

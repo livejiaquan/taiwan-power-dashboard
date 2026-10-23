@@ -33,7 +33,7 @@ function Note({ text }) {
           className="inline-flex items-center gap-1 font-semibold text-foreground underline underline-offset-4 hover:text-accent"
         >
           {OFFICIAL}
-          <ExternalLink className="size-3.5" aria-hidden="true" />
+          <ExternalLink className="size-4" aria-hidden="true" />
           <span className="sr-only">（另開新視窗）</span>
         </a>
       )}
@@ -78,7 +78,7 @@ export function DataTime({ freshness, trust }) {
           className="inline-flex h-11 items-center gap-1 text-sm font-semibold text-muted-foreground hover:text-foreground"
         >
           資料說明
-          <ChevronDown className={cn('size-4 transition', open && 'rotate-180')} aria-hidden="true" />
+          <ChevronDown className={cn('size-5 transition', open && 'rotate-180')} aria-hidden="true" />
         </button>
       </div>
 

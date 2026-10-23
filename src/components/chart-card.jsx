@@ -45,13 +45,13 @@ export function ChartCard({
                   value="chart"
                   className="inline-flex h-8 items-center gap-2 rounded-full px-3 text-sm font-medium text-muted-foreground pointer-coarse:h-11 data-[state=active]:bg-muted data-[state=active]:text-foreground"
                 >
-                  <BarChart3 className="size-3.5" aria-hidden="true" />圖表
+                  <BarChart3 className="size-5" aria-hidden="true" />圖表
                 </TabsPrimitive.Trigger>
                 <TabsPrimitive.Trigger
                   value="table"
                   className="inline-flex h-8 items-center gap-2 rounded-full px-3 text-sm font-medium text-muted-foreground pointer-coarse:h-11 data-[state=active]:bg-muted data-[state=active]:text-foreground"
                 >
-                  <Table2 className="size-3.5" aria-hidden="true" />表格
+                  <Table2 className="size-5" aria-hidden="true" />表格
                 </TabsPrimitive.Trigger>
               </TabsPrimitive.List>
             )}
@@ -61,7 +61,7 @@ export function ChartCard({
                 onClick={() => downloadCsv(csv.filename, csv.header, csv.rows)}
                 className="inline-flex h-10 items-center gap-2 rounded-full border border-border bg-panel px-4 text-sm font-medium hover:bg-muted pointer-coarse:h-11"
               >
-                <Download className="size-3.5" aria-hidden="true" />
+                <Download className="size-5" aria-hidden="true" />
                 CSV<span className="sr-only">下載{title}資料</span>
               </button>
             )}
