@@ -16,9 +16,8 @@ function Card({ className, children, ...props }) {
   );
 }
 
-// The reference's three-tile row: one solid colour square for the headline
-// state, then two ring gauges. Ours: the official light, utilisation and the
-// renewable share.
+// Three tiles in a row: the official light as a solid colour square, then
+// utilisation and renewable share as ring gauges.
 function LampTile({ level, snapshot }) {
   const Icon = level?.icon;
   const key = snapshot || !level ? 'off' : level.token;
@@ -40,7 +39,7 @@ function RingTile({ value, label, color }) {
   const stroke = 8;
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
-  const sweep = 0.75; // open at the bottom, like the reference's gauges
+  const sweep = 0.75; // open at the bottom
   const fraction = Math.max(0, Math.min(1, value / 100));
   return (
     <div className="flex flex-col items-center gap-2">
@@ -56,8 +55,7 @@ function RingTile({ value, label, color }) {
   );
 }
 
-// The reference's source list: colour square, label, then a bar on a shared
-// scale with its value. Ours lists the fuels Taipower reports right now.
+// Fuel list: colour square, label, then a bar on a shared scale with its value.
 function MixList({ model }) {
   const { power, powerValue, unitLabel } = useUnit();
   const categories = getPositiveCategories(model)
@@ -102,10 +100,9 @@ function Stat({ label, value }) {
   );
 }
 
-// The first screen copies the reference's floating panel: stacked cards with
-// hairline borders and 16px corners. The answer stays the focal point; the
-// official light and two gauges sit in the reference's tile row, and the
-// lamp scale is the panel's legend card.
+// The status panel: stacked cards with hairline borders and 16px corners. The
+// reserve rate is the focal point; the official light and two gauges sit in a
+// tile row, and the lamp scale is the panel's legend card.
 export function StatusHero({ model, freshness, trust, timeLabel }) {
   const { power } = useUnit();
   const status = describeReserveStatus(model, freshness);

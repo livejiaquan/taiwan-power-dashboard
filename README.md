@@ -1,39 +1,32 @@
 # 台灣電力即時看板
 
-以台電官方開放資料呈現台灣供電狀態、資料新鮮度與發電結構的公共看板。
+用台電的官方開放資料，讓一般人快速看懂台灣現在的供電狀況：今天的供電燈號、備轉容量率、發電結構與每一部機組的輸出，並且清楚標示資料的時間。
 
-線上版：https://livejiaquan.github.io/taiwan-power-dashboard/
+**線上版：https://livejiaquan.github.io/taiwan-power-dashboard/**
 
-![首屏：資料時間標示、台電五燈號燈號板與今日尖峰備轉容量率](docs/screenshots/v3-live-1440-light.jpg)
+![桌機版：資料時間、供電燈號與備轉容量率趨勢](docs/screenshots/desktop.jpg)
 
-產品 mission、研究證據與 roadmap 見 [`docs/PRODUCT.md`](docs/PRODUCT.md)；production 的 freshness、fallback 與 validation 規則見 [`docs/DATA_TRUST_CONTRACT.md`](docs/DATA_TRUST_CONTRACT.md)。
+<img src="docs/screenshots/mobile.jpg" alt="手機版首屏" width="260">
 
-## Features
+## 功能
 
-- 首屏先回答「現在電夠不夠」：仿實體號誌的台電五燈號燈號板（燈位＋顏色＋形狀＋文字）、尖峰預估備轉容量率、0–25% 門檻尺。
-- 「用電負載 ÷ 最大供電能力 ＝ 使用率」等式、燃料別 100% 堆疊條、北中南東各區用電。
-- 今日用電曲線：台電 10 分鐘燃料別（或區域別）堆疊面積圖，疊加昨日負載、預估尖峰負載、最大供電能力與預估尖峰時段，未來時段淡化。
-- 備轉容量率趨勢：近 10 日實績、今日預估與台電未來一週預測（斜線紋理標示預測）。
-- 發電結構圓環圖／容量使用率、可搜尋篩選的 202 筆機組查詢、檢修與運轉限制清單。
-- 每張圖都有一句白話說明、資料時間、表格檢視與 CSV 下載；單位可切換萬瓩／MW。
-- 名詞與資料說明（備轉容量率、燈號、資料延遲、單位換算、驗證方法）與資料來源下載區。
-- 資料時間標示在主焦點旁：即時（≤ 90 分鐘）、稍舊（≤ 6 小時，琥珀色）、過舊（≤ 24 小時，加說明與台電官網連結）、超過 24 小時（仍顯示最後一筆並標明）。年齡由瀏覽器依官方來源時間計算，每 15 秒重算；可暫停自動更新（WCAG 2.2.2）。
-- 淺色／深色模式、手機單欄、鍵盤操作、`prefers-reduced-motion`；axe 檢測 WCAG 2.1 AA 0 違規（自動化測試把關）。
-- Fail-closed：核心快照驗證失敗不發布；今日曲線等補充資料逐區塊獨立失敗，不影響核心數字，也不以示範資料代替。
+- **一眼看懂**：台電官方五色燈號（綠、黃、橘、紅、黑）、今日尖峰預估備轉容量率與 0–25% 門檻尺，狀態同時用顏色、圖示與文字表示。
+- **資料時間在數字旁邊**：即時、稍舊、過舊、超過 24 小時四段，由瀏覽器依台電資料本身的時間計算。過期時仍保留最後一筆資料。
+- **圖表**：今日 10 分鐘用電曲線（燃料別或區域別，疊加昨日、預估尖峰與最大供電能力）；近 10 日實績加未來一週的備轉容量率預測；發電結構。
+- **機組**：202 筆機組可搜尋、依燃料別篩選，另有檢修與運轉限制清單。
+- **資料可取用**：每張圖都有白話說明、表格檢視與 CSV 下載；單位可切換萬瓩／MW。
+- **無障礙與可用性**：深色（預設）與淺色、手機版面、鍵盤操作、`prefers-reduced-motion`；自動化的 axe 檢測 WCAG 2.1 AA 無違規。
+- **資料不可信就不顯示**：核心資料驗證失敗時不發布；曲線等補充資料各自獨立失敗，不影響核心數字，也不用示範資料代替。
 
-## Tech Stack
+## 技術
 
-- Vite + React 19 + Tailwind CSS v4，shadcn/ui 風格元件（Radix Tooltip/Tabs/Accordion、lucide-react 圖示）。
-- ECharts（按需註冊、延遲載入、SVG renderer）。燃料配色參考 Electricity Maps、Open Electricity 與 grid.iamkate.com 慣例；圖表呈現參考 CAISO Today's Outlook、東京電力でんき予報與英國 NESO。
-- 資料驗證、新鮮度與呈現規則是框架無關的純 JS 模組（`js/`），由 `node --test` 直接測試；React 只訂閱 `js/dashboard-controller.js` 的狀態。
-- 品質工具：ESLint 9（react-hooks、jsx-a11y）、`node --test`、Playwright e2e（四種新鮮度狀態 × 桌機／手機 × 淺色／深色）加 axe 無障礙檢測，於 `.github/workflows/ci.yml` 執行。
-- 設計與工程的調查依據見 [`docs/RESEARCH.md`](docs/RESEARCH.md)；介面改版的同類產品研究（Electricity Maps、GridStatus、EIA、NESO、でんき予報等）見 [`docs/design-research.md`](docs/design-research.md)。
-- 版面照 Electricity Maps 台灣分區頁的比例重做：左側 208px 導覽、458px 卡片面板加大畫布、16px 圓角卡片、Inter 字體、預設深色（可切淺色）。參考截圖、量測 token 與並排比較見 [`docs/references/`](docs/references/tokens.md)；Electricity Maps 為 AGPL，只參考版面，未取用程式碼或圖示。
-- 效能：首屏以外的內容與 ECharts 分塊延後載入、背景時間切片渲染；HTML 先畫出骨架，資料快照與 JS 並行下載。
+Vite、React 19、Tailwind CSS v4、Radix UI、Apache ECharts，圖示用 Lucide，字體是 Inter。
 
-## Data Sources
+資料的驗證、新鮮度計算與呈現文字都放在不依賴框架的 `js/` 模組，直接用 `node --test` 測試；React 只負責顯示。規則見 [`docs/DATA_TRUST_CONTRACT.md`](docs/DATA_TRUST_CONTRACT.md)，設計取捨見 [`docs/design-notes.md`](docs/design-notes.md)。
 
-| Dataset | Source |
+## 資料來源
+
+| 資料 | 來源 |
 | --- | --- |
 | 今日電力資訊 | `https://service.taipower.com.tw/data/opendata/apply/file/d006020/001.json` |
 | 各機組發電量即時資訊 | `https://service.taipower.com.tw/data/opendata/apply/file/d006001/001.json` |
@@ -42,81 +35,59 @@
 | 本年度每日尖峰備轉容量率 | `https://service.taipower.com.tw/data/opendata/apply/file/d006002/001.csv` |
 | 未來一週電力供需預測 | `https://service.taipower.com.tw/data/opendata/apply/file/d006007/001.csv` |
 
-Government dataset pages:
+資料集頁面：[今日電力資訊](https://data.gov.tw/dataset/162595)、[各機組發電量](https://data.gov.tw/dataset/8931)。
 
-- https://data.gov.tw/dataset/162595
-- https://data.gov.tw/dataset/8931
+資料提供：台灣電力股份有限公司，依[政府資料開放授權條款第 1 版](https://data.gov.tw/license)使用。本專案與台電無隸屬關係，也不代表台電背書；請以台電公告為準。
 
-資料提供：台灣電力股份有限公司；依[政府資料開放授權條款第 1 版](https://data.gov.tw/license)使用。本產品不代表台電背書。
+## 本機執行
 
-## Run Locally
+需要 Node.js 22–26。
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open `http://127.0.0.1:4173`. The Vite dev server mounts a same-origin proxy at `/api/power-data` (see `server/power-api.js`) that fetches and validates both official Taipower feeds.
+打開 `http://127.0.0.1:4173`。開發伺服器在 `/api/power-data` 提供同源代理（`server/power-api.js`），即時抓取並驗證台電的兩份資料，因為台電的 JSON 並不一致地提供瀏覽器可用的 CORS 標頭。
 
-## Test
+### 測試
 
 ```bash
 npm run lint
-npm test            # data trust, parsers, controller (node --test)
-npm run test:e2e    # vite build + Playwright e2e + axe (needs Chromium: npx playwright install chromium)
+npm test            # 資料驗證、解析、控制器（node --test）
+npm run test:e2e    # 建置後跑 Playwright 端對端測試與 axe（需要先 npx playwright install chromium）
 ```
 
-## Production Build
-
-Requires Node.js 22–26 and live access to both official Taipower feeds:
+### 正式建置
 
 ```bash
-npm run build      # vite build → build/web, then stage site + official snapshot into dist/
-npm run preview    # serve dist/ locally
+npm run build       # vite build，再把網站與剛驗證過的官方資料快照放進 dist/
+npm run preview     # 在本機預覽 dist/
 ```
 
-`scripts/build-static-site.js` stages the built app and a freshly validated snapshot before replacing `dist/`. If validation or fetch fails, it exits non-zero without replacing the last successful build or publishing sample data. It then tries the supplementary intraday curves (`scripts/build-curve-data.js` → `api/curves.json`); each curve section fails independently and never blocks the core snapshot.
+建置需要連得到台電的資料。`scripts/build-static-site.js` 會先驗證資料才取代 `dist/`：驗證或抓取失敗時以非零狀態結束，不會用示範資料頂替。
 
-## Project Structure
+## 部署
+
+`.github/workflows/pages.yml` 在推送到 `main`、手動觸發與定時排程時執行：安裝套件、跑測試、建置、抓取並驗證台電資料、把靜態網站推到 `gh-pages` 分支。GitHub 的排程是盡力而為，實際可能數小時才跑一次，所以網頁一律用台電資料本身的時間判斷新舊，不看排程、建置或快取時間。
+
+## 專案結構
 
 ```text
-taiwan-power-dashboard/
-├── index.html                  # Vite entry
-├── vite.config.js
-├── src/                        # React UI
-│   ├── App.jsx
-│   ├── components/             # status card, mix, unit explorer, ui/ primitives
-│   ├── hooks/                  # dashboard controller + theme bindings
-│   └── lib/                    # fuel palette, utilities
-├── js/                         # framework-agnostic data layer (tested directly)
-│   ├── api.js                  # same-origin fetch, cache, provenance checks
-│   ├── dashboard-controller.js # loading, auto refresh, freshness re-aging
-│   ├── dashboard-presenter.js  # trust copy, reserve headline, formatting
-│   ├── curves-api.js           # optional intraday curves (client validation)
-│   ├── data-freshness.js
-│   ├── freshness-clock.js
-│   ├── power-curves.js         # loadfueltype/loadareas/d006002/d006007 parsers
-│   └── power-data.js           # Taipower parsing + validation
-├── server/power-api.js         # dev/preview proxy (Vite plugin)
-├── scripts/                    # static snapshot + site build
-├── data/sample-power-data.js   # test fixture only; never shipped
-├── docs/
-└── tests/                    # node --test suites, fixtures/, e2e/ (Playwright + axe)
+index.html                 Vite 入口與載入前的版面骨架
+public/                    favicon、apple-touch-icon、品牌標記
+src/                       React 介面
+  components/              頁面區塊與 ui/ 基礎元件
+  hooks/                   控制器與主題
+  lib/                     燃料配色、單位、工具函式
+js/                        不依賴框架的資料層（驗證、新鮮度、呈現文字）
+server/power-api.js        開發與預覽用的同源代理（Vite 外掛）
+scripts/                   靜態快照與網站建置
+data/                      測試用範例資料（不會被發布）
+docs/                      資料可信契約、設計筆記、截圖
+tests/                     單元測試與 Playwright／axe 端對端測試
 ```
 
-## Notes
+## 授權
 
-The dashboard uses a same-origin dev proxy at `/api/power-data` (a Vite plugin) because Taipower's official JSON endpoints do not consistently expose browser-friendly CORS headers. GitHub Pages never probes that server-only route or fetches Taipower directly; it reads the same-origin `api/power-data.json` snapshot produced by CI. If a refresh fails, a last-known-good browser/static snapshot may remain visible only with its original source age and a delayed/stale label. Missing, invalid, future-dated, sample, or over-24-hour data becomes unavailable.
-
-## GitHub Pages
-
-This repository includes a GitHub Actions workflow at `.github/workflows/pages.yml`.
-On push to `main`, manual dispatch, and a nominal 10-minute schedule, the workflow:
-
-1. installs dependencies and runs the Node test suite;
-2. builds the React app with Vite;
-3. fetches the latest Taipower JSON from GitHub Actions;
-4. validates both source payloads and writes a static `api/power-data.json` snapshot;
-5. force-publishes the static build to the `gh-pages` branch.
-
-GitHub Actions scheduled jobs are best effort and can be delayed or skipped. The UI therefore derives freshness only from both official source timestamps, never from the cron setting, build time, or browser cache time. A failed build leaves the previous deployment in place; the client will visibly age it into delayed/stale/unavailable states. Local development uses the same-origin Vite proxy at `/api/power-data`.
+[MIT](LICENSE)

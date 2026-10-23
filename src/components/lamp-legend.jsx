@@ -84,8 +84,7 @@ function ThresholdRuler({ rate, muted }) {
   );
 }
 
-// Floating legend in the reference's bottom-right legend slot: the signal head
-// and the official 0–25% ruler, read like a map's colour scale.
+// The signal head and the official 0–25% ruler, read like a colour scale.
 export function LampLegend({ level, snapshot, rate, className }) {
   return (
     <div className={cn('rounded-panel border border-border bg-card p-4', className)}>

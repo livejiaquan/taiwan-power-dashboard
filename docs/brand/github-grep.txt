@@ -1,3 +1,0 @@
-$ npx vite build && grep -rn "github.com" build/web
-(exit 1 — 1 means no matches)
-files containing github.com: 0

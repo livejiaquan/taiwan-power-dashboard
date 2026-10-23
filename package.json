@@ -1,7 +1,7 @@
 {
   "name": "taiwan-power-dashboard",
   "version": "0.2.0",
-  "description": "Taiwan real-time power dashboard using Taipower open data.",
+  "description": "台灣電力即時看板：以台電官方開放資料呈現供電燈號、備轉容量率與發電結構。",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -22,7 +22,12 @@
     "open-data",
     "dashboard"
   ],
-  "author": "Jiaquan",
+  "author": "Lim Jia Quan",
+  "homepage": "https://livejiaquan.github.io/taiwan-power-dashboard/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/livejiaquan/taiwan-power-dashboard.git"
+  },
   "engines": {
     "node": ">=22 <27"
   },

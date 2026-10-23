@@ -88,7 +88,7 @@ function Controls({ loading, onRefresh, theme, onToggleTheme, autoRefresh, onTog
   );
 }
 
-// Highlights the section in view, like the reference's current-page pill.
+// Tracks the section in view so the sidebar can mark the current one.
 function useActiveSection() {
   const [active, setActive] = useState('status');
   useEffect(() => {
@@ -117,8 +117,8 @@ function useActiveSection() {
   return active;
 }
 
-// Wide screens get the reference's left rail (208px: brand, page sections,
-// a reference list, controls at the foot). Phones keep a slim top bar.
+// Wide screens get a 208px left rail (brand, page sections, data sources,
+// controls at the foot). Phones keep a slim top bar.
 export function SiteHeader(props) {
   const active = useActiveSection();
 

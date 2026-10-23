@@ -7,8 +7,7 @@ const TABS = [
   ['#about', '說明', BookOpen]
 ];
 
-// Flat bottom bar for phones, in the reference's fixed bottom-strip slot:
-// thumb-reachable section jumps.
+// Flat bottom bar for phones: thumb-reachable section jumps.
 // Desktop keeps the inline navigation in the header instead.
 export function MobileTabBar() {
   return (

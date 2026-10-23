@@ -2,8 +2,8 @@ import { useId } from 'react';
 
 import { cn } from '../lib/utils.js';
 
-// A group of cards under one quiet heading, sized like the reference's card
-// titles so section heads never compete with the answer.
+// A group of cards under one quiet heading, the same size as card titles so
+// section heads never compete with the answer.
 export function Section({ id, title, summary, actions, children, className }) {
   const headingId = useId();
   return (
