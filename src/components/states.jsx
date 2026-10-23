@@ -2,13 +2,12 @@ import { CloudOff, ExternalLink, RefreshCw } from 'lucide-react';
 
 import { Card } from './ui/card.jsx';
 
-// Mirrors the first screen (freshness strip, signal-board hero, "now" panel)
+// Mirrors the first screen (signal-board hero and "now" panel)
 // so nothing jumps when the validated data arrives. index.html paints the same
 // blocks before the app bundle runs.
 export function LoadingState() {
   return (
     <div className="space-y-3 sm:space-y-4" aria-busy="true" aria-label="正在驗證台電資料">
-      <div className="h-[60px] animate-pulse rounded-panel bg-muted" />
       <div className="h-[820px] animate-pulse rounded-hero bg-muted sm:h-[760px] lg:h-[440px]" />
       <div className="h-[268px] animate-pulse rounded-panel bg-muted lg:h-[180px]" />
       <p className="sr-only">正在驗證台電資料時間與來源…</p>

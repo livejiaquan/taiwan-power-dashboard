@@ -42,15 +42,16 @@ const FAQ = [
   },
   {
     id: 'freshness',
-    question: '為什麼會顯示「資料延遲」或「非即時快照」？',
+    question: '「資料時間」旁的顏色是什麼意思？',
     answer: (
       <>
-        <p>台電約每 10 分鐘更新一次資料，但本站透過 GitHub Actions 排程抓取，實際間隔可能拉長到數小時。為避免把舊數字當成現在，本站一律以台電資料本身的時間判斷：</p>
+        <p>台電約每 10 分鐘更新一次資料，但本站透過 GitHub Actions 排程抓取，實際大約每 3–4 小時才更新一次。本站一律以台電資料本身的時間（兩份來源取較舊的一份）在你的瀏覽器裡計算資料有多舊：</p>
         <ul className="list-disc space-y-1 pl-5">
-          <li><strong className="text-foreground">最新資料</strong>：兩份來源都在 20 分鐘內。</li>
-          <li><strong className="text-foreground">資料延遲</strong>：任一來源超過 20 分鐘。</li>
-          <li><strong className="text-foreground">非即時快照</strong>：超過 60 分鐘，數字改以灰色呈現。</li>
-          <li><strong className="text-foreground">無法確認</strong>：超過 24 小時或資料不完整，不顯示任何數字。</li>
+          <li><strong className="text-foreground">即時</strong>：90 分鐘內，資料時間旁是綠點。</li>
+          <li><strong className="text-foreground">稍舊</strong>：90 分鐘到 6 小時，資料時間改為琥珀色，數字與燈號照常呈現。</li>
+          <li><strong className="text-foreground">過舊</strong>：6 到 24 小時，另外說明最後成功更新的時間並附台電官網連結；燈號與數字改為中性色，但仍保留。</li>
+          <li><strong className="text-foreground">超過 24 小時</strong>：仍顯示最後一筆官方資料，並標明是一天以前的數字。</li>
+          <li><strong className="text-foreground">無法確認</strong>：來源時間缺漏或位於未來時，才不顯示任何數字。</li>
         </ul>
         <p>頁面每 15 秒自行重算資料年齡，就算暫停自動更新也一樣。</p>
       </>

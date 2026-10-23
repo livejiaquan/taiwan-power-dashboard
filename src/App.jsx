@@ -7,7 +7,6 @@ import { MobileTabBar } from './components/mobile-tab-bar.jsx';
 import { SiteHeader } from './components/site-header.jsx';
 import { LoadingState, UnavailableState } from './components/states.jsx';
 import { StatusHero } from './components/status-hero.jsx';
-import { TrustBanner } from './components/trust-banner.jsx';
 import { TooltipProvider } from './components/ui/tooltip.jsx';
 import { useCurves } from './hooks/use-curves.js';
 import { useDashboard } from './hooks/use-dashboard.js';
@@ -27,7 +26,7 @@ function Dashboard() {
   // so the status answer paints first and the main thread never blocks long.
   const restModel = useDeferredValue(model ?? null, null);
   const freshness = result?.freshness;
-  const timeLabel = freshness?.state === 'live' ? '目前' : '快照';
+  const timeLabel = freshness?.state === 'live' ? '目前' : '當時';
   const supplyObservedAt = model?.feeds?.supply?.observedAt;
   const { curves } = useCurves(model?.fetchedAt?.getTime?.() || null);
   const todayKey = supplyObservedAt ? taipeiDateKey(supplyObservedAt) : null;
@@ -58,9 +57,8 @@ function Dashboard() {
         ) : (
           <>
             <div className="space-y-3 sm:space-y-4">
-              <TrustBanner trust={trust} />
               {model ? (
-                <StatusHero model={model} freshness={freshness} />
+                <StatusHero model={model} freshness={freshness} trust={trust} />
               ) : (
                 <h1 className="display px-1 pt-6 text-3xl font-semibold sm:text-5xl">台灣現在的電夠不夠？</h1>
               )}

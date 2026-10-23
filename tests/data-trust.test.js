@@ -401,15 +401,16 @@ test('feed timestamp validation enforces the +2 minute and six-hour boundaries',
   }), 'feed_time_skew');
 });
 
-test('freshness state machine implements exact 20-minute, 60-minute, 24-hour, and future boundaries', () => {
+test('freshness state machine implements exact 90-minute, 6-hour, 24-hour, and future boundaries', () => {
   const now = new Date('2026-08-09T12:00:00.000Z');
   const cases = [
-    ['exactly 20 minutes', 20 * MINUTE_MS, 'live', true],
-    ['one millisecond over 20 minutes', 20 * MINUTE_MS + 1, 'delayed', true],
-    ['exactly 60 minutes', 60 * MINUTE_MS, 'delayed', true],
-    ['one millisecond over 60 minutes', 60 * MINUTE_MS + 1, 'stale', true],
+    ['exactly 90 minutes', 90 * MINUTE_MS, 'live', true],
+    ['one millisecond over 90 minutes', 90 * MINUTE_MS + 1, 'delayed', true],
+    ['exactly 6 hours', 6 * HOUR_MS, 'delayed', true],
+    ['one millisecond over 6 hours', 6 * HOUR_MS + 1, 'stale', true],
     ['exactly 24 hours', 24 * HOUR_MS, 'stale', true],
-    ['one millisecond over 24 hours', 24 * HOUR_MS + 1, 'unavailable', false],
+    ['one millisecond over 24 hours', 24 * HOUR_MS + 1, 'expired', true],
+    ['a week old', 7 * 24 * HOUR_MS, 'expired', true],
     ['exactly two minutes in the future', -2 * MINUTE_MS, 'live', true],
     ['over two minutes in the future', -2 * MINUTE_MS - 1, 'unavailable', false]
   ];
@@ -425,7 +426,7 @@ test('freshness uses the worse feed and handles partial data and Taiwan midnight
   const now = new Date('2026-08-09T16:03:00.000Z');
 
   const delayed = assessDataFreshness(
-    buildFreshnessModel(now, 10 * MINUTE_MS, 45 * MINUTE_MS),
+    buildFreshnessModel(now, 10 * MINUTE_MS, 100 * MINUTE_MS),
     { now }
   );
   assert.equal(delayed.state, 'delayed');
@@ -433,11 +434,11 @@ test('freshness uses the worse feed and handles partial data and Taiwan midnight
   assert.equal(delayed.sources.generation.state, 'delayed');
 
   const stale = assessDataFreshness(
-    buildFreshnessModel(now, 10 * MINUTE_MS, 70 * MINUTE_MS),
+    buildFreshnessModel(now, 10 * MINUTE_MS, 7 * HOUR_MS),
     { now }
   );
   assert.equal(stale.state, 'stale');
-  assert.equal(stale.oldestObservedAt.toISOString(), '2026-08-09T14:53:00.000Z');
+  assert.equal(stale.oldestObservedAt.toISOString(), '2026-08-09T09:03:00.000Z');
 
   const partial = assessDataFreshness({
     feeds: {
@@ -459,7 +460,7 @@ test('freshness uses the worse feed and handles partial data and Taiwan midnight
   assert.equal(acrossTaiwanMidnight.state, 'live');
 });
 
-test('freshness clock ages rendered data across live, delayed, stale, and unavailable boundaries', () => {
+test('freshness clock ages rendered data across live, delayed, stale, and expired boundaries', () => {
   const sourceTime = new Date('2026-08-09T12:00:00.000Z');
   let currentNow = new Date(sourceTime.getTime() + 20 * MINUTE_MS);
   const model = buildFreshnessModel(sourceTime, 0, 0);
@@ -488,21 +489,21 @@ test('freshness clock ages rendered data across live, delayed, stale, and unavai
   clock.start();
   assert.equal(currentResult.freshness.state, 'live');
 
-  currentNow = new Date(sourceTime.getTime() + 20 * MINUTE_MS + 1);
+  currentNow = new Date(sourceTime.getTime() + 90 * MINUTE_MS + 1);
   scheduledTick();
-  currentNow = new Date(sourceTime.getTime() + 60 * MINUTE_MS + 1);
+  currentNow = new Date(sourceTime.getTime() + 6 * HOUR_MS + 1);
   scheduledTick();
   currentNow = new Date(sourceTime.getTime() + 24 * HOUR_MS + 1);
   scheduledTick();
 
-  assert.deepEqual(changes, ['delayed', 'stale', 'unavailable']);
+  assert.deepEqual(changes, ['delayed', 'stale', 'expired']);
   clock.stop();
   assert.equal(clearedId, 42);
 });
 
 test('cache receipt time cannot reset source freshness', () => {
   const model = buildTrustedModel();
-  const staleNow = new Date(SOURCE_INSTANT.getTime() + 70 * MINUTE_MS);
+  const staleNow = new Date(SOURCE_INSTANT.getTime() + 7 * HOUR_MS);
   const justReceived = {
     timestamp: staleNow.getTime(),
     model: JSON.parse(JSON.stringify(model)),
@@ -513,7 +514,7 @@ test('cache receipt time cannot reset source freshness', () => {
   assert.ok(firstEvaluation);
   assert.equal(firstEvaluation.receiptAgeMs, 0);
   assert.equal(firstEvaluation.freshness.state, 'stale');
-  assert.equal(firstEvaluation.freshness.ageMinutes, 70);
+  assert.equal(firstEvaluation.freshness.ageMinutes, 420);
 
   const oneMinuteLater = new Date(staleNow.getTime() + MINUTE_MS);
   const rewrittenReceipt = {
@@ -524,10 +525,10 @@ test('cache receipt time cannot reset source freshness', () => {
   assert.ok(secondEvaluation);
   assert.equal(secondEvaluation.receiptAgeMs, 0);
   assert.equal(secondEvaluation.freshness.state, 'stale');
-  assert.equal(secondEvaluation.freshness.ageMinutes, 71);
+  assert.equal(secondEvaluation.freshness.ageMinutes, 421);
 });
 
-test('cache accepts exactly 24-hour source context but rejects older or future source data', () => {
+test('cache keeps day-old source context for a week but rejects older receipts or future source data', () => {
   const model = buildTrustedModel();
   const exactly24Hours = new Date(SOURCE_INSTANT.getTime() + 24 * HOUR_MS);
   const baseCache = {
@@ -540,11 +541,13 @@ test('cache accepts exactly 24-hour source context but rejects older or future s
   assert.ok(accepted);
   assert.equal(accepted.freshness.state, 'stale');
 
-  const tooOld = new Date(exactly24Hours.getTime() + 1);
-  assert.equal(
-    evaluateCachedModel({ ...baseCache, timestamp: tooOld.getTime() }, { now: tooOld }),
-    null
-  );
+  const dayOld = new Date(exactly24Hours.getTime() + 1);
+  const expired = evaluateCachedModel({ ...baseCache, timestamp: dayOld.getTime() }, { now: dayOld });
+  assert.ok(expired);
+  assert.equal(expired.freshness.state, 'expired');
+
+  const receiptTooOld = new Date(exactly24Hours.getTime() + 7 * 24 * HOUR_MS + 1);
+  assert.equal(evaluateCachedModel(baseCache, { now: receiptTooOld }), null);
 
   const futureNow = new Date('2026-08-09T12:00:00.000Z');
   const futureModel = JSON.parse(JSON.stringify(model));
@@ -650,16 +653,17 @@ test('same-origin validation rejects degraded, sample, incomplete, future, and o
   );
 
   const stale = validateSameOriginPayload(payload, {
-    now: new Date(SOURCE_INSTANT.getTime() + 70 * MINUTE_MS)
+    now: new Date(SOURCE_INSTANT.getTime() + 7 * HOUR_MS)
   });
   assert.equal(stale.freshness.state, 'stale');
 
-  assert.throws(
-    () => validateSameOriginPayload(payload, {
-      now: new Date(SOURCE_INSTANT.getTime() + 24 * HOUR_MS + 1)
-    }),
-    /超過 24 小時/
-  );
+  // A day-old snapshot is still the last official data: it is accepted and
+  // labelled, never replaced by an error card.
+  const expired = validateSameOriginPayload(payload, {
+    now: new Date(SOURCE_INSTANT.getTime() + 24 * HOUR_MS + 1)
+  });
+  assert.equal(expired.freshness.state, 'expired');
+  assert.equal(expired.freshness.usable, true);
 });
 
 test('candidate selection prevents per-feed source-time regression', () => {

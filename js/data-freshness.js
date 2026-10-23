@@ -1,10 +1,18 @@
 const MINUTE_MS = 60 * 1000;
 const HOUR_MS = 60 * MINUTE_MS;
 
+// Tiers follow what GitHub's best-effort scheduler actually delivers (a run
+// every 3–4 hours), measured from the official source time in the browser:
+//   live      ≤ 90 minutes   即時
+//   delayed   ≤ 6 hours      稍舊
+//   stale     ≤ 24 hours     過舊
+//   expired   > 24 hours     still shown, labelled as day-old data
+// `unavailable` is reserved for timestamps that cannot be trusted at all
+// (missing or in the future); only then is nothing shown.
 export const DEFAULT_FRESHNESS_POLICY = Object.freeze({
-  liveMaxAgeMs: 20 * MINUTE_MS,
-  delayedMaxAgeMs: 60 * MINUTE_MS,
-  maxSnapshotAgeMs: 24 * HOUR_MS,
+  liveMaxAgeMs: 90 * MINUTE_MS,
+  delayedMaxAgeMs: 6 * HOUR_MS,
+  staleMaxAgeMs: 24 * HOUR_MS,
   futureToleranceMs: 2 * MINUTE_MS
 });
 
@@ -12,7 +20,8 @@ const STATE_PRIORITY = Object.freeze({
   live: 0,
   delayed: 1,
   stale: 2,
-  unavailable: 3
+  expired: 3,
+  unavailable: 4
 });
 
 function parseDate(value) {
@@ -53,23 +62,16 @@ function classifySource(name, value, nowMs, policy) {
     };
   }
 
-  if (ageMs > policy.maxSnapshotAgeMs) {
-    return {
-      name,
-      state: 'unavailable',
-      observedAt,
-      ageMs,
-      ageMinutes,
-      reason: '最後成功資料已超過 24 小時'
-    };
+  if (ageMs > policy.staleMaxAgeMs) {
+    return { name, state: 'expired', observedAt, ageMs, ageMinutes, reason: '最後成功資料已超過 24 小時' };
   }
 
   if (ageMs > policy.delayedMaxAgeMs) {
-    return { name, state: 'stale', observedAt, ageMs, ageMinutes, reason: '官方來源資料已過期' };
+    return { name, state: 'stale', observedAt, ageMs, ageMinutes, reason: '最後成功資料已超過 6 小時' };
   }
 
   if (ageMs > policy.liveMaxAgeMs) {
-    return { name, state: 'delayed', observedAt, ageMs, ageMinutes, reason: '官方來源資料延遲' };
+    return { name, state: 'delayed', observedAt, ageMs, ageMinutes, reason: '最後成功資料已超過 90 分鐘' };
   }
 
   return { name, state: 'live', observedAt, ageMs, ageMinutes, reason: null };
