@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>台灣電力即時看板</title>
     <meta name="description" content="以台電官方開放資料呈現台灣即時供電狀態、備轉容量率燈號、發電結構與機組輸出，並清楚標示資料時間。" />
-    <meta name="theme-color" content="#edf1f5" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0b131c" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#0b0f14" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0b0f14" media="(prefers-color-scheme: dark)" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="zh_TW" />
     <meta property="og:title" content="台灣電力即時看板" />
@@ -15,27 +15,28 @@
     <script>
       try {
         const saved = localStorage.getItem('tpd-theme');
-        if (saved === 'dark' || saved === 'light') document.documentElement.dataset.theme = saved;
-      } catch {}
+        document.documentElement.dataset.theme = saved === 'light' ? 'light' : 'dark';
+      } catch {
+        document.documentElement.dataset.theme = 'dark';
+      }
     </script>
   </head>
   <body>
     <div id="root">
       <!-- First paint before the app bundle runs; React replaces it with the
            same header height and skeleton blocks. -->
-      <div class="min-h-screen">
-        <div class="sticky top-0 z-40 border-b border-border bg-background">
-          <div class="mx-auto flex h-14 max-w-[1280px] items-center gap-2 px-4 sm:px-6">
-            <span class="grid size-7 place-items-center rounded-[9px] bg-foreground" aria-hidden="true">
-              <svg viewBox="0 0 24 24" class="size-3.5" fill="#ffd60a"><path d="M13 2 3 14h9l-1 8 10-12h-9z" /></svg>
-            </span>
-            <span class="text-base font-bold">台灣電力</span>
-          </div>
+      <div class="min-h-screen lg:pl-[208px]">
+        <div class="fixed inset-y-0 left-0 hidden w-[208px] border-r border-border bg-sidebar lg:block"></div>
+        <div class="sticky top-0 z-40 flex h-14 items-center gap-2 border-b border-border bg-sidebar px-3 lg:hidden">
+          <span class="grid size-7 place-items-center rounded-[8px] bg-foreground" aria-hidden="true">
+            <svg viewBox="0 0 24 24" class="size-3.5" fill="#ffd60a"><path d="M13 2 3 14h9l-1 8 10-12h-9z" /></svg>
+          </span>
+          <span class="text-base font-semibold">台灣電力</span>
         </div>
-        <main class="mx-auto max-w-[1280px] px-4 pt-4 sm:px-6 sm:pt-8">
-          <div class="space-y-3 sm:space-y-4" aria-busy="true">
-            <div class="h-[820px] rounded-hero bg-muted sm:h-[760px] lg:h-[440px]"></div>
-            <div class="h-[268px] rounded-panel bg-muted lg:h-[180px]"></div>
+        <main class="px-3 pt-3">
+          <div class="grid gap-3 lg:grid-cols-[458px_minmax(0,1fr)]" aria-busy="true">
+            <div class="h-[1100px] rounded-panel bg-panel"></div>
+            <div class="hidden h-[calc(100vh-24px)] rounded-panel bg-card lg:block"></div>
             <p class="sr-only">正在載入台電資料…</p>
           </div>
         </main>

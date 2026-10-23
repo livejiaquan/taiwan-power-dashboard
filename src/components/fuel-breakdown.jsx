@@ -157,16 +157,16 @@ export function FuelBreakdown({ model, theme }) {
           )}
         </div>
 
-        <div className="-mx-5 overflow-x-auto sm:mx-0" role="region" aria-label="燃料別發電明細（可捲動表格）" tabIndex={0}>
+        <div className="-mx-4 overflow-x-auto sm:mx-0" role="region" aria-label="燃料別發電明細（可捲動表格）" tabIndex={0}>
           <table className="w-full min-w-[520px] text-sm">
             <caption className="sr-only">燃料別發電明細</caption>
             <thead>
               <tr className="border-b border-border text-left text-sm text-muted-foreground">
-                <th scope="col" className="py-2 pl-5 pr-3 font-semibold sm:pl-0">燃料別</th>
+                <th scope="col" className="py-2 pl-4 pr-3 font-semibold sm:pl-0">燃料別</th>
                 <th scope="col" className="px-2 py-2 text-right font-semibold">淨發電</th>
                 <th scope="col" className="px-2 py-2 text-right font-semibold">占比</th>
                 <th scope="col" className="px-2 py-2 text-right font-semibold">裝置容量</th>
-                <th scope="col" className="py-2 pl-3 pr-5 text-right font-semibold sm:pr-0">運轉機組</th>
+                <th scope="col" className="py-2 pl-3 pr-4 text-right font-semibold sm:pr-0">運轉機組</th>
               </tr>
             </thead>
             <tbody>
@@ -174,7 +174,7 @@ export function FuelBreakdown({ model, theme }) {
                 const negative = category.netGenerationMw < 0;
                 return (
                   <tr key={category.key} className="border-b border-border/60 last:border-0">
-                    <th scope="row" className="py-4 pl-5 pr-3 text-left font-semibold sm:pl-0">
+                    <th scope="row" className="py-4 pl-4 pr-3 text-left font-semibold sm:pl-0">
                       <span className="flex items-center gap-2">
                         <span className="size-2.5 shrink-0 rounded-sm" style={{ background: fuelColor(category) }} aria-hidden="true" />
                         {category.labelZh}
@@ -187,7 +187,7 @@ export function FuelBreakdown({ model, theme }) {
                       {negative ? '—' : formatPercent(category.sharePercent)}
                     </td>
                     <td className="num px-2 py-4 text-right text-muted-foreground">{power(category.capacityMw)}</td>
-                    <td className="num py-4 pl-3 pr-5 text-right text-muted-foreground sm:pr-0">
+                    <td className="num py-4 pl-3 pr-4 text-right text-muted-foreground sm:pr-0">
                       {category.activeUnitCount}/{category.unitCount}
                     </td>
                   </tr>
@@ -195,7 +195,7 @@ export function FuelBreakdown({ model, theme }) {
               })}
             </tbody>
           </table>
-          <p className="mt-4 px-5 text-base text-muted-foreground sm:px-0">
+          <p className="mt-4 px-4 text-base text-muted-foreground sm:px-0">
             儲能充電負載為負值，表示電池正在充電吸收電力，不計入占比。部分機組未公布裝置容量，容量合計僅含已知值。
           </p>
         </div>

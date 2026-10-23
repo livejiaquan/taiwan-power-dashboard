@@ -2,23 +2,24 @@
 
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
-/* Design tokens. Light is the default; dark follows the OS unless the viewer
-   picked a theme explicitly (stored on <html data-theme>). */
+/* Design tokens. Layering follows Electricity Maps (docs/references/tokens.md):
+   page → sidebar → translucent panel → cards, hairline borders, 16px corners.
+   Dark is the default like the reference; a stored choice wins. */
 :root {
-  --background: #edf1f5;
-  --foreground: #13202c;
+  --background: #f3f4f6;
+  --foreground: #111418;
   --card: #ffffff;
-  --card-foreground: #13202c;
+  --card-foreground: #111418;
   --popover: #ffffff;
-  --popover-foreground: #13202c;
-  --muted: #e4e9ef;
-  --muted-foreground: #4b5a69;
-  --subtle-foreground: #4b5a69;
-  --border: rgb(19 32 44 / 0.11);
+  --popover-foreground: #111418;
+  --muted: #eef0f3;
+  --muted-foreground: #4b5563;
+  --subtle-foreground: #4b5563;
+  --border: rgb(17 20 24 / 0.10);
   --ring: #1d5fd1;
   --accent: #1d5fd1;
-  --track: #dde3ea;
-  --grid-line: #e6ebf0;
+  --track: #e3e6ea;
+  --grid-line: #eceef1;
 
   --status-g: #15803d;
   --status-y: #ca8a04;
@@ -46,24 +47,26 @@
   --status-b-text: #13202c;
 
   --shadow-card: 0 1px 2px rgb(19 32 44 / 0.04);
+  --sidebar: #ffffff;
+  --panel: #e9ecf0;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --background: #0b131c;
-    --foreground: #e8eef4;
-    --card: #121d29;
-    --card-foreground: #e8eef4;
-    --popover: #1a2838;
-    --popover-foreground: #e8eef4;
-    --muted: #1a2838;
-    --muted-foreground: #9cadbf;
-    --subtle-foreground: #9cadbf;
-    --border: rgb(232 238 244 / 0.09);
+    --background: #0b0f14;
+    --foreground: #e6e9ed;
+    --card: #1f2731;
+    --card-foreground: #e6e9ed;
+    --popover: #262f3a;
+    --popover-foreground: #e6e9ed;
+    --muted: #2a333e;
+    --muted-foreground: #aab3bd;
+    --subtle-foreground: #aab3bd;
+    --border: rgb(230 233 237 / 0.12);
     --ring: #73a9ff;
     --accent: #73a9ff;
-    --track: #22334a;
-    --grid-line: #1c2a3a;
+    --track: #333d48;
+    --grid-line: #29323c;
     --status-g: #22c55e;
     --status-y: #eab308;
     --status-y-strong: #facc15;
@@ -89,24 +92,26 @@
     --status-r-text: #f87171;
     --status-b-text: #e8eef4;
     --shadow-card: 0 0 0 1px rgb(255 255 255 / 0.02);
+    --sidebar: #12171e;
+    --panel: #161d26;
   }
 }
 
 :root[data-theme='dark'] {
-  --background: #0b131c;
-  --foreground: #e8eef4;
-  --card: #121d29;
-  --card-foreground: #e8eef4;
-  --popover: #1a2838;
-  --popover-foreground: #e8eef4;
-  --muted: #1a2838;
-  --muted-foreground: #9cadbf;
-  --subtle-foreground: #9cadbf;
-  --border: rgb(232 238 244 / 0.09);
+  --background: #0b0f14;
+  --foreground: #e6e9ed;
+  --card: #1f2731;
+  --card-foreground: #e6e9ed;
+  --popover: #262f3a;
+  --popover-foreground: #e6e9ed;
+  --muted: #2a333e;
+  --muted-foreground: #aab3bd;
+  --subtle-foreground: #aab3bd;
+  --border: rgb(230 233 237 / 0.12);
   --ring: #73a9ff;
   --accent: #73a9ff;
-  --track: #22334a;
-  --grid-line: #1c2a3a;
+  --track: #333d48;
+  --grid-line: #29323c;
   --status-g: #22c55e;
   --status-y: #eab308;
   --status-y-strong: #facc15;
@@ -132,6 +137,8 @@
   --status-r-text: #f87171;
   --status-b-text: #e8eef4;
   --shadow-card: 0 0 0 1px rgb(255 255 255 / 0.02);
+  --sidebar: #12171e;
+  --panel: #161d26;
 }
 
 /* Design language (see docs/design-research.md#設計語言). Three radii encode
@@ -164,9 +171,9 @@
   --text-7xl: 144px;
   --text-7xl--line-height: 0.9;
 
-  --radius-hero: 28px;
-  --radius-panel: 20px;
-  --radius-control: 12px;
+  --radius-hero: 16px;
+  --radius-panel: 16px;
+  --radius-control: 9999px;
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --default-transition-duration: 160ms;
   --default-transition-timing-function: var(--ease-standard);
@@ -182,10 +189,12 @@
 }
 
 @theme inline {
-  --font-sans: 'Barlow', 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', system-ui, sans-serif;
-  --font-display: 'Barlow Semi Condensed', 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', system-ui, sans-serif;
-  --font-num: 'Barlow Semi Condensed', 'Barlow', system-ui, sans-serif;
+  --font-sans: 'Inter', 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', system-ui, sans-serif;
+  --font-display: 'Inter', 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', system-ui, sans-serif;
+  --font-num: 'Inter', system-ui, sans-serif;
   --color-background: var(--background);
+  --color-sidebar: var(--sidebar);
+  --color-panel: var(--panel);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
@@ -230,8 +239,8 @@
     background: var(--background);
     color: var(--foreground);
     font-family: var(--font-sans);
-    font-weight: 450;
-    letter-spacing: 0.01em;
+    font-weight: 400;
+    letter-spacing: 0;
     -webkit-font-smoothing: antialiased;
     min-height: 100vh;
   }

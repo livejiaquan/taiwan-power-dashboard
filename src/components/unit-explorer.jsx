@@ -97,7 +97,7 @@ export function UnitExplorer({ model }) {
           </div>
         </div>
 
-        <div className="-mx-5 mt-6 flex gap-2 overflow-x-auto px-5 pb-1 sm:mx-0 sm:flex-wrap sm:px-0" role="group" aria-label="燃料別篩選">
+        <div className="-mx-4 mt-6 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0" role="group" aria-label="燃料別篩選">
           <FilterChip active={category === 'all'} onClick={() => { setCategory('all'); setExpanded(false); }}>全部</FilterChip>
           {categories.map((item) => (
             <FilterChip
@@ -140,17 +140,17 @@ export function UnitExplorer({ model }) {
           })}
         </ul>
 
-        <div className="-mx-5 mt-6 hidden overflow-x-auto sm:mx-0 sm:block" role="region" aria-label="機組即時發電量（可捲動表格）" tabIndex={0}>
+        <div className="-mx-4 mt-6 hidden overflow-x-auto sm:mx-0 sm:block" role="region" aria-label="機組即時發電量（可捲動表格）" tabIndex={0}>
           <table className="w-full min-w-[680px] text-sm">
             <caption className="sr-only">機組即時發電量（共 {filtered.length} 筆符合）</caption>
             <thead>
               <tr className="border-b border-border text-left text-sm text-muted-foreground">
-                <th scope="col" className="py-3 pl-5 pr-3 font-semibold sm:pl-0">機組</th>
+                <th scope="col" className="py-3 pl-4 pr-3 font-semibold sm:pl-0">機組</th>
                 <th scope="col" className="px-2 py-2 font-semibold">燃料別</th>
                 <th scope="col" className="px-2 py-2 text-right font-semibold">淨發電</th>
                 <th scope="col" className="px-2 py-2 text-right font-semibold">裝置容量</th>
                 <th scope="col" className="w-40 px-2 py-2 font-semibold">使用率</th>
-                <th scope="col" className="py-2 pl-2 pr-5 font-semibold sm:pr-0">備註</th>
+                <th scope="col" className="py-2 pl-2 pr-4 font-semibold sm:pr-0">備註</th>
               </tr>
             </thead>
             <tbody>
@@ -159,7 +159,7 @@ export function UnitExplorer({ model }) {
                 const color = fuelColor({ key: unit.categoryKey, color: unit.color });
                 return (
                   <tr key={`${unit.name}-${index}`} className="border-b border-border/60 last:border-0 hover:bg-muted/50">
-                    <th scope="row" className="max-w-[220px] truncate py-4 pl-5 pr-2 text-left font-semibold sm:pl-0" title={unit.name}>
+                    <th scope="row" className="max-w-[220px] truncate py-4 pl-4 pr-2 text-left font-semibold sm:pl-0" title={unit.name}>
                       {unit.name}
                     </th>
                     <td className="whitespace-nowrap px-2 py-4 text-muted-foreground">
@@ -182,7 +182,7 @@ export function UnitExplorer({ model }) {
                         </span>
                       )}
                     </td>
-                    <td className="py-4 pl-2 pr-5 sm:pr-0">
+                    <td className="py-4 pl-2 pr-4 sm:pr-0">
                       {hasNote(unit) ? (
                         <span className="inline-flex max-w-[180px] items-center gap-1 truncate rounded-md bg-muted px-2 py-1 text-sm text-muted-foreground" title={unit.note}>
                           <Wrench className="size-3 shrink-0" aria-hidden="true" />

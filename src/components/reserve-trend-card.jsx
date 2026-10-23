@@ -144,7 +144,7 @@ function stripe(color) {
   return canvas;
 }
 
-export function ReserveTrendCard({ curves, model, todayKey, theme }) {
+export function ReserveTrendCard({ curves, model, todayKey, theme, className, bodyClassName, chartClassName }) {
   const { unit, unitLabel } = useUnit();
   const rows = useMemo(() => buildRows(curves, model, todayKey), [curves, model, todayKey]);
   const option = useMemo(
@@ -155,7 +155,7 @@ export function ReserveTrendCard({ curves, model, todayKey, theme }) {
 
   if (!option) {
     return (
-      <ChartCard id="trend" title="備轉容量率：近期實績與未來一週" summary="每日尖峰備轉容量率資料目前無法取得。">
+      <ChartCard id="trend" className={className} title="備轉容量率：近期實績與未來一週" summary="每日尖峰備轉容量率資料目前無法取得。">
         <p className="rounded-xl bg-muted px-4 py-8 text-center text-base text-muted-foreground">資料暫時無法取得。</p>
       </ChartCard>
     );
@@ -183,6 +183,8 @@ export function ReserveTrendCard({ curves, model, todayKey, theme }) {
   return (
     <ChartCard
       id="trend"
+      className={className}
+      bodyClassName={bodyClassName}
       title="備轉容量率：近期實績與未來一週"
       summary={lowestFuture
         ? `實心為已發生的每日尖峰實績，斜線為台電的未來一週預測。未來七天最低預估是 ${dayLabel(lowestFuture.date)} 的 ${formatPercent(lowestFuture.reserveRatePercent, 1)}。`
@@ -196,7 +198,7 @@ export function ReserveTrendCard({ curves, model, todayKey, theme }) {
       meta="台電每日尖峰備轉（d006002）· 未來一週供需預測（d006007）"
       footnote="過去日期的尖峰負載由「備轉容量 ÷ 備轉容量率」推算，與台電公布值誤差在 1 MW 等級。"
     >
-      <div className="h-[300px] sm:h-[340px]">
+      <div className={chartClassName || 'h-[300px] sm:h-[340px]'}>
         <DeferredChart option={option} className="h-full w-full" ariaLabel="每日尖峰備轉容量率長條圖，完整數值請切換為表格檢視。" />
       </div>
       <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground" aria-label="圖例">

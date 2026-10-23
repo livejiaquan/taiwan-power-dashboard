@@ -28,7 +28,7 @@
 - 資料驗證、新鮮度與呈現規則是框架無關的純 JS 模組（`js/`），由 `node --test` 直接測試；React 只訂閱 `js/dashboard-controller.js` 的狀態。
 - 品質工具：ESLint 9（react-hooks、jsx-a11y）、`node --test`、Playwright e2e（四種新鮮度狀態 × 桌機／手機 × 淺色／深色）加 axe 無障礙檢測，於 `.github/workflows/ci.yml` 執行。
 - 設計與工程的調查依據見 [`docs/RESEARCH.md`](docs/RESEARCH.md)；介面改版的同類產品研究（Electricity Maps、GridStatus、EIA、NESO、でんき予報等）見 [`docs/design-research.md`](docs/design-research.md)。
-- 字體：Barlow／Barlow Semi Condensed（Fontsource 自架、OFL-1.1，只載 Latin 子集）搭配系統中文字體；冷調鋼灰與夜藍雙主題。設計語言（字體、色彩、間距、動效）與對比實測見 [`docs/design-research.md`](docs/design-research.md#設計語言)；使用者研究與裝置評估見 [`docs/ux-research.md`](docs/ux-research.md)。
+- 版面照 Electricity Maps 台灣分區頁的比例重做：左側 208px 導覽、458px 卡片面板加大畫布、16px 圓角卡片、Inter 字體、預設深色（可切淺色）。參考截圖、量測 token 與並排比較見 [`docs/references/`](docs/references/tokens.md)；Electricity Maps 為 AGPL，只參考版面，未取用程式碼或圖示。
 - 效能：首屏以外的內容與 ECharts 分塊延後載入、背景時間切片渲染；HTML 先畫出骨架，資料快照與 JS 並行下載。
 
 ## Data Sources
