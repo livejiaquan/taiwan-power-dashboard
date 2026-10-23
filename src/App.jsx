@@ -2,7 +2,6 @@ import { lazy, Suspense, useDeferredValue } from 'react';
 
 import { describeTrustState } from '../js/dashboard-presenter.js';
 import { taipeiDateKey } from '../js/power-curves.js';
-import { MixTile, NowPanel, RegionTile, WeekTile } from './components/bento.jsx';
 import { MobileTabBar } from './components/mobile-tab-bar.jsx';
 import { SiteHeader } from './components/site-header.jsx';
 import { LoadingState, UnavailableState } from './components/states.jsx';
@@ -15,6 +14,7 @@ import { UnitProvider } from './lib/units.jsx';
 
 const BelowFold = lazy(() => import('./components/below-fold.jsx'));
 const AboutSection = lazy(() => import('./components/below-fold.jsx').then((m) => ({ default: m.AboutSection })));
+const ReserveTrendCard = lazy(() => import('./components/below-fold.jsx').then((m) => ({ default: m.ReserveTrendCard })));
 const SiteFooter = lazy(() => import('./components/below-fold.jsx').then((m) => ({ default: m.SiteFooter })));
 
 function Dashboard() {
@@ -35,7 +35,7 @@ function Dashboard() {
   const curvesForToday = curves && curves.todayKey === todayKey ? curves : null;
 
   return (
-    <div id="top" className="min-h-screen">
+    <div id="top" className="min-h-screen lg:pl-[208px]">
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-3 focus:z-50 focus:rounded-full focus:bg-card focus:px-4 focus:py-3 focus:shadow-lg"
@@ -51,40 +51,49 @@ function Dashboard() {
         onToggleAutoRefresh={() => setAutoRefresh(!autoRefresh)}
       />
 
-      <main id="main-content" tabIndex={-1} className="mx-auto max-w-[1280px] px-4 pb-32 pt-4 outline-none sm:px-6 sm:pt-8 lg:pb-16">
+      <main id="main-content" tabIndex={-1} className="px-3 pb-24 pt-3 outline-none lg:pb-12">
         {!trust ? (
           <LoadingState />
-        ) : (
+        ) : model ? (
           <>
-            <div className="space-y-3 sm:space-y-4">
-              {model ? (
-                <StatusHero model={model} freshness={freshness} trust={trust} />
-              ) : (
-                <h1 className="display px-1 pt-6 text-3xl font-semibold sm:text-5xl">台灣現在的電夠不夠？</h1>
-              )}
-              {model && (
-                <div className="grid gap-3 sm:gap-4 lg:grid-cols-12">
-                  <NowPanel model={model} timeLabel={timeLabel} />
-                  <WeekTile curves={curves} model={model} todayKey={todayKey} />
-                  <MixTile model={model} />
-                  <RegionTile areas={curvesForToday?.areas} />
-                </div>
-              )}
-            </div>
-
-            {model ? restModel && (
-              <Suspense fallback={null}>
-                <BelowFold curves={curves} curvesForToday={curvesForToday} model={restModel} todayKey={todayKey} theme={theme} />
-              </Suspense>
-            ) : (
-              <div className="mt-6 space-y-16">
-                <UnavailableState onRetry={refresh} loading={loading} />
-                <Suspense fallback={null}>
-                  <AboutSection />
+            {/* The reference's first screen: a 458px panel of stacked cards
+                beside one large canvas (its map; our reserve-rate chart). */}
+            <div className="grid gap-3 lg:grid-cols-[458px_minmax(0,1fr)] lg:items-start">
+              <div className="lg:rounded-panel lg:border lg:border-border lg:bg-panel lg:p-3">
+                <StatusHero model={model} freshness={freshness} trust={trust} timeLabel={timeLabel} />
+              </div>
+              <div className="relative lg:sticky lg:top-3 lg:h-[calc(100vh-24px)]">
+                <Suspense fallback={<div className="h-[420px] rounded-panel border border-border bg-card lg:h-full" />}>
+                  {restModel ? (
+                    <ReserveTrendCard
+                      curves={curves}
+                      model={restModel}
+                      todayKey={todayKey}
+                      theme={theme}
+                      className="lg:h-full"
+                      chartClassName="h-[300px] lg:h-auto lg:min-h-[320px] lg:flex-1"
+                    />
+                  ) : (
+                    <div className="h-[420px] rounded-panel border border-border bg-card lg:h-full" />
+                  )}
                 </Suspense>
               </div>
+            </div>
+
+            {restModel && (
+              <Suspense fallback={null}>
+                <BelowFold curvesForToday={curvesForToday} model={restModel} theme={theme} />
+              </Suspense>
             )}
           </>
+        ) : (
+          <div className="space-y-3">
+            <h1 className="px-1 pt-3 text-base font-medium">台灣現在的電夠不夠？</h1>
+            <UnavailableState onRetry={refresh} loading={loading} />
+            <Suspense fallback={null}>
+              <AboutSection />
+            </Suspense>
+          </div>
         )}
       </main>
       {/* Held back until the page below the fold exists, so it never jumps. */}

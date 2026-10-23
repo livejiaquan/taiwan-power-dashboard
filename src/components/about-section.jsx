@@ -87,7 +87,7 @@ const DATASETS = [
 export function AboutSection() {
   return (
     <section id="about" aria-labelledby="about-title" className="grid scroll-mt-24 gap-6 lg:grid-cols-12 lg:gap-8">
-      <Card className="p-5 sm:p-8 lg:col-span-7">
+      <Card className="p-4 sm:p-5 lg:col-span-7">
         <h2 id="about-title" className="text-xl font-bold tracking-tight">名詞與資料說明</h2>
         <Accordion.Root type="multiple" className="mt-3 divide-y divide-border">
           {FAQ.map((item) => (
@@ -106,7 +106,7 @@ export function AboutSection() {
         </Accordion.Root>
       </Card>
 
-      <Card className="p-5 sm:p-8 lg:col-span-5">
+      <Card className="p-4 sm:p-5 lg:col-span-5">
         <h2 className="text-xl font-bold tracking-tight">資料來源與下載</h2>
         <p className="mt-2 text-base text-muted-foreground">
           資料提供：台灣電力股份有限公司，依政府資料開放授權條款第 1 版使用。即時資料為速報，台電可能事後修正，正式數據請以台電公告為準。

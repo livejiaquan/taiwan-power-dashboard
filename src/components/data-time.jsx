@@ -55,7 +55,7 @@ export function DataTime({ freshness, trust }) {
   const amber = time.tone === 'amber';
 
   return (
-    <div aria-live="polite" className="mt-4 sm:mt-6">
+    <div aria-live="polite" className="mt-2">
       <div className="flex flex-wrap items-center gap-x-3">
         <p
           className={cn(

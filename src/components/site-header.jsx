@@ -1,15 +1,22 @@
-import { Moon, Pause, Play, RefreshCw, Sun, Zap } from 'lucide-react';
+import { BarChart3, BookOpen, Cpu, ExternalLink, Gauge, LineChart, Moon, Pause, PieChart, Play, RefreshCw, Sun, Zap } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 import { useUnit } from '../lib/units.jsx';
 import { cn } from '../lib/utils.js';
 
 const NAV = [
-  ['#status', '供電狀態'],
-  ['#today', '今日曲線'],
-  ['#trend', '備轉趨勢'],
-  ['#mix', '發電結構'],
-  ['#units', '機組'],
-  ['#about', '說明']
+  ['status', '供電狀態', Gauge],
+  ['today', '今日曲線', LineChart],
+  ['trend', '備轉趨勢', BarChart3],
+  ['mix', '發電結構', PieChart],
+  ['units', '機組', Cpu],
+  ['about', '說明', BookOpen]
+];
+
+const SOURCES = [
+  ['台電今日電力資訊', 'https://www.taipower.com.tw/d006/loadGraph/loadGraph/genshx_.html'],
+  ['政府資料開放平臺', 'https://data.gov.tw/dataset/162595'],
+  ['原始碼（GitHub）', 'https://github.com/livejiaquan/taiwan-power-dashboard']
 ];
 
 function IconButton({ label, onClick, disabled, pressed, children }) {
@@ -28,54 +35,141 @@ function IconButton({ label, onClick, disabled, pressed, children }) {
   );
 }
 
-// Apple-style global bar: translucent, hairline separator, quiet controls.
-export function SiteHeader({ loading, onRefresh, theme, onToggleTheme, autoRefresh, onToggleAutoRefresh }) {
+function Brand() {
+  return (
+    <a href="#top" className="flex h-11 min-w-0 items-center gap-2" aria-label="台灣電力即時看板，回到頁首">
+      <span className="grid size-7 shrink-0 place-items-center rounded-[8px] bg-foreground text-background">
+        <Zap className="size-3.5 fill-[#ffd60a] text-[#ffd60a]" aria-hidden="true" />
+      </span>
+      <span className="truncate text-base font-semibold">台灣電力</span>
+    </a>
+  );
+}
+
+function UnitToggle({ className }) {
   const { unit, setUnit } = useUnit();
+  return (
+    <div className={cn('inline-flex rounded-full border border-border bg-panel p-1', className)} role="group" aria-label="功率單位">
+      {[['wan', '萬瓩'], ['mw', 'MW']].map(([value, label]) => (
+        <button
+          key={value}
+          type="button"
+          aria-pressed={unit === value}
+          onClick={() => setUnit(value)}
+          className={cn(
+            'h-9 flex-1 whitespace-nowrap rounded-full px-3 text-sm font-medium transition pointer-coarse:h-11',
+            unit === value ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'
+          )}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function Controls({ loading, onRefresh, theme, onToggleTheme, autoRefresh, onToggleAutoRefresh }) {
+  return (
+    <>
+      <IconButton label={autoRefresh ? '暫停自動更新' : '恢復自動更新'} onClick={onToggleAutoRefresh} pressed={!autoRefresh}>
+        {autoRefresh ? <Pause className="size-4" aria-hidden="true" /> : <Play className="size-4" aria-hidden="true" />}
+      </IconButton>
+      <IconButton label="立即重新檢查資料" onClick={onRefresh} disabled={loading}>
+        <RefreshCw className={cn('size-4', loading && 'animate-spin')} aria-hidden="true" />
+      </IconButton>
+      <IconButton label={theme === 'dark' ? '切換為淺色模式' : '切換為深色模式'} onClick={onToggleTheme}>
+        {theme === 'dark' ? <Sun className="size-4" aria-hidden="true" /> : <Moon className="size-4" aria-hidden="true" />}
+      </IconButton>
+    </>
+  );
+}
+
+// Highlights the section in view, like the reference's current-page pill.
+function useActiveSection() {
+  const [active, setActive] = useState('status');
+  useEffect(() => {
+    if (typeof IntersectionObserver === 'undefined') return undefined;
+    // The canvas is sticky beside the panel, so several sections can be in
+    // view at once; the first one in page order wins.
+    const visible = new Set();
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => (entry.isIntersecting ? visible.add(entry.target.id) : visible.delete(entry.target.id)));
+      const first = NAV.find(([id]) => visible.has(id));
+      if (first) setActive(first[0]);
+    }, { rootMargin: '-20% 0px -60% 0px' });
+    const watch = () => NAV.forEach(([id]) => {
+      const element = document.getElementById(id);
+      if (element) observer.observe(element);
+    });
+    watch();
+    // Sections below the fold mount later; pick them up once they exist.
+    const mutation = new MutationObserver(watch);
+    mutation.observe(document.body, { childList: true, subtree: true });
+    return () => {
+      observer.disconnect();
+      mutation.disconnect();
+    };
+  }, []);
+  return active;
+}
+
+// Wide screens get the reference's left rail (208px: brand, page sections,
+// a reference list, controls at the foot). Phones keep a slim top bar.
+export function SiteHeader(props) {
+  const active = useActiveSection();
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/72 backdrop-blur-xl backdrop-saturate-150">
-      <div className="mx-auto flex h-14 max-w-[1280px] items-center gap-1 px-4 sm:gap-2 sm:px-6">
-        <a href="#top" className="flex h-11 min-w-0 items-center gap-2" aria-label="台灣電力即時看板，回到頁首">
-          <span className="grid size-7 shrink-0 place-items-center rounded-[9px] bg-foreground text-background">
-            <Zap className="size-3.5 fill-[#ffd60a] text-[#ffd60a]" aria-hidden="true" />
-          </span>
-          <span className="truncate text-base font-bold tracking-tight">台灣電力</span>
-        </a>
-
-        <nav aria-label="頁內導覽" className="mx-auto hidden items-center gap-1 text-sm text-foreground/70 lg:flex">
-          {NAV.map(([href, label]) => (
-            <a key={href} className="inline-flex h-11 items-center rounded-full px-3 transition hover:bg-foreground/[0.06] hover:text-foreground" href={href}>{label}</a>
-          ))}
-        </nav>
-
-        <div className="ml-auto flex items-center gap-1 lg:ml-0">
-          <div className="mr-1 inline-flex rounded-full bg-foreground/[0.06] p-1" role="group" aria-label="功率單位">
-            {[['wan', '萬瓩'], ['mw', 'MW']].map(([value, label]) => (
-              <button
-                key={value}
-                type="button"
-                aria-pressed={unit === value}
-                onClick={() => setUnit(value)}
-                className={cn(
-                  'h-11 rounded-full px-3 text-sm font-bold transition',
-                  unit === value ? 'bg-card text-foreground shadow-sm' : 'text-foreground/75 hover:text-foreground'
-                )}
-              >
-                {label}
-              </button>
+    <>
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[208px] flex-col border-r border-border bg-sidebar px-4 pb-4 pt-2 lg:flex">
+        <Brand />
+        <nav aria-label="頁內導覽" className="mt-4">
+          <ul className="space-y-1">
+            {NAV.map(([id, label, Icon]) => (
+              <li key={id}>
+                <a
+                  href={`#${id}`}
+                  aria-current={active === id ? 'location' : undefined}
+                  className={cn(
+                    'flex h-8 items-center gap-2 rounded-[6px] px-2 text-sm font-semibold transition pointer-coarse:h-11',
+                    active === id ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
+                  )}
+                >
+                  <Icon className="size-4" aria-hidden="true" />
+                  {label}
+                </a>
+              </li>
             ))}
+          </ul>
+        </nav>
+        <p className="mt-6 px-2 text-xs font-medium text-muted-foreground">資料來源</p>
+        <ul className="mt-2 space-y-1">
+          {SOURCES.map(([label, href]) => (
+            <li key={href}>
+              <a href={href} target="_blank" rel="noreferrer" className="flex min-h-8 items-center gap-2 rounded-[6px] px-2 text-sm text-muted-foreground hover:bg-muted/60 hover:text-foreground pointer-coarse:min-h-11">
+                <ExternalLink className="size-4 shrink-0" aria-hidden="true" />
+                {label}
+                <span className="sr-only">（另開新視窗）</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-auto space-y-2">
+          <UnitToggle className="flex w-full" />
+          <div className="flex items-center justify-between">
+            <Controls {...props} />
           </div>
-          <IconButton label={autoRefresh ? '暫停自動更新' : '恢復自動更新'} onClick={onToggleAutoRefresh} pressed={!autoRefresh}>
-            {autoRefresh ? <Pause className="size-4" aria-hidden="true" /> : <Play className="size-4" aria-hidden="true" />}
-          </IconButton>
-          <IconButton label="立即重新檢查資料" onClick={onRefresh} disabled={loading}>
-            <RefreshCw className={cn('size-4', loading && 'animate-spin')} aria-hidden="true" />
-          </IconButton>
-          <IconButton label={theme === 'dark' ? '切換為淺色模式' : '切換為深色模式'} onClick={onToggleTheme}>
-            {theme === 'dark' ? <Sun className="size-4" aria-hidden="true" /> : <Moon className="size-4" aria-hidden="true" />}
-          </IconButton>
         </div>
-      </div>
-    </header>
+      </aside>
+
+      <header className="sticky top-0 z-40 border-b border-border bg-sidebar lg:hidden">
+        <div className="flex h-14 items-center gap-1 px-3">
+          <Brand />
+          <div className="ml-auto flex items-center gap-1">
+            <UnitToggle className="mr-1" />
+            <Controls {...props} />
+          </div>
+        </div>
+      </header>
+    </>
   );
 }
