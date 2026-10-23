@@ -19,9 +19,9 @@ export function SiteFooter() {
         <div>
           <p className="font-bold text-foreground">說明</p>
           <p className="mt-2">
-            資料提供：台灣電力股份有限公司。本產品與資料提供機關無隸屬關係，亦不代表台電背書。原始碼以 MIT License 公開於
-            {' '}<a className="underline hover:text-foreground" href="https://github.com/livejiaquan/taiwan-power-dashboard" target="_blank" rel="noreferrer">GitHub</a>。
+            資料提供：台灣電力股份有限公司。本產品與資料提供機關無隸屬關係，亦不代表台電背書。
           </p>
+          <p className="mt-4">© 2026 Lim Jia Quan</p>
         </div>
       </div>
     </footer>
