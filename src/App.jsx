@@ -56,8 +56,8 @@ function Dashboard() {
           <LoadingState />
         ) : model ? (
           <>
-            {/* The reference's first screen: a 458px panel of stacked cards
-                beside one large canvas (its map; our reserve-rate chart). */}
+            {/* First screen: a 458px panel of stacked cards beside one large canvas
+                (the reserve-rate trend chart). */}
             <div className="grid gap-3 lg:grid-cols-[458px_minmax(0,1fr)] lg:items-start">
               <div className="lg:rounded-panel lg:border lg:border-border lg:bg-panel lg:p-3">
                 <StatusHero model={model} freshness={freshness} trust={trust} timeLabel={timeLabel} />

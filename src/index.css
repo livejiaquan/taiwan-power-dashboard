@@ -2,9 +2,8 @@
 
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
-/* Design tokens. Layering follows Electricity Maps (docs/references/tokens.md):
-   page → sidebar → translucent panel → cards, hairline borders, 16px corners.
-   Dark is the default like the reference; a stored choice wins. */
+/* Design tokens. Layers: page → sidebar → panel → cards, with hairline borders
+   and 16px corners. Dark is the default; a stored choice wins. */
 :root {
   --background: #f3f4f6;
   --foreground: #111418;
@@ -141,7 +140,7 @@
   --panel: #161d26;
 }
 
-/* Design language (see docs/design-research.md#設計語言). Three radii encode
+/* Design language (see docs/design-notes.md). Three radii encode
    hierarchy: the hero is the only 28px surface, panels are 20px, controls
    12px. One easing curve for every state change. */
 @theme {
@@ -263,7 +262,7 @@
 }
 
 /* One icon set, one stroke: every Lucide icon draws at 1.75 with round caps
-   and joins (docs/brand/icons.md). The brand mark keeps its own stroke of 2. */
+   and joins (docs/design-notes.md). The brand mark keeps its own stroke of 2. */
 svg.lucide {
   stroke-width: 1.75;
   stroke-linecap: round;

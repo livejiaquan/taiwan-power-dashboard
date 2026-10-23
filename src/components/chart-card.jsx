@@ -7,8 +7,8 @@ import { cn } from '../lib/utils.js';
 
 // Every chart ships with the same furniture (NESO/OWID practice): a one-line
 // plain-language summary, its data time, a table view of the exact numbers and
-// a CSV download. The frame follows the reference's cards: title and controls
-// inside one hairline card, 16px corners.
+// a CSV download. Title and controls live inside one hairline card with 16px
+// corners.
 export function ChartCard({
   id,
   title,
