@@ -2,17 +2,16 @@ import { useId } from 'react';
 
 import { cn } from '../lib/utils.js';
 
-// Editorial section: the heading and one-line explanation sit on the page,
-// not inside the card, so each block reads as a short story with room to
-// breathe (grid.iamkate / Our World in Data practice).
+// A group of cards under one quiet heading, sized like the reference's card
+// titles so section heads never compete with the answer.
 export function Section({ id, title, summary, actions, children, className }) {
   const headingId = useId();
   return (
-    <section id={id} aria-labelledby={headingId} className={cn('scroll-mt-24', className)}>
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-4 sm:mb-6">
+    <section id={id} aria-labelledby={headingId} className={cn('scroll-mt-20', className)}>
+      <div className="mb-3 flex flex-wrap items-end justify-between gap-x-6 gap-y-3 px-1">
         <div className="max-w-2xl">
-          <h2 id={headingId} className="display text-2xl font-bold sm:text-3xl">{title}</h2>
-          {summary && <p className="mt-2 text-pretty text-base leading-7 text-muted-foreground sm:text-lg">{summary}</p>}
+          <h2 id={headingId} className="text-base font-medium">{title}</h2>
+          {summary && <p className="mt-1 text-pretty text-sm text-muted-foreground">{summary}</p>}
         </div>
         {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
       </div>

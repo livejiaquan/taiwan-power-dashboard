@@ -2,14 +2,14 @@ import { CloudOff, ExternalLink, RefreshCw } from 'lucide-react';
 
 import { Card } from './ui/card.jsx';
 
-// Mirrors the first screen (signal-board hero and "now" panel)
-// so nothing jumps when the validated data arrives. index.html paints the same
+// Mirrors the first screen (panel of cards beside the chart canvas) so
+// nothing jumps when the validated data arrives. index.html paints the same
 // blocks before the app bundle runs.
 export function LoadingState() {
   return (
-    <div className="space-y-3 sm:space-y-4" aria-busy="true" aria-label="正在驗證台電資料">
-      <div className="h-[820px] animate-pulse rounded-hero bg-muted sm:h-[760px] lg:h-[440px]" />
-      <div className="h-[268px] animate-pulse rounded-panel bg-muted lg:h-[180px]" />
+    <div className="grid gap-3 lg:grid-cols-[458px_minmax(0,1fr)]" aria-busy="true" aria-label="正在驗證台電資料">
+      <div className="h-[1100px] animate-pulse rounded-panel bg-panel" />
+      <div className="hidden h-[calc(100vh-24px)] animate-pulse rounded-panel bg-card lg:block" />
       <p className="sr-only">正在驗證台電資料時間與來源…</p>
     </div>
   );
@@ -17,7 +17,7 @@ export function LoadingState() {
 
 export function UnavailableState({ onRetry, loading }) {
   return (
-    <Card className="px-5 py-12 text-center sm:px-8">
+    <Card className="px-4 py-12 text-center sm:px-5">
       <CloudOff className="mx-auto size-10 text-status-r" aria-hidden="true" />
       <h2 className="mt-4 text-lg font-bold">目前無法確認供電狀態</h2>
       <p className="mx-auto mt-2 max-w-md text-base text-muted-foreground">

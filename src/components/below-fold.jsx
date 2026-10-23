@@ -9,11 +9,10 @@ import { UnitExplorer } from './unit-explorer.jsx';
 
 // Everything below the first screen lives in its own chunk, so the first
 // screen's bundle stays small and this code loads while the status paints.
-export default function BelowFold({ curves, curvesForToday, model, todayKey, theme }) {
+export default function BelowFold({ curvesForToday, model, theme }) {
   return (
-    <div className="mt-16 space-y-16 sm:mt-16 sm:space-y-16">
+    <div className="mt-3 space-y-3 lg:mt-4 lg:space-y-4">
       <TodayCurveCard curves={curvesForToday} model={model} theme={theme} />
-      <ReserveTrendCard curves={curves} model={model} todayKey={todayKey} theme={theme} />
       <FuelBreakdown model={model} theme={theme} />
       <Section
         id="units"
@@ -34,4 +33,4 @@ export default function BelowFold({ curves, curvesForToday, model, todayKey, the
   );
 }
 
-export { AboutSection, SiteFooter };
+export { AboutSection, ReserveTrendCard, SiteFooter };

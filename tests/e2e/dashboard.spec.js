@@ -74,7 +74,7 @@ test('untrustworthy timestamps show an error card but keep the page around it', 
   await page.goto('/');
   await expect(page.getByRole('heading', { name: '目前無法確認供電狀態' }).first()).toBeVisible();
   await expect(page.getByRole('meter')).toHaveCount(0);
-  await expect(page.locator('header')).toBeVisible();
+  await expect(page.getByRole('link', { name: /回到頁首/ })).toBeVisible();
   await expect(page.locator('#about')).toBeVisible();
   await expectNoAxeViolations(page);
 });
