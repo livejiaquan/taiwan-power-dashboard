@@ -28,7 +28,7 @@ const FAQ = [
             return (
               <li key={level.code} className="flex items-center gap-3">
                 <span className="grid size-6 shrink-0 place-items-center rounded-full" style={statusSurface(level.token)}>
-                  <Icon className="size-3.5" aria-hidden="true" />
+                  <Icon className="size-4" aria-hidden="true" />
                 </span>
                 <span className="w-24 shrink-0 font-semibold text-foreground">{level.name}・{level.label}</span>
                 <span className="num">{level.rule}</span>
@@ -95,7 +95,7 @@ export function AboutSection() {
               <Accordion.Header>
                 <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 py-5 text-left text-base font-semibold hover:text-accent">
                   {item.question}
-                  <ChevronDown className="size-4 shrink-0 text-muted-foreground transition group-data-[state=open]:rotate-180" aria-hidden="true" />
+                  <ChevronDown className="size-5 shrink-0 text-muted-foreground transition group-data-[state=open]:rotate-180" aria-hidden="true" />
                 </Accordion.Trigger>
               </Accordion.Header>
               <Accordion.Content className="space-y-3 pb-6 text-base text-muted-foreground">
@@ -116,7 +116,7 @@ export function AboutSection() {
             <li key={url} className="flex items-center justify-between gap-4 py-2">
               <a href={url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 min-w-0 items-center gap-2 font-semibold hover:text-accent hover:underline">
                 <span className="truncate">{name}</span>
-                <ExternalLink className="size-3 shrink-0" aria-hidden="true" />
+                <ExternalLink className="size-4 shrink-0" aria-hidden="true" />
                 <span className="sr-only">（另開新視窗）</span>
               </a>
               <span className="shrink-0 text-xs text-muted-foreground">{cadence}</span>
@@ -125,10 +125,10 @@ export function AboutSection() {
         </ul>
         <div className="mt-4 flex flex-wrap gap-2">
           <a href="api/power-data.json" className="inline-flex h-9 items-center gap-2 rounded-lg pointer-coarse:h-11 border border-border bg-card px-3 text-sm font-semibold hover:bg-muted">
-            <Download className="size-3.5" aria-hidden="true" />本站快照 JSON
+            <Download className="size-5" aria-hidden="true" />本站快照 JSON
           </a>
           <a href="api/curves.json" className="inline-flex h-9 items-center gap-2 rounded-lg pointer-coarse:h-11 border border-border bg-card px-3 text-sm font-semibold hover:bg-muted">
-            <Download className="size-3.5" aria-hidden="true" />曲線資料 JSON
+            <Download className="size-5" aria-hidden="true" />曲線資料 JSON
           </a>
         </div>
       </Card>

@@ -1,4 +1,4 @@
-import { BarChart3, BookOpen, Cpu, ExternalLink, Gauge, LineChart, Moon, Pause, PieChart, Play, RefreshCw, Sun, Zap } from 'lucide-react';
+import { BarChart3, BookOpen, Cpu, ExternalLink, Gauge, LineChart, Moon, Pause, PieChart, Play, RefreshCw, Sun } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { useUnit } from '../lib/units.jsx';
@@ -15,8 +15,8 @@ const NAV = [
 
 const SOURCES = [
   ['台電今日電力資訊', 'https://www.taipower.com.tw/d006/loadGraph/loadGraph/genshx_.html'],
-  ['政府資料開放平臺', 'https://data.gov.tw/dataset/162595'],
-  ['原始碼（GitHub）', 'https://github.com/livejiaquan/taiwan-power-dashboard']
+  ['今日電力資訊資料集', 'https://data.gov.tw/dataset/162595'],
+  ['各機組發電量資料集', 'https://data.gov.tw/dataset/8931']
 ];
 
 function IconButton({ label, onClick, disabled, pressed, children }) {
@@ -35,13 +35,17 @@ function IconButton({ label, onClick, disabled, pressed, children }) {
   );
 }
 
-function Brand() {
+// Brand mark (public/brand/mark.svg) plus wordmark: the same structure across
+// the author's dashboards, only the icon and accent change.
+function Brand({ subtitle = true }) {
   return (
-    <a href="#top" className="flex h-11 min-w-0 items-center gap-2" aria-label="台灣電力即時看板，回到頁首">
-      <span className="grid size-7 shrink-0 place-items-center rounded-[8px] bg-foreground text-background">
-        <Zap className="size-3.5 fill-[#ffd60a] text-[#ffd60a]" aria-hidden="true" />
+    <a href="#top" className="flex min-h-11 shrink-0 items-center gap-[10px]">
+      <img src="brand/mark.svg" alt="" width="32" height="32" className="size-8 shrink-0" />
+      <span className="min-w-0 leading-tight">
+        <span className="block truncate text-base font-semibold tracking-[-0.01em]">台灣電力</span>
+        {subtitle && <span className="block truncate text-xs font-medium text-muted-foreground">即時供電看板</span>}
       </span>
-      <span className="truncate text-base font-semibold">台灣電力</span>
+      <span className="sr-only">，回到頁首</span>
     </a>
   );
 }
@@ -57,7 +61,7 @@ function UnitToggle({ className }) {
           aria-pressed={unit === value}
           onClick={() => setUnit(value)}
           className={cn(
-            'h-9 flex-1 whitespace-nowrap rounded-full px-3 text-sm font-medium transition pointer-coarse:h-11',
+            'h-9 flex-1 whitespace-nowrap rounded-full px-2 text-sm font-medium transition pointer-coarse:h-11 lg:px-3',
             unit === value ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'
           )}
         >
@@ -72,13 +76,13 @@ function Controls({ loading, onRefresh, theme, onToggleTheme, autoRefresh, onTog
   return (
     <>
       <IconButton label={autoRefresh ? '暫停自動更新' : '恢復自動更新'} onClick={onToggleAutoRefresh} pressed={!autoRefresh}>
-        {autoRefresh ? <Pause className="size-4" aria-hidden="true" /> : <Play className="size-4" aria-hidden="true" />}
+        {autoRefresh ? <Pause className="size-5" aria-hidden="true" /> : <Play className="size-5" aria-hidden="true" />}
       </IconButton>
       <IconButton label="立即重新檢查資料" onClick={onRefresh} disabled={loading}>
-        <RefreshCw className={cn('size-4', loading && 'animate-spin')} aria-hidden="true" />
+        <RefreshCw className={cn('size-5', loading && 'animate-spin')} aria-hidden="true" />
       </IconButton>
       <IconButton label={theme === 'dark' ? '切換為淺色模式' : '切換為深色模式'} onClick={onToggleTheme}>
-        {theme === 'dark' ? <Sun className="size-4" aria-hidden="true" /> : <Moon className="size-4" aria-hidden="true" />}
+        {theme === 'dark' ? <Sun className="size-5" aria-hidden="true" /> : <Moon className="size-5" aria-hidden="true" />}
       </IconButton>
     </>
   );
@@ -134,7 +138,7 @@ export function SiteHeader(props) {
                     active === id ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
                   )}
                 >
-                  <Icon className="size-4" aria-hidden="true" />
+                  <Icon className="size-6" aria-hidden="true" />
                   {label}
                 </a>
               </li>
@@ -163,9 +167,9 @@ export function SiteHeader(props) {
 
       <header className="sticky top-0 z-40 border-b border-border bg-sidebar lg:hidden">
         <div className="flex h-14 items-center gap-1 px-3">
-          <Brand />
+          <Brand subtitle={false} />
           <div className="ml-auto flex items-center gap-1">
-            <UnitToggle className="mr-1" />
+            <UnitToggle />
             <Controls {...props} />
           </div>
         </div>

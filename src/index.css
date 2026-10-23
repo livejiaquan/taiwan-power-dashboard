@@ -262,6 +262,14 @@
   }
 }
 
+/* One icon set, one stroke: every Lucide icon draws at 1.75 with round caps
+   and joins (docs/brand/icons.md). The brand mark keeps its own stroke of 2. */
+svg.lucide {
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 @utility num {
   font-family: var(--font-num);
   font-variant-numeric: tabular-nums;

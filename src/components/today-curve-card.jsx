@@ -235,7 +235,7 @@ export function TodayCurveCard({ curves, model, theme, now = new Date() }) {
             className="inline-flex h-11 shrink-0 items-center gap-2 self-start rounded-xl bg-foreground px-4 text-sm font-semibold text-background hover:opacity-90 sm:self-auto"
           >
             台電今日用電曲線
-            <ExternalLink className="size-3.5" aria-hidden="true" />
+            <ExternalLink className="size-4" aria-hidden="true" />
             <span className="sr-only">（另開新視窗）</span>
           </a>
         </div>

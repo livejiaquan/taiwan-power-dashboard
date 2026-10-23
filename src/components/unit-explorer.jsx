@@ -70,7 +70,7 @@ export function UnitExplorer({ model }) {
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
           <label className="relative block lg:w-72">
             <span className="sr-only">搜尋機組</span>
-            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-subtle-foreground" aria-hidden="true" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-subtle-foreground" aria-hidden="true" />
             <input
               type="search"
               value={query}
@@ -91,7 +91,7 @@ export function UnitExplorer({ model }) {
               {Object.entries(SORTS).map(([key, value]) => <option key={key} value={key}>{value.label}</option>)}
             </select>
             <FilterChip active={notesOnly} onClick={() => { setNotesOnly((value) => !value); setExpanded(false); }}>
-              <Wrench className="size-3" aria-hidden="true" />
+              <Wrench className="size-4" aria-hidden="true" />
               有備註 {noteCount}
             </FilterChip>
           </div>
@@ -185,7 +185,7 @@ export function UnitExplorer({ model }) {
                     <td className="py-4 pl-2 pr-4 sm:pr-0">
                       {hasNote(unit) ? (
                         <span className="inline-flex max-w-[180px] items-center gap-1 truncate rounded-md bg-muted px-2 py-1 text-sm text-muted-foreground" title={unit.note}>
-                          <Wrench className="size-3 shrink-0" aria-hidden="true" />
+                          <Wrench className="size-4 shrink-0" aria-hidden="true" />
                           {unit.note}
                         </span>
                       ) : null}

@@ -52,7 +52,7 @@ export function ConstrainedUnits({ model }) {
                         </p>
                       </div>
                       <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-muted px-2 py-1 text-sm font-semibold text-muted-foreground">
-                        <Wrench className="size-3" aria-hidden="true" />
+                        <Wrench className="size-4" aria-hidden="true" />
                         {unit.note}
                       </span>
                     </div>

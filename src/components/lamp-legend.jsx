@@ -46,8 +46,8 @@ function Lamp({ level, active, snapshot }) {
         )}
         {active && (
           <Icon
-            className={cn('relative size-[42%]', level.token === 'b' ? 'text-white' : 'text-[#0b131c]/80')}
-            strokeWidth={2.4}
+            className={cn('relative size-4', level.token === 'b' ? 'text-white' : 'text-[#0b131c]/80')}
+            aria-hidden="true"
           />
         )}
       </span>
