@@ -105,7 +105,7 @@ test('visibility, focus, and pageshow events immediately re-age rendered freshne
   controller.start();
   await flushTurns();
 
-  assert.equal(trust().title, '官方資料已確認');
+  assert.equal(trust().title, '資料即時');
   assert.match(trust().message, /官方燈號：G · 供電充裕/);
   assert.equal(controller.getSnapshot().ready, true);
   assert.ok(controller.getSnapshot().result.model);
@@ -116,15 +116,15 @@ test('visibility, focus, and pageshow events immediately re-age rendered freshne
   assert.equal(windowListeners.has('beforeunload'), false);
   assert.deepEqual(fetchedUrls, ['api/power-data.json']);
 
-  currentNowMs = sourceTime.getTime() + 20 * MINUTE_MS + 1;
+  currentNowMs = sourceTime.getTime() + 90 * MINUTE_MS + 1;
   fakeDocument.visibilityState = 'hidden';
   documentListeners.get('visibilitychange')();
-  assert.equal(trust().title, '官方資料已確認');
+  assert.equal(trust().title, '資料即時');
 
   fakeDocument.visibilityState = 'visible';
   documentListeners.get('visibilitychange')();
-  assert.equal(trust().title, '資料延遲 21 分鐘');
-  assert.match(trust().message, /最後成功快照的官方燈號：G · 供電充裕/);
+  assert.equal(trust().title, '資料稍舊 · 1 小時前');
+  assert.match(trust().message, /最後更新時的官方燈號：G · 供電充裕/);
 
   const autoRefresh = intervals.find(({ delay }) => delay === 600_000).callback;
   autoRefresh();
@@ -149,16 +149,17 @@ test('visibility, focus, and pageshow events immediately re-age rendered freshne
   assert.doesNotMatch(trust().message, /已重新檢查，官方來源時間尚未更新/);
   assert.ok(controller.getSnapshot().result.model);
 
-  currentNowMs = sourceTime.getTime() + 60 * MINUTE_MS + 1;
+  currentNowMs = sourceTime.getTime() + 6 * HOUR_MS + 1;
   windowListeners.get('focus')();
-  assert.equal(trust().title, '非即時快照 · 61 分鐘前');
-  assert.match(trust().message, /最後成功快照的官方燈號：G · 供電充裕/);
+  assert.equal(trust().title, '資料過舊 · 6 小時前');
+  assert.match(trust().message, /最後更新時的官方燈號：G · 供電充裕/);
 
+  // Past a day the last official data stays on screen, labelled by its age.
   currentNowMs = sourceTime.getTime() + 24 * HOUR_MS + 1;
   windowListeners.get('pageshow')();
-  assert.equal(trust().title, '目前無法確認供電狀態');
-  assert.doesNotMatch(trust().message, /官方燈號/);
-  assert.equal(controller.getSnapshot().result.model, null);
+  assert.equal(trust().title, '超過 24 小時的資料 · 24 小時前');
+  assert.match(trust().message, /最後更新時的官方燈號：G · 供電充裕/);
+  assert.ok(controller.getSnapshot().result.model);
 });
 
 test('pausing auto refresh stops network polling but not freshness re-aging', async (t) => {
@@ -192,7 +193,7 @@ test('pausing auto refresh stops network polling but not freshness re-aging', as
   controller.stop();
 });
 
-test('reserve headline is qualified by freshness and greys out stale snapshots', async () => {
+test('reserve headline keeps its colour up to six hours and turns neutral after', async () => {
   const { describeReserveStatus } = await import('../js/dashboard-presenter.js');
   const model = {
     health: { level: 'stable', labelZh: '供電充裕', color: '#059669' },
@@ -207,10 +208,39 @@ test('reserve headline is qualified by freshness and greys out stale snapshots',
   };
 
   assert.equal(describeReserveStatus(model, { state: 'live' }).headline, '供電充裕');
-  assert.equal(describeReserveStatus(model, { state: 'delayed' }).headline, '延遲資料：供電充裕');
-  const stale = describeReserveStatus(model, { state: 'stale' });
-  assert.equal(stale.headline, '最後快照：供電充裕');
-  assert.equal(stale.color, '#64748b');
-  assert.match(stale.ariaValueText, /^最後快照，非即時，21\.3%，官方 G 燈/);
+  const delayed = describeReserveStatus(model, { state: 'delayed' });
+  assert.equal(delayed.headline, '供電充裕');
+  assert.equal(delayed.muted, false);
+  for (const state of ['stale', 'expired']) {
+    const old = describeReserveStatus(model, { state });
+    assert.equal(old.headline, '最後更新時：供電充裕', state);
+    assert.equal(old.color, '#64748b', state);
+    assert.equal(old.muted, true, state);
+    assert.match(old.ariaValueText, /^最後更新時，21\.3%，官方 G 燈/, state);
+  }
   assert.equal(describeReserveStatus(model, { state: 'live' }).marginText, '+11.3pp');
+});
+
+test('data time label merges both feeds and follows the three-tier wording', async () => {
+  const { describeDataTime, formatDataAge } = await import('../js/dashboard-presenter.js');
+  const at = new Date('2026-10-22T10:30:00.000Z'); // 18:30 Asia/Taipei
+  const label = (state, ageMinutes) => describeDataTime({ state, oldestObservedAt: at, ageMinutes });
+
+  assert.deepEqual(
+    { ...label('live', 30), label: label('live', 30).label },
+    { tier: 'live', tierLabel: '即時', tone: 'live', label: '資料時間 18:30 · 30 分鐘前', note: null, showOfficialLink: false }
+  );
+  assert.equal(label('delayed', 180).label, '資料時間 18:30 · 3 小時前');
+  assert.equal(label('delayed', 180).tone, 'amber');
+  assert.equal(label('delayed', 180).note, null);
+  assert.match(label('stale', 480).note, /^GitHub 排程延遲，最後成功更新 18:30。本站每 3–4 小時更新一次/);
+  assert.equal(label('stale', 480).showOfficialLink, true);
+  assert.equal(label('expired', 1800).label, '資料時間 10/22 18:30 · 30 小時前');
+  assert.match(label('expired', 1800).note, /^這是 24 小時前的資料。/);
+  assert.equal(describeDataTime({ state: 'unavailable', oldestObservedAt: at, ageMinutes: 5 }), null);
+
+  assert.equal(formatDataAge(59), '59 分鐘前');
+  assert.equal(formatDataAge(60), '1 小時前');
+  assert.equal(formatDataAge(48 * 60 - 1), '47 小時前');
+  assert.equal(formatDataAge(48 * 60), '2 天前');
 });

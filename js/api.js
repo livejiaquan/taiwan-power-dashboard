@@ -6,7 +6,9 @@ import { assessDataFreshness, compareFreshnessState } from './data-freshness.js'
 
 const CACHE_KEY = 'taiwan_power_dashboard_cache';
 const CACHE_TTL_MS = 10 * 60 * 1000;
-const STALE_TTL_MS = 24 * 60 * 60 * 1000;
+// The browser keeps the last good snapshot for a week so a failed refresh still
+// shows data (labelled by its source age) instead of an error card.
+const STALE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const REQUEST_TIMEOUT_MS = 8 * 1000;
 const CURRENT_SCHEMA_VERSION = 2;
 const OFFICIAL_MODEL_SOURCES = new Set([

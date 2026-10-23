@@ -34,7 +34,7 @@
 | 類別 | 需求 | 驗證方式 |
 | --- | --- | --- |
 | 正確性 | 只顯示通過驗證的台電資料；不以 sample、建置時間或瀏覽器時間製造即時感 | `node --test` 資料信任測試（[`DATA_TRUST_CONTRACT.md`](DATA_TRUST_CONTRACT.md)） |
-| 時效透明 | live／delayed／stale／unavailable 依來源時間判定，每 15 秒重算，「非即時」標示在所有主要指標之前 | Playwright e2e（四種狀態） |
+| 時效透明 | 即時／稍舊／過舊／超過 24 小時依來源時間在瀏覽器判定，每 15 秒重算；資料時間標示緊貼主焦點，過期只標示不警告 | 單元測試（邊界）、Playwright e2e |
 | 效能 | 行動版 Lighthouse Performance ≥ 90、首屏不依賴圖表函式庫、CLS ≈ 0 | Lighthouse（見 PR 紀錄） |
 | 無障礙 | WCAG 2.1 AA：文字對比 ≥ 4.5:1、狀態不只靠顏色、觸控目標 ≥ 44px、可暫停自動更新、每張圖有表格替代 | axe（CI）、對比計算、手動檢查 |
 | 相容 | 320px 無橫向捲動；淺色／深色；`prefers-reduced-motion` | e2e、手動 |

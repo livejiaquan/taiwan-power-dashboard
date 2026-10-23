@@ -2,6 +2,7 @@ import { describeReserveStatus, formatNumber } from '../../js/dashboard-presente
 import { levelFor, RESERVE_LEVELS } from '../lib/status.js';
 import { useUnit } from '../lib/units.jsx';
 import { cn } from '../lib/utils.js';
+import { DataTime } from './data-time.jsx';
 
 // Lamp colours are fixed: the housing is always dark, like a real signal head,
 // so the lamps read the same in light and dark themes.
@@ -95,14 +96,13 @@ function Stat({ label, value }) {
   );
 }
 
-export function StatusHero({ model, freshness }) {
+export function StatusHero({ model, freshness, trust }) {
   const { power } = useUnit();
   const status = describeReserveStatus(model, freshness);
   const level = levelFor(status.indicator);
   const Icon = level?.icon;
   const snapshot = status.muted;
   const { metrics, supply } = model;
-  const qualifier = snapshot ? '非即時' : status.modeLabel === '延遲' ? '延遲資料' : null;
 
   return (
     <section
@@ -113,12 +113,8 @@ export function StatusHero({ model, freshness }) {
       <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)]">
         <div className="min-w-0 px-5 pb-8 pt-6 sm:p-8">
           <h1 id="hero-title" className="text-base font-semibold text-muted-foreground">台灣現在的電夠不夠？</h1>
-          <p className="mt-4 flex flex-wrap items-center gap-2 text-sm text-muted-foreground sm:mt-8">
-            {qualifier && (
-              <span className="rounded-md bg-foreground px-2 py-1 text-sm font-semibold text-background">{qualifier}</span>
-            )}
-            {status.contextLabel}
-          </p>
+          <DataTime freshness={freshness} trust={trust} />
+          <p className="mt-6 text-sm text-muted-foreground">{status.contextLabel}</p>
           <p className="mt-2 flex items-center gap-3 text-2xl font-bold">
             {Icon && (
               <span
@@ -151,9 +147,9 @@ export function StatusHero({ model, freshness }) {
         <div className="flex flex-col justify-center border-t border-border px-5 py-8 sm:p-8 lg:border-l lg:border-t-0">
           <div
             role="img"
-            aria-label={`台電官方五級燈號，${snapshot ? '最後快照時為' : '目前為'}${level ? level.name : '未知'}`}
+            aria-label={`台電官方五級燈號，${snapshot ? '最後更新時為' : '目前為'}${level ? level.name : '未知'}`}
           >
-            <p className="text-sm font-semibold text-muted-foreground">台電供電燈號{snapshot && '（最後快照）'}</p>
+            <p className="text-sm font-semibold text-muted-foreground">台電供電燈號{snapshot && '（最後更新時）'}</p>
             <ol className="mt-4 grid grid-cols-5 gap-3 rounded-panel bg-[#0e1823] p-4 ring-1 ring-black/5 sm:gap-4 dark:bg-[#08101a] dark:ring-white/[0.06]">
               {RESERVE_LEVELS.map((item) => (
                 <Lamp key={item.code} level={item} active={item.code === level?.code} snapshot={snapshot} />
