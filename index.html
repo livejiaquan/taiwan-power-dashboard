@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>台灣電力即時看板</title>
+    <meta name="description" content="以台電官方開放資料呈現台灣即時供電狀態、備轉容量率燈號、發電結構與機組輸出，並清楚標示資料時間。" />
+    <meta name="theme-color" content="#0b0f14" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0b0f14" media="(prefers-color-scheme: dark)" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="zh_TW" />
+    <meta property="og:title" content="台灣電力即時看板" />
+    <meta property="og:description" content="台電官方資料：今日供電燈號、備轉容量率、發電結構與機組輸出。" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <script>
+      try {
+        const saved = localStorage.getItem('tpd-theme');
+        document.documentElement.dataset.theme = saved === 'light' ? 'light' : 'dark';
+      } catch {
+        document.documentElement.dataset.theme = 'dark';
+      }
+    </script>
+    <script type="module" crossorigin src="./assets/index-BKU9M5nI.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/jsx-runtime-Wy9s6hX0.js">
+    <link rel="stylesheet" crossorigin href="./assets/index-z7ew-Njg.css">
+    <link rel="preload" href="api/power-data.json" as="fetch" crossorigin="anonymous">
+  </head>
+  <body>
+    <div id="root">
+      <!-- First paint before the app bundle runs; React replaces it with the
+           same header height and skeleton blocks. -->
+      <div class="min-h-screen lg:pl-[208px]">
+        <div class="fixed inset-y-0 left-0 hidden w-[208px] border-r border-border bg-sidebar lg:block"></div>
+        <div class="sticky top-0 z-40 flex h-14 items-center gap-[10px] border-b border-border bg-sidebar px-3 lg:hidden">
+          <img src="brand/mark.svg" alt="" width="32" height="32" class="size-8" />
+          <span class="text-base font-semibold tracking-[-0.01em]">台灣電力</span>
+        </div>
+        <main class="px-3 pt-3">
+          <div class="grid gap-3 lg:grid-cols-[458px_minmax(0,1fr)]" aria-busy="true">
+            <div class="h-[1100px] rounded-panel bg-panel"></div>
+            <div class="hidden h-[calc(100vh-24px)] rounded-panel bg-card lg:block"></div>
+            <p class="sr-only">正在載入台電資料…</p>
+          </div>
+        </main>
+      </div>
+    </div>
+    <noscript>此看板需要啟用 JavaScript 才能讀取台電官方資料。</noscript>
+  </body>
+</html>
